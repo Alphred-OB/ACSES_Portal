@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Models\PendingRegistration;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,5 +24,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Blade::componentNamespace('App\View\Components', 'app');
         Blade::anonymousComponentNamespace('layouts', 'layouts');
+
+        // Route model binding for PendingRegistration
+        Route::model('registration', PendingRegistration::class);
     }
 }

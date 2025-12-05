@@ -84,11 +84,42 @@
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                 <i class="ri-mail-line text-lg" aria-hidden="true"></i>
                             </span>
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="you@example.com" />
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="cy-yourname@st.umat.edu.gh" />
                         </div>
                         @error('email')
                             <p class="text-sm text-red-600">{{ $message }}</p>
                         @enderror
+
+                        {{-- Email verification notice --}}
+                        <div id="email-verification-notice" class="hidden rounded-xl border p-3 text-xs">
+                            <div id="school-email-notice" class="hidden">
+                                <div class="flex items-start gap-2 text-emerald-700">
+                                    <i class="ri-shield-check-line text-base mt-0.5"></i>
+                                    <div>
+                                        <p class="font-semibold">School Email Detected</p>
+                                        <p class="text-emerald-600">You'll receive a quick email verification code to activate your account instantly.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="non-school-email-notice" class="hidden">
+                                <div class="flex items-start gap-2 text-amber-700">
+                                    <i class="ri-user-search-line text-base mt-0.5"></i>
+                                    <div>
+                                        <p class="font-semibold">Manual Verification Required</p>
+                                        <p class="text-amber-600">Non-school emails require admin approval. You'll receive an email once your application is reviewed (usually 1-2 business days).</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="email-mismatch-notice" class="hidden">
+                                <div class="flex items-start gap-2 text-rose-700">
+                                    <i class="ri-error-warning-line text-base mt-0.5"></i>
+                                    <div>
+                                        <p class="font-semibold">Program Mismatch</p>
+                                        <p class="text-rose-600" id="mismatch-message"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="space-y-2">
@@ -281,4 +312,86 @@
             <p class="text-sm font-medium text-slate-700">Creating your account…</p>
         </div>
     </div>
+
+    {{-- Email validation script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const classSelect = document.getElementById('class');
+            const noticeContainer = document.getElementById('email-verification-notice');
+            const schoolEmailNotice = document.getElementById('school-email-notice');
+            const nonSchoolEmailNotice = document.getElementById('non-school-email-notice');
+            const mismatchNotice = document.getElementById('email-mismatch-notice');
+            const mismatchMessage = document.getElementById('mismatch-message');
+
+            const SCHOOL_DOMAIN = 'st.umat.edu.gh';
+            const CLASS_PREFIXES = {
+                'cy': 'Cyber Security',
+                'is': 'Information System',
+                'ce': 'Computer Science'
+            };
+
+            function validateEmail() {
+                const email = emailInput.value.trim().toLowerCase();
+                const selectedClass = classSelect.value;
+
+                // Hide all notices first
+                noticeContainer.classList.add('hidden');
+                schoolEmailNotice.classList.add('hidden');
+                nonSchoolEmailNotice.classList.add('hidden');
+                mismatchNotice.classList.add('hidden');
+
+                if (!email || !email.includes('@')) {
+                    return;
+                }
+
+                const domain = email.split('@')[1] || '';
+                const isSchoolEmail = domain === SCHOOL_DOMAIN;
+
+                noticeContainer.classList.remove('hidden');
+
+                if (isSchoolEmail) {
+                    // Check for prefix match
+                    const localPart = email.split('@')[0] || '';
+                    const match = localPart.match(/^([a-z]{2})-/i);
+                    const prefix = match ? match[1].toLowerCase() : null;
+                    const expectedClass = prefix ? CLASS_PREFIXES[prefix] : null;
+
+                    if (selectedClass && expectedClass && expectedClass !== selectedClass) {
+                        // Mismatch
+                        mismatchNotice.classList.remove('hidden');
+                        noticeContainer.classList.remove('border-emerald-200', 'bg-emerald-50', 'border-amber-200', 'bg-amber-50');
+                        noticeContainer.classList.add('border-rose-200', 'bg-rose-50');
+                        mismatchMessage.textContent = `Your school email prefix "${prefix.toUpperCase()}" indicates ${expectedClass}, but you selected ${selectedClass}. Please select the correct program.`;
+                    } else if (!expectedClass) {
+                        // Unknown prefix
+                        mismatchNotice.classList.remove('hidden');
+                        noticeContainer.classList.remove('border-emerald-200', 'bg-emerald-50', 'border-amber-200', 'bg-amber-50');
+                        noticeContainer.classList.add('border-rose-200', 'bg-rose-50');
+                        mismatchMessage.textContent = 'Your school email prefix is not recognized. Expected prefixes: CY (Cyber Security), IS (Information System), CE (Computer Science).';
+                    } else {
+                        // Valid school email
+                        schoolEmailNotice.classList.remove('hidden');
+                        noticeContainer.classList.remove('border-rose-200', 'bg-rose-50', 'border-amber-200', 'bg-amber-50');
+                        noticeContainer.classList.add('border-emerald-200', 'bg-emerald-50');
+                    }
+                } else {
+                    // Non-school email
+                    nonSchoolEmailNotice.classList.remove('hidden');
+                    noticeContainer.classList.remove('border-emerald-200', 'bg-emerald-50', 'border-rose-200', 'bg-rose-50');
+                    noticeContainer.classList.add('border-amber-200', 'bg-amber-50');
+                }
+            }
+
+            emailInput.addEventListener('input', validateEmail);
+            emailInput.addEventListener('change', validateEmail);
+            classSelect.addEventListener('change', validateEmail);
+
+            // Run on page load if there's a value
+            if (emailInput.value) {
+                validateEmail();
+            }
+        });
+    </script>
 </x-layouts.auth>
+

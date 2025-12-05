@@ -1,10 +1,26 @@
 @php
+    // Get pending registrations count for badge (with fallback if table doesn't exist)
+    try {
+        $pendingRegistrationsCount = \App\Models\PendingRegistration::pending()->count();
+    } catch (\Exception $e) {
+        $pendingRegistrationsCount = 0;
+    }
+
     $navConfig = [
         [
             'label' => 'Overview',
             'route_name' => 'admin.dashboard',
             'pattern' => 'admin.dashboard',
             'icon' => 'ri-dashboard-line',
+        ],
+        [
+            'label' => 'Pending Registrations',
+            'route_name' => 'admin.pending-registrations.index',
+            'pattern' => 'admin.pending-registrations.*',
+            'icon' => 'ri-user-add-line',
+            'badge' => $pendingRegistrationsCount > 0 ? $pendingRegistrationsCount : null,
+            'badge_color' => 'bg-amber-500',
+            'href' => url('/admin/pending-registrations'),
         ],
         [
             'label' => 'Events',
@@ -57,14 +73,21 @@
     ];
 
     $navItems = collect($navConfig)->map(function ($item) {
-        $routeName = $item['route_name'] ?? null;
-        $href = ($routeName && \Illuminate\Support\Facades\Route::has($routeName)) ? route($routeName) : '#';
+        // Use direct href if provided, otherwise try route
+        if (!empty($item['href'])) {
+            $href = $item['href'];
+        } else {
+            $routeName = $item['route_name'] ?? null;
+            $href = ($routeName && \Illuminate\Support\Facades\Route::has($routeName)) ? route($routeName) : '#';
+        }
 
         return [
             'label' => $item['label'],
             'icon' => $item['icon'],
             'href' => $href,
             'active' => ! empty($item['pattern']) ? request()->routeIs($item['pattern']) : false,
+            'badge' => $item['badge'] ?? null,
+            'badge_color' => $item['badge_color'] ?? 'bg-rose-500',
         ];
     })->toArray();
 @endphp

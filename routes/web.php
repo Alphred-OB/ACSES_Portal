@@ -183,6 +183,18 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::post('students/promote-years', [\App\Http\Controllers\Admin\AdminStudentAccountController::class, 'promoteYears'])
         ->name('students.promote-years');
     Route::resource('students', \App\Http\Controllers\Admin\AdminStudentAccountController::class);
+
+    // Pending Registrations Management
+    Route::get('pending-registrations', [\App\Http\Controllers\Admin\AdminPendingRegistrationController::class, 'index'])
+        ->name('pending-registrations.index');
+    Route::get('pending-registrations/{registration}', [\App\Http\Controllers\Admin\AdminPendingRegistrationController::class, 'show'])
+        ->name('pending-registrations.show');
+    Route::post('pending-registrations/{registration}/approve', [\App\Http\Controllers\Admin\AdminPendingRegistrationController::class, 'approve'])
+        ->name('pending-registrations.approve');
+    Route::post('pending-registrations/{registration}/reject', [\App\Http\Controllers\Admin\AdminPendingRegistrationController::class, 'reject'])
+        ->name('pending-registrations.reject');
+    Route::post('pending-registrations/bulk', [\App\Http\Controllers\Admin\AdminPendingRegistrationController::class, 'bulk'])
+        ->name('pending-registrations.bulk');
 });
 
 Route::get('/debug/assets', function () {

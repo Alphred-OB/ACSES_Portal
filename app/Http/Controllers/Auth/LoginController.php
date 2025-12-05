@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\PendingRegistration;
 use App\Services\Auth\EmailVerificationService;
 use App\Services\Auth\LoginOtpService;
 use Illuminate\Http\RedirectResponse;
@@ -34,6 +35,26 @@ class LoginController extends Controller
         $credentials = $request->safe()->only(['email', 'password']);
         $remember = $request->boolean('remember');
         $guards = ['admin', 'student'];
+
+        // First, check if there's a pending or rejected registration for this email
+        $pendingRegistration = PendingRegistration::where('email', $credentials['email'])
+            ->whereIn('status', ['pending', 'rejected'])
+            ->latest()
+            ->first();
+
+        if ($pendingRegistration) {
+            $message = match ($pendingRegistration->status) {
+                'pending' => __('Your registration is still pending approval. Please wait for an administrator to review your application. You will receive an email once it has been processed.'),
+                'rejected' => __('Your registration request was rejected. Reason: :reason Please submit a new registration application if you wish to try again.', [
+                    'reason' => $pendingRegistration->rejection_reason ?? 'No specific reason provided.',
+                ]),
+                default => __('Your account access has been restricted. Please contact an administrator.'),
+            };
+
+            return back()
+                ->withErrors(['email' => $message])
+                ->onlyInput('email');
+        }
 
         foreach ($guards as $guard) {
             $provider = Auth::guard($guard)->getProvider();

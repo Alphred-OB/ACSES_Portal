@@ -18,9 +18,21 @@
         </div>
 
         @if(session('status'))
+            @if(session('pending_registration'))
+            <div class="mb-6 rounded-xl border border-amber-300/50 bg-amber-50 px-4 py-4 text-sm text-amber-800">
+                <div class="flex items-start gap-3">
+                    <i class="ri-time-line text-xl text-amber-500"></i>
+                    <div>
+                        <p class="font-semibold">Registration Submitted for Review</p>
+                        <p class="mt-1 text-amber-700">{{ session('status') }}</p>
+                    </div>
+                </div>
+            </div>
+            @else
             <div class="mb-6 rounded-xl border border-[#0b3019]/30 bg-[#0b3019]/10 px-4 py-3 text-sm text-[#0b3019]">
                 {{ session('status') }}
             </div>
+            @endif
         @endif
 
         <form method="POST" action="{{ route('auth.login.submit') }}" class="space-y-6" data-auth-form>

@@ -20,7 +20,8 @@ class LoginOtpService
     {
         $code = $this->generateCode($user, $guard);
 
-        Mail::to($user->email)->queue(new LoginOtpCodeMail($user, $code, self::EXPIRATION_MINUTES, $context));
+        // Send immediately instead of queuing for critical auth emails
+        Mail::to($user->email)->send(new LoginOtpCodeMail($user, $code, self::EXPIRATION_MINUTES, $context));
     }
 
     /**
