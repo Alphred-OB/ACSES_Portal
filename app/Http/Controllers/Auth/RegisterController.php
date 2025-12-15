@@ -8,9 +8,11 @@ use App\Models\PendingRegistration;
 use App\Models\User;
 use App\Services\Admin\AdminDueService;
 use App\Services\Auth\EmailVerificationService;
+use App\Services\Registration\PendingRegistrationEmailService;
 use App\Services\Registration\PendingRegistrationService;
 use App\Services\Registration\StudentEmailValidator;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
@@ -20,6 +22,7 @@ class RegisterController extends Controller
         private readonly AdminDueService $dues,
         private readonly StudentEmailValidator $emailValidator,
         private readonly PendingRegistrationService $pendingService,
+        private readonly PendingRegistrationEmailService $pendingEmailService,
     ) {
     }
 
@@ -39,7 +42,7 @@ class RegisterController extends Controller
      *
      * This method implements dual-flow registration:
      * 1. School email (st.umat.edu.gh with matching prefix): Standard verification flow
-     * 2. Non-school email or mismatched prefix: Manual admin review via pending registration
+     * 2. Non-school email or mismatched prefix: Email verification first, then manual admin review
      */
     public function store(RegisterRequest $request): RedirectResponse
     {
@@ -76,20 +79,23 @@ class RegisterController extends Controller
         if ($verifiedUser) {
             return redirect()->route('login')
                 ->withErrors([
-                    'email' => __('An active account already exists for this email or index number. Please log in or reset your password.'),
+                    'email' => __('An active account already exists for this email or reference number. Please log in or reset your password.'),
                 ]);
         }
 
-        // Check for existing pending registrations
-        $existingPending = PendingRegistration::where('email', $email)
-            ->orWhere('index_number', $data['index_number'])
+        // Check for existing pending registrations (with verified email only)
+        $existingPending = PendingRegistration::where(function ($query) use ($email, $data) {
+                $query->where('email', $email)
+                    ->orWhere('index_number', $data['index_number']);
+            })
             ->pending()
+            ->whereNotNull('email_verified_at')
             ->first();
 
         if ($existingPending) {
             return redirect()->route('auth.register')
                 ->withErrors([
-                    'email' => __('A registration request with this email or index number is already pending review. Please wait for admin approval.'),
+                    'email' => __('A registration request with this email or reference number is already pending review. Please wait for admin approval.'),
                 ])
                 ->withInput($request->except('password', 'password_confirmation'));
         }
@@ -99,8 +105,8 @@ class RegisterController extends Controller
             // Standard flow: School email with matching prefix
             return $this->handleStandardRegistration($request, $data, $fullName);
         } else {
-            // Manual verification flow: Non-school email or mismatched prefix
-            return $this->handlePendingRegistration($data, $fullName);
+            // Manual verification flow: Non-school email - verify email first, then admin review
+            return $this->handlePendingRegistration($request, $data, $fullName);
         }
     }
 
@@ -119,7 +125,7 @@ class RegisterController extends Controller
         if ($existingByIndex && ! $existingByEmail && $existingByIndex->email_verified_at === null) {
             return redirect()->route('auth.register')
                 ->withErrors([
-                    'email' => __('An account for this index number is already pending with a different email. Please use the original email address or contact the ACSES team for assistance.'),
+                    'email' => __('An account for this reference number is already pending with a different email. Please use the original email address or contact the ACSES team for assistance.'),
                 ])->withInput($request->except('password', 'password_confirmation'));
         }
 
@@ -167,10 +173,31 @@ class RegisterController extends Controller
 
     /**
      * Handle pending registration that requires admin approval.
+     * First sends email verification, only after which the registration goes to admin queue.
      */
-    private function handlePendingRegistration(array $data, string $fullName): RedirectResponse
+    private function handlePendingRegistration(Request $request, array $data, string $fullName): RedirectResponse
     {
-        $this->pendingService->create([
+        // Check for existing unverified pending registration with same email
+        $existingUnverified = PendingRegistration::where('email', $data['email'])
+            ->whereNull('email_verified_at')
+            ->pending()
+            ->first();
+
+        if ($existingUnverified) {
+            // Resend verification to existing unverified registration
+            $this->pendingEmailService->sendVerification($existingUnverified);
+
+            $request->session()->put('pending_registration_verification', [
+                'registration_id' => $existingUnverified->id,
+                'email' => $existingUnverified->email,
+            ]);
+
+            return redirect()->route('auth.pending-registration.verify')
+                ->with('status', __('A verification code has been resent to your email.'));
+        }
+
+        // Create new pending registration (without email_verified_at = needs verification)
+        $registration = PendingRegistration::create([
             'fullname' => $fullName,
             'username' => $data['username'],
             'email' => $data['email'],
@@ -179,10 +206,21 @@ class RegisterController extends Controller
             'index_number' => $data['index_number'],
             'class' => $data['class'],
             'year' => $data['year'],
+            'status' => 'pending',
+            // email_verified_at is NULL - will be set after OTP verification
         ]);
 
-        return redirect()->route('login')
-            ->with('status', __('Your registration request has been submitted for review. You will receive an email once an administrator has reviewed your application.'))
-            ->with('pending_registration', true);
+        // Send email verification OTP
+        $this->pendingEmailService->sendVerification($registration);
+
+        // Store in session for verification
+        $request->session()->put('pending_registration_verification', [
+            'registration_id' => $registration->id,
+            'email' => $registration->email,
+        ]);
+
+        return redirect()->route('auth.pending-registration.verify')
+            ->with('status', __('Please verify your email address to complete your registration.'));
     }
 }
+

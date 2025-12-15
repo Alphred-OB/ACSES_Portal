@@ -38,6 +38,8 @@ class AdminPendingRegistrationController extends Controller
         $yearOptions = ['1', '2', '3', '4'];
 
         $registrations = PendingRegistration::query()
+            // Only show registrations where email has been verified
+            ->whereNotNull('email_verified_at')
             ->when($status && in_array($status, $statuses, true), function ($query) use ($status) {
                 $query->where('status', $status);
             })
@@ -68,6 +70,9 @@ class AdminPendingRegistrationController extends Controller
             ]);
 
         $statistics = $this->registrationService->getStatistics();
+        
+        // Also count unverified registrations awaiting email verification
+        $awaitingEmailVerification = PendingRegistration::awaitingEmailVerification()->count();
 
         return view('dashboards.admin.pending-registrations.index', [
             'title' => 'Pending Registrations',
@@ -82,6 +87,7 @@ class AdminPendingRegistrationController extends Controller
             'perPageOptions' => $perPageOptions,
             'currentPerPage' => $perPage,
             'statistics' => $statistics,
+            'awaitingEmailVerification' => $awaitingEmailVerification,
         ]);
     }
 

@@ -1,13 +1,13 @@
 @php($user = $user ?? null)
 @php($context = $context ?? 'login')
 @php($brandColor = '#0b3019')
-@php($title = $context === 'verification' ? 'Confirm Your ACSES Email' : 'Complete Your ACSES Sign-In')
+@php($title = $context === 'verification' ? 'Confirm Your ACSES Email' : 'New Device Sign-In Verification')
 @php($subtitle = $context === 'verification'
     ? 'Enter the one-time code below to verify your email address and activate your account.'
-    : 'Use this secure one-time code to finish signing in. For your protection it expires soon.')
+    : 'We detected a sign-in attempt from a new device. Enter this code to verify it\'s you and trust this device for future logins.')
 @php($footerNote = $context === 'verification'
     ? 'If you didn’t request this verification, you can safely ignore this email or contact support.'
-    : 'If you didn’t try to sign in, please ignore this message or reach out to the ACSES support team.')
+    : 'If you didn\'t try to sign in from a new device, please change your password immediately and contact the ACSES support team.')
 
 <!DOCTYPE html>
 <html lang="en">

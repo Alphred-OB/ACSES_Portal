@@ -239,7 +239,7 @@
                                         <div class="flex flex-col">
                                             <span class="font-semibold text-slate-900">{{ $registration->fullname }}</span>
                                             <span class="text-xs text-slate-500">{{ $registration->email }}</span>
-                                            <span class="text-xs text-slate-400">Index: {{ $registration->index_number }}</span>
+                                            <span class="text-xs text-slate-400">Ref: {{ $registration->index_number }}</span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-4">

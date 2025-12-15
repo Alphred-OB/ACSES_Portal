@@ -61,7 +61,7 @@ class PendingRegistrationService
         }
 
         if ($existingIndex) {
-            throw new \Exception('A user with this index number already exists.');
+            throw new \Exception('A user with this reference number already exists.');
         }
 
         if ($existingUsername) {
@@ -191,7 +191,7 @@ class PendingRegistrationService
         }
 
         if (User::where('index_number', $registration->index_number)->exists()) {
-            $issues[] = 'Index number already exists';
+            $issues[] = 'Reference number already exists';
         }
 
         if (User::where('username', $registration->username)->exists()) {
@@ -206,14 +206,15 @@ class PendingRegistrationService
 
     /**
      * Get statistics for pending registrations.
+     * Only counts registrations where email has been verified.
      */
     public function getStatistics(): array
     {
         return [
-            'pending' => PendingRegistration::pending()->count(),
+            'pending' => PendingRegistration::readyForReview()->count(),
             'approved' => PendingRegistration::approved()->count(),
             'rejected' => PendingRegistration::rejected()->count(),
-            'total' => PendingRegistration::count(),
+            'total' => PendingRegistration::whereNotNull('email_verified_at')->count(),
         ];
     }
 

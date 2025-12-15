@@ -28,6 +28,7 @@ class PendingRegistration extends Model
         'rejection_reason',
         'reviewed_by',
         'reviewed_at',
+        'email_verified_at',
     ];
 
     /**
@@ -49,6 +50,7 @@ class PendingRegistration extends Model
         return [
             'password' => 'hashed',
             'reviewed_at' => 'datetime',
+            'email_verified_at' => 'datetime',
         ];
     }
 
@@ -69,11 +71,30 @@ class PendingRegistration extends Model
     }
 
     /**
-     * Scope to get pending registrations.
+     * Scope to get pending registrations (with verified email).
      */
     public function scopePending($query)
     {
         return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope to get pending registrations that are ready for admin review.
+     * (email verified and status is pending)
+     */
+    public function scopeReadyForReview($query)
+    {
+        return $query->where('status', 'pending')
+            ->whereNotNull('email_verified_at');
+    }
+
+    /**
+     * Scope to get pending registrations awaiting email verification.
+     */
+    public function scopeAwaitingEmailVerification($query)
+    {
+        return $query->where('status', 'pending')
+            ->whereNull('email_verified_at');
     }
 
     /**
@@ -115,4 +136,21 @@ class PendingRegistration extends Model
     {
         return $this->status === 'rejected';
     }
+
+    /**
+     * Check if the email has been verified.
+     */
+    public function isEmailVerified(): bool
+    {
+        return $this->email_verified_at !== null;
+    }
+
+    /**
+     * Check if the registration is ready for admin review.
+     */
+    public function isReadyForReview(): bool
+    {
+        return $this->isPending() && $this->isEmailVerified();
+    }
 }
+

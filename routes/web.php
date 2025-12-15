@@ -69,6 +69,14 @@ Route::middleware('guest')->group(function () {
         ->name('auth.login.otp.submit');
     Route::post('/login/otp/resend', [\App\Http\Controllers\Auth\LoginOtpController::class, 'resend'])
         ->name('auth.login.otp.resend');
+
+    // Pending registration email verification
+    Route::get('/register/verify-email', [\App\Http\Controllers\Auth\PendingRegistrationVerificationController::class, 'show'])
+        ->name('auth.pending-registration.verify');
+    Route::post('/register/verify-email', [\App\Http\Controllers\Auth\PendingRegistrationVerificationController::class, 'verify'])
+        ->name('auth.pending-registration.verify.submit');
+    Route::post('/register/verify-email/resend', [\App\Http\Controllers\Auth\PendingRegistrationVerificationController::class, 'resend'])
+        ->name('auth.pending-registration.verify.resend');
 });
 
 Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])
@@ -90,6 +98,14 @@ Route::post('/student/profile', [StudentProfileController::class, 'update'])
 Route::get('/student/profile/verify-email/{user}/{token}', [StudentProfileController::class, 'verifyEmail'])
     ->middleware('signed')
     ->name('student.profile.verify-email');
+
+Route::delete('/student/profile/devices/{device}', [StudentProfileController::class, 'revokeDevice'])
+    ->middleware('auth:student')
+    ->name('student.profile.devices.revoke');
+
+Route::delete('/student/profile/devices', [StudentProfileController::class, 'revokeAllDevices'])
+    ->middleware('auth:student')
+    ->name('student.profile.devices.revoke-all');
 
 Route::get('/student/suggestions', [\App\Http\Controllers\Student\StudentSuggestionController::class, 'index'])
     ->middleware(['auth:student', 'student.no_outstanding_dues'])

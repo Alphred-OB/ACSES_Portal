@@ -94,6 +94,19 @@
                 <a href="mailto:acsesrepos@gmail.com" class="font-semibold text-[#0b3019] hover:underline">Contact support</a>
             </p>
         </div>
+
+        {{-- Device Security Notice --}}
+        <div class="mt-6 rounded-2xl border border-[#0b3019]/10 bg-[#0b3019]/5 px-4 py-3">
+            <div class="flex items-start gap-3">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0b3019]/10 text-[#0b3019]">
+                    <i class="ri-shield-check-line text-base" aria-hidden="true"></i>
+                </span>
+                <div class="text-xs text-slate-600">
+                    <p class="font-semibold text-[#0b3019]">Device-Based Security</p>
+                    <p class="mt-1 leading-relaxed">For your protection, we verify new devices with a one-time code sent to your email. Once verified, you can sign in instantly on that device.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="auth-loading-overlay" class="hidden fixed inset-0 z-40 items-center justify-center bg-white/80 backdrop-blur-sm">

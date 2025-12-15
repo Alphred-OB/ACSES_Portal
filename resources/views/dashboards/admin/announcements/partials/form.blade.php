@@ -111,15 +111,92 @@
                 </label>
             </div>
 
-            <div x-show="targetType === 'student'" x-transition>
+            <div x-show="targetType === 'student'" x-transition x-data="studentSelector({
+                    students: @js(collect($options['students'])->map(fn($label, $id) => ['id' => $id, 'label' => $label])->values()->all()),
+                    selectedIds: @js($selectedStudents)
+                })">
                 <label class="flex flex-col gap-2">
                     <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Select students</span>
-                    <select name="student_ids[]" multiple class="min-h-[180px] rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
-                        @foreach ($options['students'] as $id => $label)
-                            <option value="{{ $id }}" @selected(in_array((int) $id, $selectedStudents, true))>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <span class="text-xs text-slate-400">Begin typing to highlight matching students.</span>
+                    
+                    {{-- Search Input --}}
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <i class="ri-search-line text-base" aria-hidden="true"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            x-model="search" 
+                            placeholder="Search by name, username, email, or reference..." 
+                            class="h-11 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30"
+                        >
+                        <button 
+                            type="button" 
+                            x-show="search.length > 0" 
+                            @click="search = ''" 
+                            class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-600"
+                        >
+                            <i class="ri-close-line text-base"></i>
+                        </button>
+                    </div>
+                    
+                    {{-- Selected Students Tags --}}
+                    <div x-show="selectedIds.length > 0" class="flex flex-wrap gap-2 p-2 rounded-2xl border border-slate-200 bg-slate-50">
+                        <template x-for="id in selectedIds" :key="id">
+                            <span class="inline-flex items-center gap-1 rounded-full bg-[#0b3019] px-3 py-1 text-xs font-semibold text-white">
+                                <span x-text="getStudentLabel(id)"></span>
+                                <button type="button" @click="toggleStudent(id)" class="hover:text-emerald-200">
+                                    <i class="ri-close-line text-sm"></i>
+                                </button>
+                            </span>
+                        </template>
+                    </div>
+                    
+                    {{-- Student List - Only shows when searching --}}
+                    <div class="rounded-2xl border border-slate-200 bg-white">
+                        {{-- Prompt to search --}}
+                        <template x-if="search.length < 2">
+                            <div class="px-4 py-8 text-center text-sm text-slate-400">
+                                <i class="ri-search-line text-3xl mb-3 block text-slate-300"></i>
+                                <p class="font-medium text-slate-500">Search for students</p>
+                                <p class="mt-1">Type at least 2 characters to find students by name, email, or reference number</p>
+                            </div>
+                        </template>
+                        
+                        {{-- Search results --}}
+                        <template x-if="search.length >= 2">
+                            <div class="max-h-[250px] overflow-y-auto">
+                                <template x-if="filteredStudents.length === 0">
+                                    <div class="px-4 py-6 text-center text-sm text-slate-400">
+                                        <i class="ri-user-search-line text-2xl mb-2"></i>
+                                        <p>No students match "<span x-text="search"></span>"</p>
+                                    </div>
+                                </template>
+                                <template x-for="student in filteredStudents" :key="student.id">
+                                    <label 
+                                        class="flex cursor-pointer items-center gap-3 px-4 py-3 transition hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+                                        :class="{ 'bg-[#0b3019]/5': isSelected(student.id) }"
+                                    >
+                                        <input 
+                                            type="checkbox" 
+                                            :checked="isSelected(student.id)"
+                                            @change="toggleStudent(student.id)"
+                                            class="h-4 w-4 rounded border-slate-300 text-[#0b3019] focus:ring-[#0b3019]"
+                                        >
+                                        <span class="text-sm text-slate-700" x-text="student.label"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    {{-- Hidden inputs for form submission --}}
+                    <template x-for="id in selectedIds" :key="'input-' + id">
+                        <input type="hidden" name="student_ids[]" :value="id">
+                    </template>
+                    
+                    <span class="text-xs text-slate-400">
+                        <span x-text="selectedIds.length"></span> student(s) selected
+                    </span>
                     @error('student_ids')
                         <span class="text-xs text-rose-600">{{ $message }}</span>
                     @enderror
@@ -139,3 +216,44 @@
         </div>
     </footer>
 </form>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('studentSelector', ({ students = [], selectedIds = [] }) => ({
+            students: students,
+            selectedIds: selectedIds.map(id => parseInt(id)),
+            search: '',
+            
+            get filteredStudents() {
+                // Only show results when search has at least 2 characters
+                if (this.search.trim().length < 2) {
+                    return [];
+                }
+                const searchLower = this.search.toLowerCase();
+                return this.students.filter(student => 
+                    student.label.toLowerCase().includes(searchLower)
+                );
+            },
+            
+            isSelected(id) {
+                return this.selectedIds.includes(parseInt(id));
+            },
+            
+            toggleStudent(id) {
+                id = parseInt(id);
+                if (this.isSelected(id)) {
+                    this.selectedIds = this.selectedIds.filter(sid => sid !== id);
+                } else {
+                    this.selectedIds.push(id);
+                }
+            },
+            
+            getStudentLabel(id) {
+                const student = this.students.find(s => parseInt(s.id) === parseInt(id));
+                return student ? student.label : 'Unknown';
+            }
+        }));
+    });
+</script>
+@endpush

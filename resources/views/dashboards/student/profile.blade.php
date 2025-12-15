@@ -141,7 +141,7 @@
                     </span>
                     <div class="hidden text-sm text-emerald-100/80 sm:flex sm:flex-col">
                         <span class="font-semibold">{{ $student->email }}</span>
-                        <span>{{ $student->index_number ?? 'Index unavailable' }}</span>
+                        <span>{{ $student->index_number ?? 'Reference unavailable' }}</span>
                     </div>
                 </div>
             </div>
@@ -511,6 +511,105 @@
                 </article>
             </section>
 
+            {{-- Trusted Devices Section --}}
+            <section class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
+                <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
+                                <i class="ri-device-line text-xl" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <h2 class="text-lg font-semibold text-[#0b3019]">Trusted Devices</h2>
+                                <p class="text-sm text-slate-500">Devices you've verified won't need a one-time code to sign in.</p>
+                            </div>
+                        </div>
+                    </div>
+                    @if(isset($trustedDevices) && $trustedDevices->count() > 1)
+                        <form method="POST" action="{{ route('student.profile.devices.revoke-all') }}" onsubmit="return confirm('Are you sure you want to remove all other devices? You will need to verify them again on next login.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-200/80">
+                                <i class="ri-logout-circle-r-line text-base" aria-hidden="true"></i>
+                                Sign out other devices
+                            </button>
+                        </form>
+                    @endif
+                </header>
+
+                <div class="mt-6">
+                    @if(isset($trustedDevices) && $trustedDevices->count() > 0)
+                        <ul class="divide-y divide-slate-100">
+                            @foreach($trustedDevices as $device)
+                                @php($isCurrent = isset($currentFingerprint) && $device->device_fingerprint === $currentFingerprint)
+                                <li class="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between {{ $isCurrent ? 'bg-emerald-50/50 -mx-4 px-4 rounded-2xl' : '' }}">
+                                    <div class="flex items-start gap-3">
+                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {{ $isCurrent ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500' }}">
+                                            @if(str_contains(strtolower($device->device_name ?? ''), 'mobile') || str_contains(strtolower($device->device_name ?? ''), 'android') || str_contains(strtolower($device->device_name ?? ''), 'ios'))
+                                                <i class="ri-smartphone-line text-lg" aria-hidden="true"></i>
+                                            @else
+                                                <i class="ri-computer-line text-lg" aria-hidden="true"></i>
+                                            @endif
+                                        </span>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-slate-900 truncate">{{ $device->device_name ?? 'Unknown Device' }}</span>
+                                                @if($isCurrent)
+                                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                                                        <i class="ri-checkbox-circle-fill text-xs" aria-hidden="true"></i>
+                                                        This device
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                                                <span class="flex items-center gap-1">
+                                                    <i class="ri-global-line" aria-hidden="true"></i>
+                                                    {{ $device->ip_address ?? 'Unknown IP' }}
+                                                </span>
+                                                <span class="flex items-center gap-1">
+                                                    <i class="ri-time-line" aria-hidden="true"></i>
+                                                    Last used {{ $device->last_used_at ? $device->last_used_at->diffForHumans() : 'Unknown' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if(!$isCurrent)
+                                        <form method="POST" action="{{ route('student.profile.devices.revoke', $device) }}" onsubmit="return confirm('Remove this device? It will require verification on next login.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-slate-200/80">
+                                                <i class="ri-close-line text-sm" aria-hidden="true"></i>
+                                                Remove
+                                            </button>
+                                        </form>
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center">
+                            <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                                <i class="ri-device-line text-2xl" aria-hidden="true"></i>
+                            </span>
+                            <p class="mt-4 text-sm font-semibold text-slate-600">No trusted devices yet</p>
+                            <p class="mt-1 text-xs text-slate-500">When you sign in from a new device and verify it with an OTP, it will appear here.</p>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="mt-6 rounded-2xl border border-[#0b3019]/10 bg-[#0b3019]/5 px-4 py-3">
+                    <div class="flex items-start gap-3">
+                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0b3019]/10 text-[#0b3019]">
+                            <i class="ri-shield-check-line text-base" aria-hidden="true"></i>
+                        </span>
+                        <div class="text-xs text-slate-600">
+                            <p class="font-semibold text-[#0b3019]">About Device Security</p>
+                            <p class="mt-1 leading-relaxed">We automatically verify new devices with a one-time code sent to your email. Once verified, that device is trusted and you can sign in instantly. Remove devices you don't recognize or no longer use.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="grid gap-6 sm:grid-cols-2">
                 <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
                     <div class="flex items-center gap-3">
@@ -536,7 +635,7 @@
                             <dd class="font-semibold text-slate-800">{{ $student->phone_number ?? 'Not provided' }}</dd>
                         </div>
                         <div class="flex items-center justify-between gap-3">
-                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-hashtag text-base text-[#0b3019]" aria-hidden="true"></i> Index number</dt>
+                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-hashtag text-base text-[#0b3019]" aria-hidden="true"></i> Reference number</dt>
                             <dd class="font-semibold text-slate-800">{{ $student->index_number ?? '—' }}</dd>
                         </div>
                         <div class="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.2em] text-slate-400">

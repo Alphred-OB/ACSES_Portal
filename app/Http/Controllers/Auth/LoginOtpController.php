@@ -4,17 +4,22 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginOtpRequest;
+use App\Mail\NewDeviceLoginMail;
 use App\Models\User;
+use App\Services\Auth\DeviceDetectionService;
 use App\Services\Auth\LoginOtpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class LoginOtpController extends Controller
 {
-    public function __construct(private readonly LoginOtpService $loginOtpService)
-    {
+    public function __construct(
+        private readonly LoginOtpService $loginOtpService,
+        private readonly DeviceDetectionService $deviceDetectionService
+    ) {
     }
 
     /**
@@ -66,6 +71,25 @@ class LoginOtpController extends Controller
 
         $remember = (bool) ($pending['remember'] ?? false);
 
+        // Trust this device so the user won't need OTP next time
+        $trustedDevice = $this->deviceDetectionService->trustDevice($user, $request);
+
+        // Send new device login notification email
+        try {
+            Mail::to($user->email)->send(new NewDeviceLoginMail(
+                user: $user,
+                deviceName: $trustedDevice->device_name ?? 'Unknown Device',
+                ipAddress: $request->ip() ?? 'Unknown',
+                loginTime: now()->format('F j, Y \a\t g:i A')
+            ));
+        } catch (\Exception $e) {
+            // Log but don't fail login if email fails
+            \Illuminate\Support\Facades\Log::warning('Failed to send new device login email', [
+                'user_id' => $user->getAuthIdentifier(),
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         $request->session()->forget('pending_login_otp');
 
         Auth::shouldUse($pending['guard']);
@@ -75,7 +99,7 @@ class LoginOtpController extends Controller
         return redirect()->intended(match ($pending['guard']) {
             'admin' => route('admin.dashboard'),
             default => route('student.dashboard'),
-        })->with('status', __('Login verified! Welcome back.'));
+        })->with('status', __('Device verified! This device is now trusted for future logins.'));
     }
 
     /**

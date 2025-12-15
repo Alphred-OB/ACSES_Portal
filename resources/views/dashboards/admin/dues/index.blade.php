@@ -150,7 +150,7 @@
 
                     <div class="md:col-span-2 flex flex-col gap-2">
                         <label class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Search student</label>
-                        <input type="search" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Name, username, email, index number" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
+                        <input type="search" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Name, username, email, reference number" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
                     </div>
 
                     <div class="flex flex-col gap-2">

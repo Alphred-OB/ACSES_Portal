@@ -20,7 +20,7 @@ We have reviewed your ACSES Portal registration application. Unfortunately, we a
 | **Email** | {{ $registration->email }} |
 | **Program** | {{ $registration->class }} |
 | **Year** | Year {{ $registration->year }} |
-| **Index Number** | {{ $registration->index_number }} |
+| **Reference Number** | {{ $registration->index_number }} |
 
 ## What You Can Do
 

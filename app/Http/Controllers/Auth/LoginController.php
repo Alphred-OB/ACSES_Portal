@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\PendingRegistration;
+use App\Services\Auth\DeviceDetectionService;
 use App\Services\Auth\EmailVerificationService;
 use App\Services\Auth\LoginOtpService;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ class LoginController extends Controller
     public function __construct(
         private readonly LoginOtpService $loginOtpService,
         private readonly EmailVerificationService $emailVerificationService,
+        private readonly DeviceDetectionService $deviceDetectionService,
     ) {
     }
 
@@ -85,6 +87,23 @@ class LoginController extends Controller
                     ->withErrors(['verification' => __('Please verify your email before signing in. We just sent you a new verification link.')]);
             }
 
+            // Check if this is a trusted device - if so, skip OTP
+            if ($this->deviceDetectionService->isTrustedDevice($user, $request)) {
+                // Update device last used timestamp
+                $this->deviceDetectionService->touchDevice($user, $request);
+
+                // Log the user in directly
+                Auth::shouldUse($guard);
+                Auth::guard($guard)->login($user, $remember);
+                $request->session()->regenerate();
+
+                return redirect()->intended(match ($guard) {
+                    'admin' => route('admin.dashboard'),
+                    default => route('student.dashboard'),
+                })->with('status', __('Welcome back!'));
+            }
+
+            // New device detected - require OTP verification
             $this->loginOtpService->send($user, $guard);
 
             $request->session()->put('pending_login_otp', [
@@ -95,7 +114,7 @@ class LoginController extends Controller
             ]);
 
             return redirect()->route('auth.login.otp')
-                ->with('status', __('We sent a verification code to your email.'));
+                ->with('status', __('New device detected. We sent a verification code to your email.'));
         }
 
         return back()

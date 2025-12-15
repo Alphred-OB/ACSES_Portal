@@ -14,7 +14,7 @@ Thank you for submitting your registration request to join the **ACSES Portal**.
 | **Email** | {{ $registration->email }} |
 | **Program** | {{ $registration->class }} |
 | **Year** | Year {{ $registration->year }} |
-| **Index Number** | {{ $registration->index_number }} |
+| **Reference Number** | {{ $registration->index_number }} |
 
 ## What Happens Next?
 

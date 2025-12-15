@@ -100,7 +100,7 @@
                         <dd class="text-base font-medium text-slate-900">{{ $registration->phone_number ?? 'Not provided' }}</dd>
                     </div>
                     <div class="space-y-1">
-                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Index Number</dt>
+                        <dt class="text-xs font-semibold uppercase tracking-wider text-slate-400">Reference Number</dt>
                         <dd class="text-base font-medium text-slate-900">{{ $registration->index_number }}</dd>
                     </div>
                     <div class="space-y-1">

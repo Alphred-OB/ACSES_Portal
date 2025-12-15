@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\UpdateProfileRequest;
+use App\Models\TrustedDevice;
 use App\Models\User;
+use App\Services\Auth\DeviceDetectionService;
 use App\Services\Student\StudentEmailChangeService;
 use App\Services\Student\StudentProfileService;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +18,8 @@ class StudentProfileController extends Controller
 {
     public function __construct(
         private readonly StudentProfileService $profileService,
-        private readonly StudentEmailChangeService $emailChangeService
+        private readonly StudentEmailChangeService $emailChangeService,
+        private readonly DeviceDetectionService $deviceDetectionService
     )
     {
     }
@@ -24,10 +27,18 @@ class StudentProfileController extends Controller
     public function show(Request $request): View
     {
         $student = $request->user('student');
+        
+        // Get trusted devices for this user
+        $trustedDevices = $this->deviceDetectionService->getUserDevices($student);
+        
+        // Identify current device fingerprint for highlighting
+        $currentFingerprint = $this->deviceDetectionService->generateFingerprint($request);
 
         return view('dashboards.student.profile', [
             'title' => 'My Profile',
             'student' => $student,
+            'trustedDevices' => $trustedDevices,
+            'currentFingerprint' => $currentFingerprint,
         ]);
     }
 
@@ -92,4 +103,41 @@ class StudentProfileController extends Controller
         return redirect()->route('auth.login')
             ->with('status', __('Email updated successfully. Please sign in with your new address.'));
     }
+
+    /**
+     * Revoke a specific trusted device.
+     */
+    public function revokeDevice(Request $request, TrustedDevice $device): RedirectResponse
+    {
+        $student = $request->user('student');
+
+        // Ensure the device belongs to this user
+        if ($device->user_id !== $student->user_id) {
+            abort(403);
+        }
+
+        $deviceName = $device->device_name;
+        $device->delete();
+
+        return redirect()->route('student.profile')
+            ->with('status', __('Device ":device" has been removed from your trusted devices.', ['device' => $deviceName]));
+    }
+
+    /**
+     * Revoke all trusted devices except the current one.
+     */
+    public function revokeAllDevices(Request $request): RedirectResponse
+    {
+        $student = $request->user('student');
+        $currentFingerprint = $this->deviceDetectionService->generateFingerprint($request);
+
+        // Delete all devices except current
+        TrustedDevice::where('user_id', $student->user_id)
+            ->where('device_fingerprint', '!=', $currentFingerprint)
+            ->delete();
+
+        return redirect()->route('student.profile')
+            ->with('status', __('All other trusted devices have been removed. You will need to verify them again on next login.'));
+    }
 }
+
