@@ -11,7 +11,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="rounded-3xl bg-white/90 p-8 shadow-xl ring-1 ring-black/5 backdrop-blur">
+    <div class="w-full">
         <div class="mb-8 text-center lg:text-left">
             <h2 class="text-2xl font-semibold text-slate-900">Login to your account</h2>
             <p class="mt-2 text-sm text-slate-600">Enter your credentials to continue</p>
