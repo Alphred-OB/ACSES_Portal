@@ -11,6 +11,7 @@ use App\Services\Auth\EmailVerificationService;
 use App\Services\Registration\PendingRegistrationEmailService;
 use App\Services\Registration\PendingRegistrationService;
 use App\Services\Registration\StudentEmailValidator;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,6 +35,66 @@ class RegisterController extends Controller
         return view('auth.register', [
             'schoolDomain' => StudentEmailValidator::getSchoolDomain(),
             'classPrefixes' => StudentEmailValidator::getValidPrefixes(),
+        ]);
+    }
+
+    /**
+     * Check if a username is available.
+     * 
+     * This performs real-time validation to prevent duplicate username errors.
+     */
+    public function checkUsername(Request $request): JsonResponse
+    {
+        $username = trim($request->input('username', ''));
+
+        // Validate basic format
+        if (strlen($username) < 3) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Username must be at least 3 characters.',
+            ]);
+        }
+
+        if (strlen($username) > 50) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Username must be 50 characters or less.',
+            ]);
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $username)) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Username can only contain letters, numbers, dashes, and underscores.',
+            ]);
+        }
+
+        // Check in users table
+        $existsInUsers = User::where('username', $username)->exists();
+
+        if ($existsInUsers) {
+            return response()->json([
+                'available' => false,
+                'message' => 'This username is already taken.',
+            ]);
+        }
+
+        // Check in pending_registrations table (only pending ones with verified email)
+        $existsInPending = PendingRegistration::where('username', $username)
+            ->pending()
+            ->whereNotNull('email_verified_at')
+            ->exists();
+
+        if ($existsInPending) {
+            return response()->json([
+                'available' => false,
+                'message' => 'This username is already reserved by a pending registration.',
+            ]);
+        }
+
+        return response()->json([
+            'available' => true,
+            'message' => 'Username is available!',
         ]);
     }
 

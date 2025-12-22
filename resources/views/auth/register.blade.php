@@ -31,7 +31,7 @@
                                 <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                     <i class="ri-user-line text-lg" aria-hidden="true"></i>
                                 </span>
-                                <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" required autocomplete="given-name" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Jane" />
+                                <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" required autocomplete="given-name" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Kofi" />
                             </div>
                             @error('first_name')
                                 <p class="text-sm text-red-600">{{ $message }}</p>
@@ -44,7 +44,7 @@
                                 <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                     <i class="ri-user-3-line text-lg" aria-hidden="true"></i>
                                 </span>
-                                <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" required autocomplete="family-name" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Doe" />
+                                <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" required autocomplete="family-name" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Mensah" />
                             </div>
                             @error('last_name')
                                 <p class="text-sm text-red-600">{{ $message }}</p>
@@ -58,8 +58,19 @@
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                 <i class="ri-user-star-line text-lg" aria-hidden="true"></i>
                             </span>
-                            <input id="username" name="username" type="text" value="{{ old('username') }}" required autocomplete="username" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="janedoe" />
+                            <input id="username" name="username" type="text" value="{{ old('username') }}" required autocomplete="username" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="kofimensah" />
+                            {{-- Validation status indicator --}}
+                            <div id="username-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                {{-- Spinner (checking) --}}
+                                <i id="username-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
+                                {{-- Checkmark (available) --}}
+                                <i id="username-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
+                                {{-- X (taken) --}}
+                                <i id="username-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
+                            </div>
                         </div>
+                        {{-- Validation message --}}
+                        <div id="username-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
                         @error('username')
                             <p class="text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -288,7 +299,7 @@
             @enderror
 
             <div class="flex items-center justify-end">
-                <button type="submit" class="flex items-center justify-center space-x-2 rounded-xl bg-[#0b3019] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#0b3019]/30 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#094018] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b3019]">
+                <button id="submit-btn" type="submit" class="flex items-center justify-center space-x-2 rounded-xl bg-[#0b3019] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#0b3019]/30 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#094018] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b3019] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
                     <i class="ri-user-add-line text-lg" aria-hidden="true"></i>
                     <span>Create account</span>
                 </button>
@@ -390,6 +401,183 @@
             // Run on page load if there's a value
             if (emailInput.value) {
                 validateEmail();
+            }
+        });
+    </script>
+
+    {{-- Username validation script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameInput = document.getElementById('username');
+            const feedbackEl = document.getElementById('username-feedback');
+            const checkingIcon = document.getElementById('username-checking');
+            const availableIcon = document.getElementById('username-available');
+            const takenIcon = document.getElementById('username-taken');
+            const submitBtn = document.getElementById('submit-btn');
+            const form = document.querySelector('[data-auth-form]');
+            
+            let debounceTimer = null;
+            let lastCheckedUsername = '';
+            let usernameIsValid = false; // Track validity state
+
+            // Helper to hide all icons
+            function hideAllIcons() {
+                checkingIcon.classList.add('hidden');
+                availableIcon.classList.add('hidden');
+                takenIcon.classList.add('hidden');
+            }
+
+            // Helper to update visual state
+            function updateState(state, message) {
+                hideAllIcons();
+                feedbackEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700', 'bg-rose-50', 'text-rose-700', 'bg-slate-50', 'text-slate-600');
+                
+                // Update validity state
+                usernameIsValid = (state === 'available' || state === 'idle');
+                
+                switch(state) {
+                    case 'checking':
+                        checkingIcon.classList.remove('hidden');
+                        feedbackEl.classList.add('hidden');
+                        usernameIsValid = false; // Not valid while checking
+                        break;
+                    case 'available':
+                        availableIcon.classList.remove('hidden');
+                        feedbackEl.classList.add('bg-emerald-50', 'text-emerald-700');
+                        feedbackEl.textContent = message;
+                        usernameIsValid = true;
+                        break;
+                    case 'taken':
+                        takenIcon.classList.remove('hidden');
+                        feedbackEl.classList.add('bg-rose-50', 'text-rose-700');
+                        feedbackEl.textContent = message;
+                        usernameIsValid = false;
+                        break;
+                    case 'error':
+                        feedbackEl.classList.add('bg-rose-50', 'text-rose-700');
+                        feedbackEl.textContent = message;
+                        usernameIsValid = false;
+                        break;
+                    case 'idle':
+                        feedbackEl.classList.add('hidden');
+                        // For idle, we allow submission (user hasn't typed yet or empty)
+                        usernameIsValid = true;
+                        break;
+                }
+
+                // Update input border color
+                usernameInput.classList.remove('border-emerald-400', 'border-rose-400');
+                if (state === 'available') {
+                    usernameInput.classList.add('border-emerald-400');
+                } else if (state === 'taken' || state === 'error') {
+                    usernameInput.classList.add('border-rose-400');
+                }
+            }
+
+            // Check username availability via API
+            async function checkUsername(username) {
+                if (!username) {
+                    updateState('idle', '');
+                    return;
+                }
+
+                updateState('checking', '');
+                
+                try {
+                    const response = await fetch('{{ route("auth.register.check-username") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({ username: username }),
+                    });
+
+                    const data = await response.json();
+                    
+                    // Only update if this is still the current value
+                    if (usernameInput.value.trim() === username) {
+                        if (data.available) {
+                            updateState('available', data.message);
+                        } else {
+                            updateState('taken', data.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Username check failed:', error);
+                    updateState('idle', '');
+                }
+            }
+
+            // Debounced input handler
+            function handleInput() {
+                const username = usernameInput.value.trim();
+                
+                // Clear any pending check
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
+                }
+
+                // Don't check if empty or same as last check
+                if (!username) {
+                    updateState('idle', '');
+                    lastCheckedUsername = '';
+                    return;
+                }
+
+                if (username === lastCheckedUsername) {
+                    return;
+                }
+
+                // Basic client-side validation first
+                // (No minimum length restriction)
+
+                if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+                    updateState('error', 'Username can only contain letters, numbers, dashes, and underscores.');
+                    return;
+                }
+
+                // Debounce the API call
+                updateState('checking', '');
+                debounceTimer = setTimeout(() => {
+                    lastCheckedUsername = username;
+                    checkUsername(username);
+                }, 400);
+            }
+
+            usernameInput.addEventListener('input', handleInput);
+            usernameInput.addEventListener('change', handleInput);
+
+            // Prevent form submission if username is not valid
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const username = usernameInput.value.trim();
+                    
+                    // If username is empty, let HTML5 validation handle it
+                    if (!username) {
+                        return;
+                    }
+                    
+                    // If still checking or username is taken/invalid, prevent submission
+                    if (!usernameIsValid) {
+                        e.preventDefault();
+                        usernameInput.focus();
+                        
+                        // If we're still checking, wait and check again
+                        if (checkingIcon && !checkingIcon.classList.contains('hidden')) {
+                            alert('Please wait while we verify your username availability.');
+                        } else {
+                            alert('Please choose a valid username before submitting.');
+                        }
+                        return false;
+                    }
+                });
+            }
+
+            // Check on page load if there's a value
+            if (usernameInput.value.trim()) {
+                handleInput();
             }
         });
     </script>

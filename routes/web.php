@@ -52,6 +52,8 @@ Route::middleware('guest')->group(function () {
         ->name('auth.register');
     Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'store'])
         ->name('auth.register.submit');
+    Route::post('/register/check-username', [\App\Http\Controllers\Auth\RegisterController::class, 'checkUsername'])
+        ->name('auth.register.check-username');
 
     Route::get('/verify-email', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'notice'])
         ->name('auth.verify.notice');

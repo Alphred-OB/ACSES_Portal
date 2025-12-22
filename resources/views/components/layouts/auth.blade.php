@@ -9,6 +9,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
 
