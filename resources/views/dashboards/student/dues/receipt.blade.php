@@ -221,12 +221,12 @@
                         <div class="value">{{ $due->payment_method ? ucfirst($due->payment_method) : 'Paystack' }}</div>
                     </div>
                     <div class="item">
-                        <div class="label">Paystack reference</div>
+                        <div class="label">Transaction Reference</div>
                         <div class="value">{{ $due->payment_reference ?? $due->reference_number ?? '—' }}</div>
                     </div>
                     <div class="item">
-                        <div class="label">Channel</div>
-                        <div class="value">{{ $due->network ? ucfirst(str_replace('_', ' ', $due->network)) : 'Paystack' }}</div>
+                        <div class="label">Network / Bank</div>
+                        <div class="value">{{ $due->network ? ucfirst(str_replace('_', ' ', $due->network)) : ($due->payment_method === 'manual' ? 'Manual Transfer' : 'Paystack') }}</div>
                     </div>
                     <div class="item">
                         <div class="label">Status</div>
@@ -259,7 +259,7 @@
 
         @if ($due->payment_notes)
             <div class="notes">
-                <strong>Gateway confirmation:</strong>
+                <strong>Transaction Notes:</strong>
                 <div>{{ $due->payment_notes }}</div>
             </div>
         @endif

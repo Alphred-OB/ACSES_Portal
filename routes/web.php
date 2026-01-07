@@ -36,30 +36,37 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])
         ->name('login');
     Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login'])
+        ->middleware('throttle:auth-login')
         ->name('auth.login.submit');
 
     Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])
         ->name('password.request');
     Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])
+        ->middleware('throttle:auth-password-reset')
         ->name('password.email');
 
     Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])
         ->name('password.reset');
     Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])
+        ->middleware('throttle:auth-password-reset')
         ->name('password.update');
 
     Route::get('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'create'])
         ->name('auth.register');
     Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'store'])
+        ->middleware('throttle:auth-register')
         ->name('auth.register.submit');
-    Route::post('/register/check-username', [\App\Http\Controllers\Auth\RegisterController::class, 'checkUsername'])
-        ->name('auth.register.check-username');
+    Route::post('/register/check-availability', [\App\Http\Controllers\Auth\RegisterController::class, 'checkAvailability'])
+        ->middleware('throttle:auth-check-availability')
+        ->name('auth.register.check-availability');
 
     Route::get('/verify-email', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'notice'])
         ->name('auth.verify.notice');
     Route::post('/verify-email', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'verify'])
+        ->middleware('throttle:auth-otp')
         ->name('auth.verify.submit');
     Route::post('/verify-email/resend', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:auth-resend')
         ->name('auth.verify.resend');
     Route::get('/verify-email/resend', function () {
         return redirect()->route('auth.verify.notice');
@@ -68,16 +75,20 @@ Route::middleware('guest')->group(function () {
     Route::get('/login/otp', [\App\Http\Controllers\Auth\LoginOtpController::class, 'create'])
         ->name('auth.login.otp');
     Route::post('/login/otp', [\App\Http\Controllers\Auth\LoginOtpController::class, 'store'])
+        ->middleware('throttle:auth-otp')
         ->name('auth.login.otp.submit');
     Route::post('/login/otp/resend', [\App\Http\Controllers\Auth\LoginOtpController::class, 'resend'])
+        ->middleware('throttle:auth-resend')
         ->name('auth.login.otp.resend');
 
     // Pending registration email verification
     Route::get('/register/verify-email', [\App\Http\Controllers\Auth\PendingRegistrationVerificationController::class, 'show'])
         ->name('auth.pending-registration.verify');
     Route::post('/register/verify-email', [\App\Http\Controllers\Auth\PendingRegistrationVerificationController::class, 'verify'])
+        ->middleware('throttle:auth-otp')
         ->name('auth.pending-registration.verify.submit');
     Route::post('/register/verify-email/resend', [\App\Http\Controllers\Auth\PendingRegistrationVerificationController::class, 'resend'])
+        ->middleware('throttle:auth-resend')
         ->name('auth.pending-registration.verify.resend');
 });
 
@@ -86,15 +97,15 @@ Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logo
     ->name('auth.logout');
 
 Route::get('/student/dashboard', StudentDashboardController::class)
-    ->middleware('auth:student')
+    ->middleware(['auth:student', 'student.no_outstanding_dues'])
     ->name('student.dashboard');
 
 Route::get('/student/profile', [StudentProfileController::class, 'show'])
-    ->middleware('auth:student')
+    ->middleware(['auth:student', 'student.no_outstanding_dues'])
     ->name('student.profile');
 
 Route::post('/student/profile', [StudentProfileController::class, 'update'])
-    ->middleware('auth:student')
+    ->middleware(['auth:student', 'student.no_outstanding_dues'])
     ->name('student.profile.update');
 
 Route::get('/student/profile/verify-email/{user}/{token}', [StudentProfileController::class, 'verifyEmail'])
@@ -118,11 +129,11 @@ Route::post('/student/suggestions', [\App\Http\Controllers\Student\StudentSugges
     ->name('student.suggestions.store');
 
 Route::get('/student/announcements', [\App\Http\Controllers\Student\StudentAnnouncementController::class, 'index'])
-    ->middleware('auth:student')
+    ->middleware(['auth:student', 'student.no_outstanding_dues'])
     ->name('student.announcements.index');
 
 Route::get('/student/announcements/{announcement:slug}', [\App\Http\Controllers\Student\StudentAnnouncementController::class, 'show'])
-    ->middleware('auth:student')
+    ->middleware(['auth:student', 'student.no_outstanding_dues'])
     ->name('student.announcements.show');
 
 Route::get('/student/events', [\App\Http\Controllers\Student\StudentEventController::class, 'index'])
@@ -153,12 +164,16 @@ Route::get('/student/dues/{due}/receipt', [StudentPaystackPaymentController::cla
     ->middleware('auth:student')
     ->name('student.payments.paystack.receipt');
 
+Route::post('/student/dues/{due}/manual-pay', [\App\Http\Controllers\Student\StudentManualPaymentController::class, 'store'])
+    ->middleware(['auth:student', 'throttle:6,1'])
+    ->name('student.payments.manual.submit');
+
 Route::get('/student/course-registration', function () {
     return redirect()
         ->route('student.dashboard')
         ->with('status', __('Course registration is currently disabled.'));
 })
-    ->middleware('auth:student')
+    ->middleware(['auth:student', 'student.no_outstanding_dues'])
     ->name('student.course-registration.show');
 
 Route::post('/student/course-registration', function () {
@@ -185,7 +200,27 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('dues/export', [AdminDueController::class, 'export'])->name('dues.export');
     Route::post('students/promote-years', [\App\Http\Controllers\Admin\AdminStudentAccountController::class, 'promoteYears'])->name('students.promote-years');
     Route::get('dues/statistics', [AdminDueController::class, 'statistics'])->name('dues.statistics');
-    Route::resource('dues', AdminDueController::class)->except(['show']);
+    Route::resource('dues', AdminDueController::class)->except(['show', 'destroy']);
+    
+    // Maintenance Portal (Hidden)
+    Route::prefix('maintenance')->name('maintenance.')->middleware('can:access-maintenance')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'index'])->name('index');
+        Route::post('/delete-orphaned', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'deleteOrphaned'])->name('delete-orphaned');
+        Route::post('/resolve-duplicates', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'resolveDuplicates'])->name('resolve-duplicates');
+        Route::post('/sync-missing', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'syncMissing'])->name('sync-missing');
+        Route::post('/update-amounts', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'updateAmounts'])->name('update-amounts');
+        Route::post('/merge-dues', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'mergeDues'])->name('merge-dues');
+        Route::post('/delete-dummies', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'deleteDummies'])->name('delete-dummies');
+        Route::post('/optimize', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'optimize'])->name('optimize');
+        Route::post('/migrate', [\App\Http\Controllers\Admin\AdminMaintenanceController::class, 'migrate'])->name('migrate');
+    });
+
+    // Dues Verifications & Settings
+    Route::get('dues/verifications', [\App\Http\Controllers\Admin\AdminDueVerificationController::class, 'index'])->name('dues.verifications.index');
+    Route::post('dues/verifications/{due}/approve', [\App\Http\Controllers\Admin\AdminDueVerificationController::class, 'approve'])->name('dues.verifications.approve');
+    Route::post('dues/verifications/{due}/reject', [\App\Http\Controllers\Admin\AdminDueVerificationController::class, 'reject'])->name('dues.verifications.reject');
+    Route::post('dues/settings', [AdminDueController::class, 'updateSettings'])->name('dues.settings.update');
+
     Route::resource('course-registrations', AdminCourseRegistrationController::class)->only(['index', 'show', 'update']);
     Route::post('course-registrations/bulk', [AdminCourseRegistrationController::class, 'bulk'])->name('course-registrations.bulk');
     Route::post('suggestions/bulk', [AdminSuggestionController::class, 'bulk'])->name('suggestions.bulk');

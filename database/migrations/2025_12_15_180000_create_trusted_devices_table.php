@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trusted_devices', function (Blueprint $table) {
-            $table->id();
-            $table->integer('user_id');
-            $table->string('device_fingerprint', 128)->comment('Hashed fingerprint of browser/device');
-            $table->string('device_name', 255)->nullable()->comment('Human-readable device description');
-            $table->string('ip_address', 45)->nullable();
-            $table->string('user_agent', 512)->nullable();
-            $table->timestamp('last_used_at')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('trusted_devices')) {
+            Schema::create('trusted_devices', function (Blueprint $table) {
+                $table->id();
+                $table->integer('user_id');
+                $table->string('device_fingerprint', 128)->comment('Hashed fingerprint of browser/device');
+                $table->string('device_name', 255)->nullable()->comment('Human-readable device description');
+                $table->string('ip_address', 45)->nullable();
+                $table->string('user_agent', 512)->nullable();
+                $table->timestamp('last_used_at')->nullable();
+                $table->timestamps();
 
-            $table->index(['user_id', 'device_fingerprint']);
-            $table->index('user_id');
-        });
+                $table->index(['user_id', 'device_fingerprint']);
+                $table->index('user_id');
+            });
+        }
     }
 
     /**

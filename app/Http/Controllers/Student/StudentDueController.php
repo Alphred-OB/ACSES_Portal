@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Student\StudentDueService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Models\PaymentSetting;
 
 class StudentDueController extends Controller
 {
@@ -38,6 +39,15 @@ class StudentDueController extends Controller
             'perPageOptions' => $perPageOptions,
             'currentPerPage' => $perPage,
             'statusLabels' => StudentDueService::STATUS_LABELS,
+            'paymentSettings' => [
+                'mode' => PaymentSetting::get('payment_mode', 'automated'),
+                'bank_name' => PaymentSetting::get('manual_bank_name'),
+                'account_name' => PaymentSetting::get('manual_account_name'),
+                'account_number' => PaymentSetting::get('manual_account_number'),
+                'momo_number' => PaymentSetting::get('manual_momo_number'),
+                'momo_name' => PaymentSetting::get('manual_momo_name'),
+                'instructions' => PaymentSetting::get('manual_instructions'),
+            ],
         ]);
     }
 }

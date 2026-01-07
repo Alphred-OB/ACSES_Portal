@@ -39,62 +39,76 @@ class RegisterController extends Controller
     }
 
     /**
-     * Check if a username is available.
+     * Check if a field value is available.
      * 
-     * This performs real-time validation to prevent duplicate username errors.
+     * This performs real-time validation to prevent duplicate errors.
      */
-    public function checkUsername(Request $request): JsonResponse
+    public function checkAvailability(Request $request): JsonResponse
     {
-        $username = trim($request->input('username', ''));
+        $field = $request->input('field');
+        $value = trim($request->input('value', ''));
 
-        // Validate basic format
-        if (strlen($username) < 3) {
-            return response()->json([
-                'available' => false,
-                'message' => 'Username must be at least 3 characters.',
-            ]);
+        if (!in_array($field, ['username', 'email', 'phone_number', 'index_number'])) {
+            return response()->json(['available' => false, 'message' => 'Invalid field.'], 400);
         }
 
-        if (strlen($username) > 50) {
-            return response()->json([
-                'available' => false,
-                'message' => 'Username must be 50 characters or less.',
-            ]);
+        // 1. Format Validation
+        switch ($field) {
+            case 'username':
+                if (strlen($value) < 3) return $this->unavailable('Username must be at least 3 characters.');
+                if (strlen($value) > 50) return $this->unavailable('Username must be 50 characters or less.');
+                if (!preg_match('/^[a-zA-Z0-9_-]+$/', $value)) return $this->unavailable('Username can only contain letters, numbers, dashes, and underscores.');
+                break;
+
+            case 'email':
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) return $this->unavailable('Please enter a valid email address.');
+                
+                $allowedDomains = ['st.umat.edu.gh', 'umat.edu.gh', 'gmail.com', 'icloud.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'live.com', 'msn.com'];
+                $domain = substr(strrchr($value, "@"), 1);
+                if (!in_array($domain, $allowedDomains)) {
+                    return $this->unavailable('Registration is restricted to school, Gmail, or iCloud accounts.');
+                }
+                break;
+
+            case 'phone_number':
+                if (!preg_match('/^\d{9,11}$/', $value)) return $this->unavailable('Phone number must be between 9 and 11 digits.');
+                break;
+
+            case 'index_number':
+                if (!preg_match('/^\d{9,11}$/', $value)) return $this->unavailable('Reference number must be between 9 and 11 digits.');
+                break;
         }
 
-        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $username)) {
-            return response()->json([
-                'available' => false,
-                'message' => 'Username can only contain letters, numbers, dashes, and underscores.',
-            ]);
-        }
-
+        // 2. Database Availability Check
         // Check in users table
-        $existsInUsers = User::where('username', $username)->exists();
-
+        $existsInUsers = User::where($field, $value)->exists();
         if ($existsInUsers) {
-            return response()->json([
-                'available' => false,
-                'message' => 'This username is already taken.',
-            ]);
+            return $this->unavailable("This " . str_replace('_', ' ', $field) . " is already registered. Please contact the administrator.");
         }
 
         // Check in pending_registrations table (only pending ones with verified email)
-        $existsInPending = PendingRegistration::where('username', $username)
+        // Note: For email itself, we might want to check even unverified ones to prevent spam, 
+        // but sticking to the pattern: if it's verified/pending, it's taken.
+        $existsInPending = PendingRegistration::where($field, $value)
             ->pending()
             ->whereNotNull('email_verified_at')
             ->exists();
 
         if ($existsInPending) {
-            return response()->json([
-                'available' => false,
-                'message' => 'This username is already reserved by a pending registration.',
-            ]);
+            return $this->unavailable("This " . str_replace('_', ' ', $field) . " is pending approval. Please contact the administrator if this is an error.");
         }
 
         return response()->json([
             'available' => true,
-            'message' => 'Username is available!',
+            'message' => ucfirst(str_replace('_', ' ', $field)) . ' is available!',
+        ]);
+    }
+
+    private function unavailable(string $message): JsonResponse
+    {
+        return response()->json([
+            'available' => false,
+            'message' => $message,
         ]);
     }
 
@@ -107,15 +121,33 @@ class RegisterController extends Controller
      */
     public function store(RegisterRequest $request): RedirectResponse
     {
+        // 1. Rate Limiting (Prevent Bot Spam)
+        $rateKey = 'register-attempt:' . $request->ip();
+        if (cache()->has($rateKey) && cache()->get($rateKey) >= 3) {
+            return redirect()->back()
+                ->with('error', __('Too many registration attempts. Please wait 15 minutes.'))
+                ->withInput();
+        }
+        cache()->put($rateKey, (cache()->get($rateKey, 0) + 1), now()->addMinutes(15));
+
         $data = $request->validated();
+        $email = strtolower($data['email']);
         $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
-        $email = $data['email'];
         $class = $data['class'];
+
+        // 2. Domain Restriction (Anti-Bot / Anti-Cheating)
+        $allowedDomains = ['st.umat.edu.gh', 'umat.edu.gh', 'gmail.com', 'icloud.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'live.com', 'msn.com'];
+        $domain = substr(strrchr($email, "@"), 1);
+        
+        if (!in_array($domain, $allowedDomains)) {
+            return redirect()->back()
+                ->withErrors(['email' => __('Registration is only allowed using school emails or trusted providers (Gmail, Outlook, iCloud, Yahoo, etc).')])
+                ->withInput();
+        }
 
         // Check for email/class mismatch if using school email
         if ($this->emailValidator->isSchoolEmail($email)) {
             $mismatchMessage = $this->emailValidator->getMismatchMessage($email, $class);
-
             if ($mismatchMessage) {
                 return redirect()->route('auth.register')
                     ->withErrors(['email' => $mismatchMessage])
@@ -140,7 +172,7 @@ class RegisterController extends Controller
         if ($verifiedUser) {
             return redirect()->route('login')
                 ->withErrors([
-                    'email' => __('An active account already exists for this email or reference number. Please log in or reset your password.'),
+                    'email' => __('An active account already exists for this email or reference number. Please log in or contact the administrator.'),
                 ]);
         }
 
@@ -156,7 +188,7 @@ class RegisterController extends Controller
         if ($existingPending) {
             return redirect()->route('auth.register')
                 ->withErrors([
-                    'email' => __('A registration request with this email or reference number is already pending review. Please wait for admin approval.'),
+                    'email' => __('A registration request with this email or reference number is likely already pending. Please contact the administrator for assistance.'),
                 ])
                 ->withInput($request->except('password', 'password_confirmation'));
         }

@@ -215,26 +215,100 @@
                                 <td class="px-5 py-4 text-xs text-slate-500">{{ optional($due->due_date)->format('M j, Y') ?? '—' }}</td>
                                 <td class="px-5 py-4 text-xs text-slate-500">{{ $due->payment_reference ?? $due->reference_number ?? '—' }}</td>
                                 <td class="px-5 py-4">
+                                    @php($status = $due->payment_status)
                                     @if ($status === 'owing')
-                                        <form method="POST" action="{{ route('student.payments.paystack.initialize', $due) }}" class="flex justify-end">
-                                            @csrf
-                                            <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
-                                                <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>
-                                                Pay with Paystack
-                                            </button>
-                                        </form>
-                                    @elseif ($status === 'pending_verification' && $due->payment_method === 'paystack')
-                                        <div class="text-right text-xs font-semibold text-amber-600">Verifying…</div>
+                                        @if(($paymentSettings['mode'] ?? 'automated') === 'automated')
+                                            <form method="POST" action="{{ route('student.payments.paystack.initialize', $due) }}" class="flex justify-end">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
+                                                    <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>
+                                                    Pay with Paystack
+                                                </button>
+                                            </form>
+                                        @else
+                                            <div class="flex justify-end">
+                                                <button 
+                                                    type="button"
+                                                    @click="$dispatch('open-modal', 'manual-pay-{{ $due->due_id }}')"
+                                                    class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90"
+                                                >
+                                                    <i class="ri-bank-card-line text-base" aria-hidden="true"></i>
+                                                    Pay Manually
+                                                </button>
+                                            </div>
+
+                                            <x-modal name="manual-pay-{{ $due->due_id }}" focusable>
+                                                <form action="{{ route('student.payments.manual.submit', $due) }}" method="POST" enctype="multipart/form-data" class="p-8">
+                                                    @csrf
+                                                    <h2 class="text-xl font-bold text-slate-900">Manual Payment Transfer</h2>
+                                                    <p class="mt-1 text-sm text-slate-500">Please follow the instructions below to complete your payment.</p>
+
+                                                    <div class="mt-6 grid gap-6 md:grid-cols-2">
+                                                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-100">
+                                                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Bank Details</h4>
+                                                            <div class="space-y-2">
+                                                                <div class="flex justify-between text-xs"><span class="text-slate-500">Bank:</span> <span class="font-bold text-slate-800">{{ $paymentSettings['bank_name'] }}</span></div>
+                                                                <div class="flex justify-between text-xs"><span class="text-slate-500">Account:</span> <span class="font-bold text-slate-800">{{ $paymentSettings['account_name'] }}</span></div>
+                                                                <div class="flex justify-between text-xs"><span class="text-slate-500">Number:</span> <span class="font-bold text-slate-800 tracking-wider">{{ $paymentSettings['account_number'] }}</span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="rounded-2xl bg-emerald-50 p-4 border border-emerald-100">
+                                                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-3">Mobile Money</h4>
+                                                            <div class="space-y-2">
+                                                                <div class="flex justify-between text-xs"><span class="text-emerald-600">Merchant/Name:</span> <span class="font-bold text-emerald-900">{{ $paymentSettings['momo_name'] }}</span></div>
+                                                                <div class="flex justify-between text-xs"><span class="text-emerald-600">Phone:</span> <span class="font-bold text-emerald-900 tracking-wider">{{ $paymentSettings['momo_number'] }}</span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-100/50">
+                                                        <h4 class="text-xs font-bold text-amber-700 flex items-center gap-2"><i class="ri-information-line"></i> Instructions</h4>
+                                                        <p class="mt-1 text-xs text-amber-600 italic">{{ $paymentSettings['instructions'] ?: 'Ensure you use your reference number as the payment reference.' }}</p>
+                                                    </div>
+
+                                                    <div class="mt-8 space-y-4">
+                                                        <div>
+                                                            <label class="text-sm font-bold text-slate-700">Upload Transfer Receipt (Image)</label>
+                                                            <input type="file" name="receipt" accept="image/*" class="mt-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b3019] file:text-white hover:file:bg-[#0b3019]/80 cursor-pointer" required>
+                                                        </div>
+                                                        <div>
+                                                            <label class="text-sm font-bold text-slate-700">Transaction ID / Reference (Optional)</label>
+                                                            <input type="text" name="reference" placeholder="e.g. 159823476" class="mt-2 w-full rounded-xl border-slate-200 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mt-8 flex justify-end gap-3">
+                                                        <button type="button" @click="$dispatch('close')" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition">Cancel</button>
+                                                        <button type="submit" class="px-6 py-2 rounded-xl text-sm font-bold text-white shadow-lg transition" style="background-color: #0b3019;">Submit Proof of Payment</button>
+                                                    </div>
+                                                </form>
+                                            </x-modal>
+                                        @endif
+                                    @elseif ($status === 'pending_verification')
+                                        <div class="flex flex-col items-end gap-1">
+                                            <div class="text-right text-xs font-bold text-amber-600">Awaiting Verification</div>
+                                            @if($due->payment_method === 'manual')
+                                                <div class="text-[9px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded border">Payment proof submitted</div>
+                                            @endif
+                                        </div>
                                     @elseif ($status === 'paid')
                                         <a href="{{ route('student.payments.paystack.receipt', $due) }}" class="inline-flex items-center gap-2 rounded-full border border-[#0b3019]/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019] shadow-sm transition hover:-translate-y-0.5 hover:border-[#0b3019]/50">
                                             <i class="ri-file-download-line text-base" aria-hidden="true"></i>
                                             Download receipt
                                         </a>
-                                    @else
-                                        <div class="text-right text-xs text-slate-400">—</div>
                                     @endif
                                 </td>
                             </tr>
+                            @if($due->rejection_reason && $status === 'owing')
+                                <tr class="bg-rose-50/30 border-t-0">
+                                    <td colspan="7" class="px-5 py-2">
+                                        <div class="flex items-center gap-2 text-[10px] font-bold text-rose-600">
+                                            <i class="ri-error-warning-line"></i>
+                                            <span>Previous Submission Rejected: {{ $due->rejection_reason }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
                         @empty
                             <tr>
                                 <td colspan="7" class="px-6 py-12 text-center text-sm text-slate-500">
@@ -278,20 +352,38 @@
                                 @endif
                             </dl>
                             @if ($due->payment_status === 'owing')
-                                <form method="POST" action="{{ route('student.payments.paystack.initialize', $due) }}" class="mt-4">
-                                    @csrf
-                                    <button type="submit" class="w-full rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
-                                        <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>
-                                        Pay Now
+                                @if(($paymentSettings['mode'] ?? 'automated') === 'automated')
+                                    <form method="POST" action="{{ route('student.payments.paystack.initialize', $due) }}" class="mt-4">
+                                        @csrf
+                                        <button type="submit" class="w-full rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
+                                            <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>
+                                            Pay Now
+                                        </button>
+                                    </form>
+                                @else
+                                    <button 
+                                        type="button" 
+                                        @click="$dispatch('open-modal', 'manual-pay-{{ $due->due_id }}')"
+                                        class="mt-4 w-full rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90"
+                                    >
+                                        <i class="ri-bank-card-line text-base"></i>
+                                        Pay Manually
                                     </button>
-                                </form>
-                            @elseif ($due->payment_status === 'pending_verification' && $due->payment_method === 'paystack')
-                                <p class="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">Verifying Paystack payment…</p>
+                                @endif
+                            @elseif ($due->payment_status === 'pending_verification')
+                                <p class="mt-4 text-center text-xs font-bold text-amber-600">Verification in progress…</p>
                             @elseif ($due->payment_status === 'paid')
                                 <a href="{{ route('student.payments.paystack.receipt', $due) }}" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#0b3019]/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019] shadow-sm transition hover:-translate-y-0.5 hover:border-[#0b3019]/50">
                                     <i class="ri-file-download-line text-base" aria-hidden="true"></i>
                                     Download receipt
                                 </a>
+                            @endif
+
+                            @if($due->rejection_reason && $due->payment_status === 'owing')
+                                <div class="mt-3 rounded-xl bg-rose-50 p-2 text-[10px] font-bold text-rose-600 flex items-center gap-2">
+                                    <i class="ri-error-warning-line"></i>
+                                    <span>Rejected: {{ $due->rejection_reason }}</span>
+                                </div>
                             @endif
                         </article>
                     @empty

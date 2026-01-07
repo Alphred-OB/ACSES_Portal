@@ -1,9 +1,18 @@
 @php
-    // Get pending registrations count for badge (with fallback if table doesn't exist)
+    // Get pending registrations count
     try {
         $pendingRegistrationsCount = \App\Models\PendingRegistration::pending()->count();
     } catch (\Exception $e) {
         $pendingRegistrationsCount = 0;
+    }
+
+    // Get pending dues verifications count
+    try {
+        $pendingDuesCount = \App\Models\Due::where('payment_status', 'pending_verification')
+            ->where('payment_method', 'manual')
+            ->count();
+    } catch (\Exception $e) {
+        $pendingDuesCount = 0;
     }
 
     $navConfig = [
@@ -43,8 +52,17 @@
         [
             'label' => 'Dues',
             'route_name' => 'admin.dues.index',
-            'pattern' => 'admin.dues.*',
+            'pattern' => 'admin.dues.index',
             'icon' => 'ri-money-dollar-circle-line',
+        ],
+        [
+            'label' => 'Verifications',
+            'route_name' => 'admin.dues.verifications.index',
+            'pattern' => 'admin.dues.verifications.*',
+            'icon' => 'ri-verified-badge-line',
+            'badge' => $pendingDuesCount > 0 ? $pendingDuesCount : null,
+            'badge_color' => 'bg-amber-500',
+            'href' => url('/admin/dues/verifications'),
         ],
         [
             'label' => 'Announcements',

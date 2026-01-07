@@ -117,4 +117,109 @@
             <p class="text-sm font-medium text-slate-700">Signing you in…</p>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('[data-auth-form]');
+            const overlay = document.getElementById('auth-loading-overlay');
+
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    // Show loading overlay
+                    if (overlay) {
+                        overlay.classList.remove('hidden');
+                        overlay.classList.add('flex');
+                    }
+
+                    const formData = new FormData(form);
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            credentials: 'same-origin',
+                            redirect: 'follow',
+                        });
+
+                        // Check for rate limit
+                        if (response.status === 429) {
+                            // Hide loading overlay
+                            if (overlay) {
+                                overlay.classList.add('hidden');
+                                overlay.classList.remove('flex');
+                            }
+
+                            // Try to get retry_after from response
+                            let seconds = 60;
+                            let message = 'Too many login attempts. Please wait before trying again.';
+                            
+                            try {
+                                const data = await response.json();
+                                seconds = data.retry_after || 60;
+                                message = data.message || message;
+                            } catch (e) {
+                                // Try to get from header
+                                const retryAfter = response.headers.get('Retry-After');
+                                if (retryAfter) {
+                                    seconds = parseInt(retryAfter, 10) || 60;
+                                }
+                            }
+
+                            // Show the rate limit countdown
+                            if (window.RateLimitHandler) {
+                                window.RateLimitHandler.show(seconds, message, 'Too Many Login Attempts');
+                            } else {
+                                alert(message);
+                            }
+                            return;
+                        }
+
+                        // For successful responses or redirects, follow the redirect
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+
+                        // For HTML responses (validation errors), replace the page content
+                        if (response.ok) {
+                            const html = await response.text();
+                            // Check if it's a redirect in the HTML
+                            if (response.url !== window.location.href) {
+                                window.location.href = response.url;
+                            } else {
+                                // Replace document with response (for validation errors)
+                                document.open();
+                                document.write(html);
+                                document.close();
+                            }
+                        } else {
+                            // Hide loading overlay on error
+                            if (overlay) {
+                                overlay.classList.add('hidden');
+                                overlay.classList.remove('flex');
+                            }
+                            // For other errors, submit the form normally
+                            form.submit();
+                        }
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        // Hide loading overlay
+                        if (overlay) {
+                            overlay.classList.add('hidden');
+                            overlay.classList.remove('flex');
+                        }
+                        // Fallback to normal form submission
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
 </x-layouts.auth>
+

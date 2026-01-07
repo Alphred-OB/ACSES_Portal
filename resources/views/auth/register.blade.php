@@ -22,7 +22,19 @@
         <form method="POST" action="{{ route('auth.register.submit') }}" class="space-y-12" data-auth-form>
             @csrf
 
-            <div class="space-y-10">
+            <!-- Security Honeypot (Invisible to humans) -->
+            <div class="hidden" aria-hidden="true">
+                <input type="text" name="website_origin" tabindex="-1" autocomplete="off">
+            </div>
+
+            @if(session('error'))
+                <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 animate-pulse">
+                    <div class="flex items-center gap-2">
+                        <i class="ri-alert-line text-lg"></i>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                </div>
+            @endif
                 <div class="grid gap-6 lg:grid-cols-2">
                     <div class="lg:col-span-2 grid gap-6 md:grid-cols-2">
                         <div class="space-y-2">
@@ -82,8 +94,16 @@
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                 <i class="ri-hashtag text-lg" aria-hidden="true"></i>
                             </span>
-                            <input id="index_number" name="index_number" type="text" value="{{ old('index_number') }}" required inputmode="numeric" pattern="\d{9,11}" maxlength="11" data-numeric-only class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="9012345623" />
+                            <input id="index_number" name="index_number" type="text" value="{{ old('index_number') }}" required inputmode="numeric" pattern="\d{9,11}" maxlength="11" data-numeric-only class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="9012345623" />
+                            {{-- Validation status indicator --}}
+                            <div id="index_number-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <i id="index_number-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
+                                <i id="index_number-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
+                                <i id="index_number-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
+                            </div>
                         </div>
+                        {{-- Validation message --}}
+                        <div id="index_number-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
                         @error('index_number')
                             <p class="text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -95,8 +115,16 @@
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                 <i class="ri-mail-line text-lg" aria-hidden="true"></i>
                             </span>
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="cy-yourname@st.umat.edu.gh" />
+                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="cy-yourname@st.umat.edu.gh" />
+                            {{-- Validation status indicator --}}
+                            <div id="email-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <i id="email-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
+                                <i id="email-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
+                                <i id="email-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
+                            </div>
                         </div>
+                        {{-- Validation message --}}
+                        <div id="email-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
                         @error('email')
                             <p class="text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -139,8 +167,16 @@
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                                 <i class="ri-phone-line text-lg" aria-hidden="true"></i>
                             </span>
-                            <input id="phone_number" name="phone_number" type="tel" value="{{ old('phone_number') }}" inputmode="numeric" pattern="\d{9,11}" maxlength="11" data-numeric-only class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="0541234567" />
+                            <input id="phone_number" name="phone_number" type="tel" value="{{ old('phone_number') }}" inputmode="numeric" pattern="\d{9,11}" maxlength="11" data-numeric-only class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="0541234567" />
+                            {{-- Validation status indicator --}}
+                            <div id="phone_number-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <i id="phone_number-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
+                                <i id="phone_number-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
+                                <i id="phone_number-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
+                            </div>
                         </div>
+                        {{-- Validation message --}}
+                        <div id="phone_number-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
                         @error('phone_number')
                             <p class="text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -405,181 +441,280 @@
         });
     </script>
 
-    {{-- Username validation script --}}
+    {{-- Generic Field Validation Script --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const usernameInput = document.getElementById('username');
-            const feedbackEl = document.getElementById('username-feedback');
-            const checkingIcon = document.getElementById('username-checking');
-            const availableIcon = document.getElementById('username-available');
-            const takenIcon = document.getElementById('username-taken');
-            const submitBtn = document.getElementById('submit-btn');
-            const form = document.querySelector('[data-auth-form]');
-            
-            let debounceTimer = null;
-            let lastCheckedUsername = '';
-            let usernameIsValid = false; // Track validity state
-
-            // Helper to hide all icons
-            function hideAllIcons() {
-                checkingIcon.classList.add('hidden');
-                availableIcon.classList.add('hidden');
-                takenIcon.classList.add('hidden');
-            }
-
-            // Helper to update visual state
-            function updateState(state, message) {
-                hideAllIcons();
-                feedbackEl.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700', 'bg-rose-50', 'text-rose-700', 'bg-slate-50', 'text-slate-600');
-                
-                // Update validity state
-                usernameIsValid = (state === 'available' || state === 'idle');
-                
-                switch(state) {
-                    case 'checking':
-                        checkingIcon.classList.remove('hidden');
-                        feedbackEl.classList.add('hidden');
-                        usernameIsValid = false; // Not valid while checking
-                        break;
-                    case 'available':
-                        availableIcon.classList.remove('hidden');
-                        feedbackEl.classList.add('bg-emerald-50', 'text-emerald-700');
-                        feedbackEl.textContent = message;
-                        usernameIsValid = true;
-                        break;
-                    case 'taken':
-                        takenIcon.classList.remove('hidden');
-                        feedbackEl.classList.add('bg-rose-50', 'text-rose-700');
-                        feedbackEl.textContent = message;
-                        usernameIsValid = false;
-                        break;
-                    case 'error':
-                        feedbackEl.classList.add('bg-rose-50', 'text-rose-700');
-                        feedbackEl.textContent = message;
-                        usernameIsValid = false;
-                        break;
-                    case 'idle':
-                        feedbackEl.classList.add('hidden');
-                        // For idle, we allow submission (user hasn't typed yet or empty)
-                        usernameIsValid = true;
-                        break;
-                }
-
-                // Update input border color
-                usernameInput.classList.remove('border-emerald-400', 'border-rose-400');
-                if (state === 'available') {
-                    usernameInput.classList.add('border-emerald-400');
-                } else if (state === 'taken' || state === 'error') {
-                    usernameInput.classList.add('border-rose-400');
-                }
-            }
-
-            // Check username availability via API
-            async function checkUsername(username) {
-                if (!username) {
-                    updateState('idle', '');
-                    return;
-                }
-
-                updateState('checking', '');
-                
-                try {
-                    const response = await fetch('{{ route("auth.register.check-username") }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
-                            'Accept': 'application/json',
+            class ValidationManager {
+                constructor() {
+                    this.form = document.querySelector('[data-auth-form]');
+                    this.csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+                    this.validationState = {
+                        username: false,
+                        email: false,
+                        index_number: false,
+                        phone_number: false
+                    };
+                    
+                    this.fields = {
+                        username: {
+                            input: document.getElementById('username'),
+                            regex: /^[a-zA-Z0-9_-]+$/ 
                         },
-                        body: JSON.stringify({ username: username }),
+                        email: {
+                            input: document.getElementById('email'),
+                            // Regex is handled by API check mostly, but we can do basic format
+                            regex: /^\S+@\S+\.\S+$/
+                        },
+                        index_number: {
+                            input: document.getElementById('index_number'),
+                            regex: /^\d{9,11}$/
+                        },
+                        phone_number: {
+                            input: document.getElementById('phone_number'),
+                            regex: /^\d{9,11}$/,
+                            optional: true // phone is technically nullable in DB but standard users should provide it
+                        }
+                    };
+
+                    this.init();
+                }
+
+                init() {
+                    Object.keys(this.fields).forEach(field => {
+                        const config = this.fields[field];
+                        if (config.input) {
+                            config.input.addEventListener('input', () => this.handleInput(field));
+                            config.input.addEventListener('change', () => this.handleInput(field));
+                            
+                            // Initialize state (mark as false initially if empty and required)
+                            if (!config.optional && !config.input.value.trim()) {
+                                this.validationState[field] = false;
+                            } else {
+                                // If pre-filled, trigger check
+                                if (config.input.value.trim()) {
+                                    this.handleInput(field);
+                                } else {
+                                    // Empty and optional
+                                    if(config.optional) this.validationState[field] = true;
+                                }
+                            }
+                        }
                     });
 
-                    const data = await response.json();
-                    
-                    // Only update if this is still the current value
-                    if (usernameInput.value.trim() === username) {
-                        if (data.available) {
-                            updateState('available', data.message);
-                        } else {
-                            updateState('taken', data.message);
+                    // Intercept form submission
+                    if (this.form) {
+                        this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                    }
+                }
+
+                handleInput(field) {
+                    const config = this.fields[field];
+                    const value = config.input.value.trim();
+                    const state = this.getElements(field);
+
+                    // Clear existing timer
+                    if (config.timer) clearTimeout(config.timer);
+
+                    // Allow empty if optional
+                    if (!value) {
+                       this.updateUI(field, 'idle');
+                       this.validationState[field] = !!config.optional;
+                       return;
+                    }
+
+                    // Basic Regex Check
+                    if (config.regex && !config.regex.test(value)) {
+                         this.updateUI(field, 'error', `Invalid format.`);
+                         this.validationState[field] = false;
+                         return;
+                    }
+
+                    // Debounce API Check
+                    this.updateUI(field, 'checking');
+                    config.timer = setTimeout(() => this.checkAvailability(field, value), 500);
+                }
+
+                async checkAvailability(field, value) {
+                    try {
+                        const response = await fetch('{{ route("auth.register.check-availability") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': this.csrfToken,
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({ field, value })
+                        });
+
+                        // Handle Rate Limit
+                        if (response.status === 429) {
+                             const data = await response.json();
+                             this.updateUI(field, 'error', 'Too many checks. Please wait.');
+                             if (window.RateLimitHandler && data.type === 'rate_limit') {
+                                 window.RateLimitHandler.show(data.retry_after, data.message, 'Slow Down');
+                             }
+                             return;
                         }
-                    }
-                } catch (error) {
-                    console.error('Username check failed:', error);
-                    updateState('idle', '');
-                }
-            }
 
-            // Debounced input handler
-            function handleInput() {
-                const username = usernameInput.value.trim();
-                
-                // Clear any pending check
-                if (debounceTimer) {
-                    clearTimeout(debounceTimer);
-                }
-
-                // Don't check if empty or same as last check
-                if (!username) {
-                    updateState('idle', '');
-                    lastCheckedUsername = '';
-                    return;
-                }
-
-                if (username === lastCheckedUsername) {
-                    return;
-                }
-
-                // Basic client-side validation first
-                // (No minimum length restriction)
-
-                if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-                    updateState('error', 'Username can only contain letters, numbers, dashes, and underscores.');
-                    return;
-                }
-
-                // Debounce the API call
-                updateState('checking', '');
-                debounceTimer = setTimeout(() => {
-                    lastCheckedUsername = username;
-                    checkUsername(username);
-                }, 400);
-            }
-
-            usernameInput.addEventListener('input', handleInput);
-            usernameInput.addEventListener('change', handleInput);
-
-            // Prevent form submission if username is not valid
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    const username = usernameInput.value.trim();
-                    
-                    // If username is empty, let HTML5 validation handle it
-                    if (!username) {
-                        return;
-                    }
-                    
-                    // If still checking or username is taken/invalid, prevent submission
-                    if (!usernameIsValid) {
-                        e.preventDefault();
-                        usernameInput.focus();
+                        const data = await response.json();
                         
-                        // If we're still checking, wait and check again
-                        if (checkingIcon && !checkingIcon.classList.contains('hidden')) {
-                            alert('Please wait while we verify your username availability.');
+                        // Ensure value hasn't changed since request started
+                        if (this.fields[field].input.value.trim() !== value) return;
+
+                        if (data.available) {
+                            this.updateUI(field, 'available', data.message);
+                            this.validationState[field] = true;
                         } else {
-                            alert('Please choose a valid username before submitting.');
+                            this.updateUI(field, 'taken', data.message);
+                            this.validationState[field] = false;
                         }
+
+                    } catch (error) {
+                        console.error('Validation error:', error);
+                        this.updateUI(field, 'idle'); // Fail gracefully
+                    }
+                }
+
+                getElements(field) {
+                    return {
+                        checking: document.getElementById(`${field}-checking`),
+                        available: document.getElementById(`${field}-available`),
+                        taken: document.getElementById(`${field}-taken`),
+                        feedback: document.getElementById(`${field}-feedback`)
+                    };
+                }
+
+                updateUI(field, status, message = '') {
+                    const els = this.getElements(field);
+                    const input = this.fields[field].input;
+
+                    if (!els.checking) return; // Guard for missing elements
+
+                    // Reset icons
+                    els.checking.classList.add('hidden');
+                    els.available.classList.add('hidden');
+                    els.taken.classList.add('hidden');
+                    
+                    // Reset feedback
+                    els.feedback.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700', 'bg-rose-50', 'text-rose-700');
+                    els.feedback.textContent = message;
+
+                    // Reset input border
+                    input.classList.remove('border-emerald-400', 'border-rose-400');
+
+                    switch (status) {
+                        case 'checking':
+                            els.checking.classList.remove('hidden');
+                            els.feedback.classList.add('hidden');
+                            break;
+                        case 'available':
+                            els.available.classList.remove('hidden');
+                            els.feedback.classList.add('bg-emerald-50', 'text-emerald-700');
+                            input.classList.add('border-emerald-400');
+                            break;
+                        case 'taken':
+                        case 'error':
+                            els.taken.classList.remove('hidden');
+                            els.feedback.classList.add('bg-rose-50', 'text-rose-700');
+                            input.classList.add('border-rose-400');
+                            break;
+                        case 'idle':
+                            els.feedback.classList.add('hidden');
+                            break;
+                    }
+                }
+
+                async handleSubmit(e) {
+                    // Check if there are any invalid fields (that are not empty/optional)
+                    const invalidFields = Object.keys(this.fields).filter(field => {
+                        const config = this.fields[field];
+                        if (!config.input) return false;
+                        
+                        const val = config.input.value.trim();
+                        // If it has a value and our state says it's invalid, block it
+                        // Exception: Phone is optional, but if provided must be valid
+                        if (val && this.validationState[field] === false) return true;
+                        
+                        // If it's required and empty (HTML5 required handles this mostly, but good double check)
+                        if (!config.optional && !val) return false; // let native validation handle empty
+                        
+                        return false; 
+                    });
+
+                    if (invalidFields.length > 0) {
+                        e.preventDefault();
+                        const firstInvalid = invalidFields[0];
+                        this.fields[firstInvalid].input.focus();
+                        alert(`Please fix the ${firstInvalid.replace('_', ' ')} before submitting.`);
                         return false;
                     }
-                });
+                    
+                    // AJAX Submission for Rate Limit Handling
+                    e.preventDefault();
+                    
+                    const overlay = document.getElementById('auth-loading-overlay');
+                    if (overlay) {
+                        overlay.classList.remove('hidden');
+                        overlay.classList.add('flex');
+                    }
+
+                    const formData = new FormData(this.form);
+
+                    try {
+                        const response = await fetch(this.form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+
+                        // Handle Rate Limit (429)
+                        if (response.status === 429) {
+                            if (overlay) {
+                                overlay.classList.add('hidden');
+                                overlay.classList.remove('flex');
+                            }
+                            
+                            const data = await response.json();
+                            const seconds = data.retry_after || 60;
+                            
+                            if (window.RateLimitHandler) {
+                                window.RateLimitHandler.show(seconds, data.message || 'Too many attempts.', 'Rate Limit Reached');
+                            } else {
+                                alert(data.message || 'Too many attempts. Please wait.');
+                            }
+                            return;
+                        }
+
+                        // Handle Success or Validation Errors
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else if (response.ok) {
+                            const html = await response.text();
+                             document.open();
+                             document.write(html);
+                             document.close();
+                        } else {
+                            // Fallback
+                             const html = await response.text();
+                             document.open();
+                             document.write(html);
+                             document.close();
+                        }
+
+                    } catch (error) {
+                        console.error('Registration error:', error);
+                        // Fallback: Submit normally if fetch fails
+                        this.form.submit();
+                    }
+                }
             }
 
-            // Check on page load if there's a value
-            if (usernameInput.value.trim()) {
-                handleInput();
-            }
+            new ValidationManager();
         });
     </script>
-</x-layouts.auth>
 
+</x-layouts.auth>

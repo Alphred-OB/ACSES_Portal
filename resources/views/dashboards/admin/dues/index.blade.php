@@ -109,12 +109,80 @@
                         <span x-show="showSummary">Hide summary</span>
                         <span x-show="!showSummary" x-cloak>Show summary</span>
                     </button>
-                    <a href="{{ route('admin.dues.create') }}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0b3019] px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-[#0b3019]/20 transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
-                        <i class="ri-add-line text-lg"></i>
-                        New due
-                    </a>
+                    <button type="button" @click="$dispatch('open-modal', 'global-payment-settings')" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#0b3019]/20 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019] shadow-sm transition hover:bg-slate-50">
+                        <i class="ri-settings-4-line text-base"></i>
+                        Settings
+                    </button>
+
                 </div>
             </header>
+
+            <x-modal name="global-payment-settings" focusable>
+                <form x-data="{ paymentMode: '{{ $paymentSettings['payment_mode'] ?? 'automated' }}' }" action="{{ route('admin.dues.settings.update') }}" method="POST" class="p-8 space-y-8">
+                    @csrf
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 leading-tight">Global Payment Configuration</h2>
+                        <p class="mt-1 text-sm text-slate-500">Configure how students pay their dues portal-wide.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-slate-700">Payment Gateway Mode</label>
+                        <div class="flex gap-6">
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" x-model="paymentMode" name="payment_mode" value="automated" class="text-[#0b3019] focus:ring-[#0b3019]">
+                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition">Automated (Paystack)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" x-model="paymentMode" name="payment_mode" value="manual" class="text-[#0b3019] focus:ring-[#0b3019]">
+                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition">Manual Verification</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div x-show="paymentMode === 'manual'" x-collapse class="grid gap-6 border-t border-slate-100 pt-8 md:grid-cols-2">
+                        <div class="space-y-5">
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-[#0b3019]">Manual Bank Details</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Bank Name</label>
+                                    <input type="text" name="manual_bank_name" value="{{ $paymentSettings['manual_bank_name'] ?? '' }}" placeholder="e.g. GCB Bank" class="mt-1 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Account Name</label>
+                                    <input type="text" name="manual_account_name" value="{{ $paymentSettings['manual_account_name'] ?? '' }}" placeholder="e.g. ACSES UMaT" class="mt-1 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Account Number</label>
+                                    <input type="text" name="manual_account_number" value="{{ $paymentSettings['manual_account_number'] ?? '' }}" placeholder="e.g. 1234567890" class="mt-1 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-[#0b3019]">Mobile Money / Instructions</h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Momo Number</label>
+                                    <input type="text" name="manual_momo_number" value="{{ $paymentSettings['manual_momo_number'] ?? '' }}" placeholder="e.g. 0541234567" class="mt-1 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Momo Name (Merchant)</label>
+                                    <input type="text" name="manual_momo_name" value="{{ $paymentSettings['manual_momo_name'] ?? '' }}" placeholder="e.g. ACSES President" class="mt-1 block w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Payment Instructions</label>
+                                    <textarea name="manual_instructions" rows="2" placeholder="e.g. Use your Reference Number as payment reference." class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">{{ $paymentSettings['manual_instructions'] ?? '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button type="button" @click="$dispatch('close')" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition">Cancel</button>
+                        <button type="submit" class="px-8 py-2 rounded-xl text-sm font-bold text-white shadow-xl transition hover:-translate-y-0.5" style="background-color: #0b3019;">Save Settings</button>
+                    </div>
+                </form>
+            </x-modal>
 
             <section class="space-y-6 rounded-3xl border border-[#0b3019]/10 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
                 <div class="grid gap-4 md:grid-cols-4" x-show="showSummary" x-transition.opacity.duration.150ms>
@@ -239,6 +307,7 @@
                                 <th class="px-5 py-2.5">Amount</th>
                                 <th class="px-5 py-2.5">Due date</th>
                                 <th class="px-5 py-2.5">Status</th>
+                                <th class="px-5 py-2.5">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 bg-white">
@@ -246,9 +315,9 @@
                                 <tr class="transition hover:bg-slate-50/60">
                                     <td class="px-5 py-3">
                                         <div class="flex flex-col gap-1">
-                                            <span class="text-sm font-semibold text-slate-900">{{ $due->student->fullname ?? $due->student->username ?? 'Student #' . $due->student_id }}</span>
-                                            <span class="text-xs text-slate-500">{{ $due->student->email ?? 'No email' }}</span>
-                                            <span class="text-xs text-slate-400">{{ $due->student->class ?? '—' }} · Year {{ $due->student->year ?? '—' }}</span>
+                                            <span class="text-sm font-semibold text-slate-900">{{ $due->student?->fullname ?? $due->student?->username ?? 'Unknown (ID: ' . $due->student_id . ')' }}</span>
+                                            <span class="text-xs text-slate-500">{{ $due->student?->email ?? 'No email' }}</span>
+                                            <span class="text-xs text-slate-400">{{ $due->student?->class ?? '—' }} · Year {{ $due->student?->year ?? '—' }}</span>
                                         </div>
                                     </td>
                                     <td class="px-5 py-3 text-sm text-slate-600">#{{ $due->payment_reference ?? $due->reference_number ?? $due->due_id }}</td>
@@ -266,6 +335,11 @@
                                         ])>
                                             {{ $statusLabels[$status] ?? ucfirst(str_replace('_', ' ', $status)) }}
                                         </span>
+                                    </td>
+                                    <td class="px-5 py-3 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            {{-- Edit functionality removed to prevent modification --}}
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -292,11 +366,11 @@
                                 <dl class="mt-3 space-y-1 text-xs text-slate-500">
                                     <div class="flex justify-between">
                                         <dt>Student</dt>
-                                        <dd class="text-right text-slate-700">{{ $due->student->fullname ?? $due->student->username ?? 'Student #' . $due->student_id }}</dd>
+                                        <dd class="text-right text-slate-700">{{ $due->student?->fullname ?? $due->student?->username ?? 'Unknown (ID: ' . $due->student_id . ')' }}</dd>
                                     </div>
                                     <div class="flex justify-between">
                                         <dt>Class / Year</dt>
-                                        <dd>{{ $due->student->class ?? '—' }} · {{ $due->student->year ? 'Year ' . $due->student->year : '—' }}</dd>
+                                        <dd>{{ $due->student?->class ?? '—' }} · {{ $due->student?->year ? 'Year ' . $due->student->year : '—' }}</dd>
                                     </div>
                                     <div class="flex justify-between">
                                         <dt>Due date</dt>

@@ -73,4 +73,69 @@
             <a href="{{ route('login') }}" class="font-semibold text-[#0b3019] hover:underline">Back to sign in</a>
         </div>
     </div>
+    </div>
+
+    {{-- Rate limit handler script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('[data-auth-form]');
+            const overlay = document.getElementById('auth-loading-overlay');
+
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    // Show loading overlay
+                    if (overlay) {
+                        overlay.classList.remove('hidden');
+                        overlay.classList.add('flex');
+                    }
+
+                    const formData = new FormData(form);
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+
+                        // Handle Rate Limit (429)
+                        if (response.status === 429) {
+                            if (overlay) {
+                                overlay.classList.add('hidden');
+                                overlay.classList.remove('flex');
+                            }
+                            
+                            const data = await response.json();
+                            const seconds = data.retry_after || 60;
+                            
+                            if (window.RateLimitHandler) {
+                                window.RateLimitHandler.show(seconds, data.message || 'Too many attempts.', 'Rate Limit Reached');
+                            } else {
+                                alert(data.message || 'Too many attempts. Please wait.');
+                            }
+                            return;
+                        }
+
+                        // Handle Redirects or Success
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else {
+                            const html = await response.text();
+                            document.open();
+                            document.write(html);
+                            document.close();
+                        }
+                    } catch (error) {
+                        console.error('OTP Submit error:', error);
+                        form.submit();
+                    }
+                });
+            }
+        });
+    </script>
 </x-layouts.auth>

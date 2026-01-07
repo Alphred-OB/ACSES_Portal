@@ -169,7 +169,7 @@ class AdminDueService
                 'year' => $yearLabel === 'Unassigned' ? null : $yearLabel,
                 'label' => $yearLabel === 'Unassigned'
                     ? $classLabel
-                    : ($classLabel . ' · Year ' . $yearLabel),
+                    : ($classLabel . ' Â- Year ' . $yearLabel),
                 'amount' => $classYearPairs[$bestClassYearKey],
             ];
         }
@@ -489,6 +489,7 @@ class AdminDueService
 
             User::query()
                 ->where('role', 'student')
+                ->whereNotNull('email_verified_at')
                 ->orderBy('user_id')
                 ->chunkById(500, function (Collection $students) use ($amountMatrix, $description, $dueDate, $academicYear, $baseAmount, $admin) {
                     $insert = [];
@@ -551,6 +552,11 @@ class AdminDueService
 
     public function updateDue(Due $due, array $data, User $admin): Due
     {
+        // Hard-lock "Paid" dues against amount, description, and year edits
+        if ($due->payment_status === 'paid') {
+            unset($data['amount'], $data['description'], $data['academic_year']);
+        }
+
         $assignable = [
             'description',
             'amount',
@@ -590,6 +596,10 @@ class AdminDueService
 
     public function deleteDue(Due $due): void
     {
+        if ($due->payment_status === 'paid') {
+            throw new \Exception(__('Paid dues cannot be deleted.'));
+        }
+
         $due->delete();
     }
 
@@ -717,3 +727,4 @@ class AdminDueService
         }
     }
 }
+

@@ -247,5 +247,8 @@
             });
         });
     </script>
+
+    {{-- Rate limit handler for countdown timer --}}
+    <x-rate-limit-handler />
 </body>
 </html>
