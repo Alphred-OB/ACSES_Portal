@@ -11,13 +11,28 @@
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
+    <!-- FOUC prevention: apply theme before first paint -->
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', t);
+                if (t === 'dark') document.documentElement.classList.add('dark');
+            } catch(e) {}
+        })();
+    </script>
+
+    <!-- Instrument Sans — matches Tailwind @theme font-sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-H0O1fTRnQaG6Ajbt8kKlsntv0J6IkSKdVXlZKDGj5nIwR4ayQM1MHgt+1YJt+JgvG5GdZBdp71++GLVxN7R2eA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900" x-data="{ adminSidebarOpen: false }" x-on:admin-sidebar:toggle.window="adminSidebarOpen = !adminSidebarOpen" x-on:admin-sidebar:open.window="adminSidebarOpen = true" x-on:admin-sidebar:close.window="adminSidebarOpen = false" x-on:keydown.escape.window="adminSidebarOpen = false" :class="{ 'overflow-hidden': adminSidebarOpen }">
+<body class="min-h-screen bg-slate-50 text-slate-900" x-data="{ adminSidebarOpen: false, adminSidebarCollapsed: localStorage.getItem('admin-sidebar-collapsed') === 'true' }" x-on:admin-sidebar:toggle.window="adminSidebarOpen = !adminSidebarOpen" x-on:admin-sidebar:open.window="adminSidebarOpen = true" x-on:admin-sidebar:close.window="adminSidebarOpen = false" x-on:keydown.escape.window="adminSidebarOpen = false" :class="{ 'overflow-hidden': adminSidebarOpen }">
     <div class="flex min-h-screen w-full">
         @isset($sidebar)
             {{ $sidebar }}
@@ -51,5 +66,19 @@
     </div>
 
     @stack('scripts')
+    <script src="https://unpkg.com/lucide@0.456.0/dist/umd/lucide.min.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons({
+                    attrs: {
+                        width: '1em',
+                        height: '1em',
+                        'stroke-width': '2'
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

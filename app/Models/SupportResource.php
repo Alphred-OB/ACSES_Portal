@@ -9,6 +9,19 @@ class SupportResource extends Model
 {
     use HasFactory;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($resource) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+
+        static::deleted(function ($resource) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+    }
+
     public const RESOURCE_TYPES = ['link', 'file', 'external'];
 
     public const CONTENT_TYPES = [
@@ -22,7 +35,7 @@ class SupportResource extends Model
         'other',
     ];
 
-    public const CLASSES = ['Cyber Security', 'Computer Science', 'Information System'];
+    public const CLASSES = ['Cyber Security', 'Computer Science', 'Information System', 'Robotics'];
 
     public const YEARS = ['1', '2', '3', '4'];
 

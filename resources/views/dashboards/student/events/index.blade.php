@@ -4,63 +4,9 @@
         $categories = $categories ?? collect();
     @endphp
 
-    <div x-data="{ loading: true }" x-init="setTimeout(() => { loading = false }, 600)" class="mx-auto w-full max-w-6xl space-y-10 px-4 py-12 sm:px-6 lg:px-8">
-        <div x-show="loading" x-transition.opacity.duration.200ms class="space-y-8" role="status" aria-live="polite">
-            <section class="hidden sm:block overflow-hidden rounded-[24px] border border-[#0b3019]/15 bg-[#0b3019] p-8 text-white shadow-[0_20px_50px_-30px_rgba(11,48,25,0.4)]">
-                <div class="space-y-4">
-                    <div class="skeleton h-3 w-28 rounded-full bg-white/25"></div>
-                    <div class="skeleton h-8 w-2/3 rounded-2xl bg-white/20"></div>
-                    <div class="skeleton h-4 w-1/2 rounded-2xl bg-white/15"></div>
-                </div>
-            </section>
+    <div class="mx-auto w-full max-w-[1600px] space-y-10 px-4 py-12 sm:px-6 lg:px-8">
 
-            <div class="grid gap-4 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10 lg:grid-cols-[1fr_auto]">
-                <div class="flex flex-col gap-2">
-                    <div class="skeleton h-3 w-24 rounded-full bg-slate-200"></div>
-                    <div class="skeleton h-12 rounded-2xl bg-slate-100"></div>
-                </div>
-                <div class="flex items-end gap-3">
-                    <div class="skeleton h-11 w-32 rounded-full bg-slate-200"></div>
-                    <div class="skeleton h-11 w-24 rounded-full bg-slate-100"></div>
-                </div>
-                <div class="lg:col-span-2">
-                    <div class="skeleton h-3 w-28 rounded-full bg-slate-200"></div>
-                    <div class="mt-3 flex flex-wrap gap-2">
-                        @for ($i = 0; $i < 4; $i++)
-                            <span class="skeleton inline-block h-8 w-24 rounded-full bg-slate-100"></span>
-                        @endfor
-                    </div>
-                </div>
-            </div>
-
-            <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                @for ($i = 0; $i < 3; $i++)
-                    <article class="flex h-full flex-col justify-between rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/5">
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-3">
-                                <div class="skeleton h-12 w-12 rounded-2xl bg-[#0b3019]/10"></div>
-                                <div class="skeleton h-4 w-28 rounded-full bg-slate-200"></div>
-                            </div>
-                            <div class="space-y-3">
-                                <div class="skeleton h-5 w-3/4 rounded-2xl bg-slate-200"></div>
-                                <div class="skeleton h-4 w-full rounded-2xl bg-slate-100"></div>
-                            </div>
-                        </div>
-                        <div class="mt-5 space-y-2">
-                            <div class="skeleton h-4 w-3/4 rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-4 w-1/2 rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-4 w-2/3 rounded-full bg-slate-100"></div>
-                        </div>
-                        <div class="mt-5 space-y-3">
-                            <div class="skeleton h-7 w-32 rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                        </div>
-                    </article>
-                @endfor
-            </section>
-        </div>
-
-        <div x-show="!loading" x-transition.opacity.duration.200ms x-cloak class="space-y-10">
+        <div class="space-y-10">
             <section class="hidden sm:block animate-fade-slide overflow-hidden rounded-[24px] border border-[#0b3019]/15 bg-gradient-to-br from-[#0b3019] via-[#114127] to-[#0b3019] p-8 text-white shadow-[0_20px_50px_-30px_rgba(11,48,25,0.4)]">
                 <div class="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
                     <div class="space-y-4">

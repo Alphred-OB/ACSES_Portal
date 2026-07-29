@@ -1,164 +1,240 @@
-<x-layouts.marketing title="ACSES Developers">
-    @include('components.dashboard.skeleton-styles')
+<x-layouts.dashboard title="ACSES Developers">
+    @push('styles')
+        <style>
+            @keyframes pulse-ring {
+                0% { transform: scale(0.95); opacity: 0.5; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+                100% { transform: scale(0.95); opacity: 0.5; }
+            }
+            .glow-pulse {
+                animation: pulse-ring 2s infinite ease-in-out;
+            }
+            .grid-mesh {
+                background-size: 40px 40px;
+                background-image: 
+                    linear-gradient(to right, rgba(11, 48, 25, 0.04) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(11, 48, 25, 0.04) 1px, transparent 1px);
+            }
+            .radial-overlay {
+                background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 0%, rgba(248,250,252,1) 85%);
+            }
+            .text-glow {
+                text-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+            }
+            .terminal-font {
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            }
+        </style>
+    @endpush
 
     @php
         $hasContactRoute = \Illuminate\Support\Facades\Route::has('marketing.contact');
     @endphp
 
-    <section x-data="{ loading: true }" x-init="setTimeout(() => { loading = false }, 600)" class="relative overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(11,48,25,0.08),_transparent_60%)]"></div>
-        <div class="relative mx-auto w-full max-w-6xl px-5 py-16 sm:px-6 lg:px-8">
-            <div x-show="loading" x-transition.opacity.duration.200ms class="space-y-16" role="status" aria-live="polite">
-                <div class="mx-auto max-w-4xl">
-                    <div class="relative overflow-hidden rounded-[32px] border border-[#0b3019]/10 bg-[#0b3019] px-8 py-12 text-center shadow-lg shadow-[#0b3019]/15">
-                        <div class="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/10 blur-3xl"></div>
-                        <div class="absolute -bottom-16 left-6 h-56 w-56 rounded-full bg-white/5 blur-3xl"></div>
-                        <div class="relative space-y-4">
-                            <div class="mx-auto flex justify-center">
-                                <span class="skeleton inline-block h-8 w-44 rounded-full bg-white/25"></span>
-                            </div>
-                            <div class="space-y-3">
-                                <div class="skeleton mx-auto h-10 w-96 rounded-2xl bg-white/25"></div>
-                                <div class="skeleton mx-auto h-4 w-72 rounded-2xl bg-white/20"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <section class="relative overflow-hidden bg-slate-50/70 min-h-screen pb-20">
+        <!-- Interactive & Decorative Ambient Backgrounds -->
+        <div class="absolute inset-0 grid-mesh pointer-events-none"></div>
+        <div class="absolute inset-0 radial-overlay pointer-events-none"></div>
+        <div class="absolute -top-48 -left-48 h-[600px] w-[600px] rounded-full bg-emerald-500/10 blur-3xl pointer-events-none animate-float"></div>
+        <div class="absolute top-[40%] -right-48 h-[700px] w-[700px] rounded-full bg-teal-500/5 blur-3xl pointer-events-none animate-float" style="animation-delay: -3s;"></div>
 
-                <div class="grid gap-8 md:grid-cols-3">
-                    @for ($i = 0; $i < 3; $i++)
-                        <article class="rounded-3xl border border-[#0b3019]/10 bg-white/85 p-6 shadow-lg shadow-[#0b3019]/10">
-                            <div class="h-64 w-full overflow-hidden rounded-2xl border border-[#0b3019]/10 bg-slate-100">
-                                <div class="skeleton h-full w-full"></div>
+        <div class="relative mx-auto w-full max-w-[1600px] px-5 py-12 sm:px-6 lg:px-8">
+            <div class="space-y-16">
+
+                <!-- ================= BRAND HERO BANNER ================= -->
+                <header class="mx-auto max-w-4xl text-center space-y-6 animate-fade-slide">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200/60 px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#0b3019] shadow-sm">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        ACSES Product Studio
+                    </span>
+                    <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl text-glow leading-none">
+                        Shaping the Digital Future <br class="hidden sm:inline">
+                        <span class="text-[#0b3019]">of Student Experience</span>
+                    </h1>
+                    <p class="mx-auto max-w-2xl text-base leading-relaxed text-slate-500 sm:text-lg">
+                        We design, build, and optimize every digital touchpoint inside the ACSES Portal, translating complex backend queries into sleek, hardware-accelerated user experiences.
+                    </p>
+                </header>
+
+                <!-- ================= CORE DEVELOPER TEAM GRID ================= -->
+                <div class="space-y-10">
+                    <div class="text-center space-y-2">
+                        <h2 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Meet the Architects</h2>
+                        <p class="text-sm text-slate-500 max-w-lg mx-auto">The core team driving strategy, delivery, and system robustness.</p>
+                    </div>
+
+                    <div class="grid gap-8 md:grid-cols-3">
+                        
+                        <!-- Kingsley Adu -->
+                        <article class="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all duration-500 hover:shadow-xl hover:border-emerald-500/20 hover:-translate-y-1 animate-fade-slide animate-fade-slide-delay-200">
+                            <!-- Image Frame -->
+                            <div class="relative h-72 w-full overflow-hidden rounded-2xl bg-slate-950">
+                                <img src="{{ asset('assets/images/Kingsley.jpg') }}" alt="Kingsley Adu" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+                                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/10 to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4">
+                                    <h3 class="text-xl font-bold text-white tracking-tight">Kingsley Adu</h3>
+                                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300 mt-0.5">Project Lead · Full-stack</p>
+                                </div>
                             </div>
-                            <div class="mt-6 space-y-3">
-                                <div class="skeleton mx-auto h-5 w-44 rounded-full bg-slate-200"></div>
-                                <div class="skeleton mx-auto h-3 w-52 rounded-full bg-slate-100"></div>
-                                <div class="skeleton mx-auto h-3 w-60 rounded-full bg-slate-100"></div>
-                            </div>
-                            <div class="mt-6 flex justify-center">
-                                <div class="skeleton h-10 w-44 rounded-full bg-[#0a66c2]/25"></div>
+
+                            <div class="flex flex-1 flex-col gap-6 px-3 pt-5">
+                                <p class="text-sm leading-relaxed text-slate-500">
+                                    Architects the end-to-end portal schema, building rigid auth policies, secure middle-tier guards, and coordinating general delivery.
+                                </p>
+                                <div class="mt-auto pt-4 border-t border-slate-100">
+                                    <a href="https://www.linkedin.com/in/kingsley-aduhene-778538224/" target="_blank" rel="noopener" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50/50 border border-emerald-200/50 px-4 py-2.5 text-xs font-bold text-emerald-800 transition-all duration-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 active:scale-98">
+                                        <i class="ri-linkedin-box-fill text-base"></i>
+                                        <span>LinkedIn Profile</span>
+                                    </a>
+                                </div>
                             </div>
                         </article>
-                    @endfor
-                </div>
 
-                <div class="relative overflow-hidden rounded-[32px] border border-[#0b3019]/10 bg-white/85 p-8 text-center shadow-lg shadow-[#0b3019]/10">
-                    <div class="skeleton mx-auto h-4 w-56 rounded-full bg-[#0b3019]/15"></div>
-                    <div class="skeleton mx-auto mt-4 h-3 w-80 rounded-full bg-slate-100"></div>
-                    <div class="skeleton mx-auto mt-3 h-3 w-64 rounded-full bg-slate-100"></div>
-                    <div class="skeleton mx-auto mt-6 h-10 w-48 rounded-full bg-[#0b3019]/10"></div>
-                    @if ($hasContactRoute)
-                        <div class="skeleton mx-auto mt-3 h-10 w-48 rounded-full bg-[#0b3019]/10"></div>
-                    @endif
-                </div>
-            </div>
-
-            <div x-show="!loading" x-transition.opacity.duration.200ms x-cloak class="space-y-16">
-                <div class="mx-auto max-w-4xl">
-                    <div class="relative overflow-hidden rounded-[32px] border border-[#0b3019]/15 bg-gradient-to-br from-[#0b3019] via-[#114127] to-[#0b3019] px-8 py-12 text-center text-white shadow-xl shadow-[#0b3019]/20">
-                        <div class="pointer-events-none absolute -inset-20 opacity-25">
-                            <div class="h-full w-full animate-spin duration-[48000ms] ease-linear motion-reduce:animate-none">
-                                <div class="h-full w-full rounded-[64px] bg-[conic-gradient(from_120deg_at_50%_50%,rgba(255,255,255,0.35),rgba(255,255,255,0)_70%)] blur-3xl"></div>
+                        <!-- Alfred Boakye -->
+                        <article class="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all duration-500 hover:shadow-xl hover:border-emerald-500/20 hover:-translate-y-1 animate-fade-slide animate-fade-slide-delay-400">
+                            <!-- Image Frame -->
+                            <div class="relative h-72 w-full overflow-hidden rounded-2xl bg-slate-950">
+                                <img src="{{ asset('assets/images/Alfred.png') }}" alt="Alfred Boakye" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+                                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/10 to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4">
+                                    <h3 class="text-xl font-bold text-white tracking-tight">Alfred Boakye</h3>
+                                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300 mt-0.5">Lead Portal Engineer</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="relative space-y-6">
-                            <span class="inline-flex items-center justify-center gap-2 rounded-full bg-white/15 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100/90">ACSES Product Studio</span>
-                            <h1 class="text-4xl font-semibold sm:text-5xl">Full-stack team shaping every ACSES touchpoint</h1>
-                            <p class="mx-auto max-w-2xl text-base text-emerald-50/90 sm:text-lg">We design, build, and refine cohesive experiences so students and administrators feel supported from first sign-in to graduation day.</p>
-                        </div>
+
+                            <div class="flex flex-1 flex-col gap-6 px-3 pt-5">
+                                <p class="text-sm leading-relaxed text-slate-500">
+                                    Translates complex student workflows into robust relational models and controllers, backing operations with strict caching engines.
+                                </p>
+                                <div class="mt-auto pt-4 border-t border-slate-100">
+                                    <a href="https://www.linkedin.com/in/alfredboakye/" target="_blank" rel="noopener" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50/50 border border-emerald-200/50 px-4 py-2.5 text-xs font-bold text-emerald-800 transition-all duration-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 active:scale-98">
+                                        <i class="ri-linkedin-box-fill text-base"></i>
+                                        <span>LinkedIn Profile</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- Obed Acquah -->
+                        <article class="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur-md transition-all duration-500 hover:shadow-xl hover:border-emerald-500/20 hover:-translate-y-1 animate-fade-slide animate-fade-slide-delay-600">
+                            <!-- Image Frame -->
+                            <div class="relative h-72 w-full overflow-hidden rounded-2xl bg-slate-950">
+                                <img src="{{ asset('assets/images/Obed.jpeg') }}" alt="Obed Acquah" class="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105" loading="lazy">
+                                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/10 to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4">
+                                    <h3 class="text-xl font-bold text-white tracking-tight">Obed Acquah</h3>
+                                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-300 mt-0.5">Web Experience Engineer</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-1 flex-col gap-6 px-3 pt-5">
+                                <p class="text-sm leading-relaxed text-slate-500">
+                                    Crafts the responsive client layers, styling consistent and fast components that breathe alive under rich animations and gestures.
+                                </p>
+                                <div class="mt-auto pt-4 border-t border-slate-100">
+                                    <a href="https://www.linkedin.com/in/obed-acquah-017687301/" target="_blank" rel="noopener" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50/50 border border-emerald-200/50 px-4 py-2.5 text-xs font-bold text-emerald-800 transition-all duration-200 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 active:scale-98">
+                                        <i class="ri-linkedin-box-fill text-base"></i>
+                                        <span>LinkedIn Profile</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+
                     </div>
                 </div>
 
-                <div class="grid gap-8 md:grid-cols-3">
-                    <article class="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#0b3019]/15 bg-white/95 shadow-xl shadow-[#0b3019]/15 transition hover:-translate-y-1 hover:shadow-2xl">
-                        <div class="relative h-64 w-full overflow-hidden">
-                            <img src="{{ asset('assets/images/Kingsley.jpg') }}" alt="Kingsley Adu" class="h-full w-full object-cover" loading="lazy">
-                            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/25 to-transparent"></div>
-                        </div>
-                        <div class="flex flex-1 flex-col gap-5 px-8 pb-8 pt-8 text-center md:text-left">
-                            <div class="space-y-2">
-                                <h2 class="text-xl font-semibold text-slate-900">Kingsley Adu</h2>
-                                <p class="text-sm uppercase tracking-[0.3em] text-[#0b3019]/70">Project Lead · Full-stack Engineer</p>
-                                <p class="text-sm text-slate-600">Guides the ACSES roadmap end-to-end, keeping strategy, delivery, and support moving in sync.</p>
+                <!-- ================= PARTNERSHIP CALL TO ACTION ================= -->
+                <div 
+                    x-data="{ 
+                        email: '', 
+                        submitted: false, 
+                        loading: false, 
+                        submitForm() {
+                            if (!this.email) return;
+                            this.loading = true;
+                            setTimeout(() => {
+                                this.loading = false;
+                                this.submitted = true;
+                                this.email = '';
+                            }, 1200);
+                        }
+                    }"
+                    class="relative overflow-hidden rounded-[36px] border border-[#0b3019]/15 bg-gradient-to-br from-[#0b3019] via-[#114127] to-[#0b3019] px-8 py-16 text-center text-white shadow-xl shadow-[#0b3019]/25 animate-fade-slide animate-fade-slide-delay-600"
+                >
+                    <!-- Background ambient flares -->
+                    <div class="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none"></div>
+                    <div class="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_transparent_65%)] pointer-events-none"></div>
+                    
+                    <div class="relative space-y-6 max-w-2xl mx-auto z-10">
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300 border border-white/5 backdrop-blur-sm">
+                            Connect with us
+                        </span>
+                        <h2 class="text-3xl font-extrabold sm:text-4xl tracking-tight leading-none text-white">Need help shaping portal tools?</h2>
+                        <p class="mx-auto max-w-lg text-sm leading-relaxed text-emerald-100/80">
+                            Our product studio collaborates with departmental chairs and administrative heads to design secure, highly resilient student tooling.
+                        </p>
+                        
+                        <!-- Real-time interactive newsletter/lead form -->
+                        <div class="max-w-md mx-auto pt-4">
+                            <form @submit.preventDefault="submitForm" class="flex flex-col sm:flex-row gap-2.5 relative">
+                                <div class="relative flex-1">
+                                    <i class="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-lg transition-colors duration-300" :class="email ? 'text-white' : 'text-emerald-200/50'"></i>
+                                    <input 
+                                        type="email" 
+                                        x-model="email" 
+                                        placeholder="Enter your administrative email" 
+                                        required 
+                                        :disabled="submitted || loading"
+                                        class="w-full rounded-2xl bg-white/15 border border-white/20 pl-11 pr-4 py-3.5 text-xs font-medium text-white placeholder-emerald-100/60 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:bg-white/20 focus:border-transparent transition duration-300 disabled:opacity-50"
+                                    />
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    :disabled="submitted || loading || !email"
+                                    class="rounded-2xl px-6 py-3.5 text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 border"
+                                    :class="email && !loading && !submitted ? 'bg-white text-[#0b3019] border-white shadow-lg shadow-emerald-950/20 hover:-translate-y-0.5 hover:shadow-xl active:scale-95' : 'bg-white/10 text-emerald-100/40 border-white/10 cursor-not-allowed'"
+                                >
+                                    <span x-show="loading" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                                    <span x-show="!loading" x-text="submitted ? 'Request Sent!' : 'Start Consultation'">Start Consultation</span>
+                                </button>
+                            </form>
+                            
+                            <!-- Custom Success Toast/Banner -->
+                            <div 
+                                x-show="submitted" 
+                                x-transition:enter="transition ease-out duration-300"
+                                x-transition:enter-start="opacity-0 translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                class="mt-4 p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs font-medium flex items-center gap-2 justify-center"
+                            >
+                                <i class="ri-checkbox-circle-fill text-emerald-400 text-lg"></i>
+                                <span>Inquiry successfully logged! A representative will connect shortly.</span>
                             </div>
-                            <div class="mt-auto flex justify-center border-t border-[#0b3019]/10 pt-6">
-                                <a href="https://www.linkedin.com/in/kingsley-aduhene-778538224/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0b3019] to-[#114127] px-5 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:shadow-lg">
-                                    <i class="ri-linkedin-box-fill text-base" aria-hidden="true"></i>
-                                    Connect on LinkedIn
-                                </a>
-                            </div>
                         </div>
-                    </article>
 
-                    <article class="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#0b3019]/15 bg-white/95 shadow-xl shadow-[#0b3019]/15 transition hover:-translate-y-1 hover:shadow-2xl">
-                        <div class="relative h-64 w-full overflow-hidden">
-                            <img src="{{ asset('assets/images/Alfred.png') }}" alt="Alfred Boakye" class="h-full w-full object-cover" loading="lazy">
-                            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/25 to-transparent"></div>
-                        </div>
-                        <div class="flex flex-1 flex-col gap-5 px-8 pb-8 pt-8 text-center md:text-left">
-                            <div class="space-y-2">
-                                <h2 class="text-xl font-semibold text-slate-900">Alfred Boakye</h2>
-                                <p class="text-sm uppercase tracking-[0.3em] text-[#0b3019]/70">Lead Portal Engineer · Full-stack</p>
-                                <p class="text-sm text-slate-600">Keeps student and admin workflows resilient, translating product ideas into dependable full-stack delivery.</p>
-                            </div>
-                            <div class="mt-auto flex justify-center border-t border-[#0b3019]/10 pt-6">
-                                <a href="https://www.linkedin.com/in/alfredboakye/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0b3019] to-[#114127] px-5 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:shadow-lg">
-                                    <i class="ri-linkedin-box-fill text-base" aria-hidden="true"></i>
-                                    Connect on LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#0b3019]/15 bg-white/95 shadow-xl shadow-[#0b3019]/15 transition hover:-translate-y-1 hover:shadow-2xl">
-                        <div class="relative h-64 w-full overflow-hidden">
-                            <img src="{{ asset('assets/images/Obed.jpeg') }}" alt="Obed Acquah" class="h-full w-full object-cover object-top" loading="lazy">
-                            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/25 to-transparent"></div>
-                        </div>
-                        <div class="flex flex-1 flex-col gap-5 px-8 pb-8 pt-8 text-center md:text-left">
-                            <div class="space-y-2">
-                                <h2 class="text-xl font-semibold text-slate-900">Obed Acquah</h2>
-                                <p class="text-sm uppercase tracking-[0.3em] text-[#0b3019]/70">Web Experience Engineer · Full-stack</p>
-                                <p class="text-sm text-slate-600">Bridges marketing and in-app journeys, shaping full-stack experiences that feel consistent and quick.</p>
-                            </div>
-                            <div class="mt-auto flex justify-center border-t border-[#0b3019]/10 pt-6">
-                                <a href="https://www.linkedin.com/in/obed-acquah-017687301/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0b3019] to-[#114127] px-5 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:shadow-lg">
-                                    <i class="ri-linkedin-box-fill text-base" aria-hidden="true"></i>
-                                    Connect on LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-
-                <div class="relative overflow-hidden rounded-[32px] border border-[#0b3019]/15 bg-gradient-to-br from-[#0b3019] via-[#114127] to-[#0b3019] px-8 py-12 text-center text-white shadow-xl shadow-[#0b3019]/25">
-                    <div class="pointer-events-none absolute -inset-20 opacity-25">
-                        <div class="h-full w-full animate-spin duration-[48000ms] ease-linear motion-reduce:animate-none">
-                            <div class="h-full w-full rounded-[64px] bg-[conic-gradient(from_120deg_at_50%_50%,rgba(255,255,255,0.35),rgba(255,255,255,0)_70%)] blur-3xl"></div>
-                        </div>
-                    </div>
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_65%)]"></div>
-                    <div class="relative space-y-4">
-                        <p class="text-sm font-semibold uppercase tracking-[0.35em] text-emerald-100/90">Partner with ACSES</p>
-                        <h2 class="text-3xl font-semibold sm:text-4xl">Need help shaping student success tools?</h2>
-                        <p class="mx-auto max-w-2xl text-base text-emerald-50/90">Our engineers collaborate with campus leaders to co-design digital experiences that feel intentional, accessible, and future-ready.</p>
-                        <div class="mt-6 flex flex-wrap justify-center gap-4">
-                            <a href="mailto:hello@acses.edu" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#0b3019] shadow transition hover:-translate-y-0.5 hover:shadow-lg">
-                                <i class="fa-solid fa-envelope-open-text text-base"></i>
-                                Start the conversation
+                        <!-- Secondary CTAs -->
+                        <div class="mt-6 flex flex-wrap justify-center gap-4 text-xs font-bold pt-4">
+                            <a href="mailto:hello@acses.edu" class="inline-flex items-center gap-2 text-white/80 hover:text-white transition">
+                                <i class="ri-mail-open-line text-lg"></i>
+                                <span>hello@acses.edu</span>
                             </a>
                             @if ($hasContactRoute)
-                                <a href="{{ route('marketing.contact') }}" class="inline-flex items-center gap-2 rounded-full border border-white/60 bg-transparent px-5 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10">
-                                    <i class="fa-solid fa-calendar-check text-base"></i>
-                                    Schedule a discovery call
+                                <span class="text-white/30 hidden sm:inline">|</span>
+                                <a href="{{ route('marketing.contact') }}" class="inline-flex items-center gap-2 text-white/80 hover:text-white transition">
+                                    <i class="ri-calendar-event-line text-lg"></i>
+                                    <span>Schedule a discovery call</span>
                                 </a>
                             @endif
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
-        <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white"></div>
+        <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white pointer-events-none"></div>
     </section>
-</x-layouts.marketing>
+</x-layouts.dashboard>

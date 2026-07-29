@@ -12,9 +12,10 @@
             <td align="center">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px; background-color:#ffffff; border-radius:20px; overflow:hidden; box-shadow:0 14px 40px rgba(11,48,25,0.12);">
                     <tr>
-                        <td style="background:linear-gradient(135deg, {{ $brandColor }}, #145132); padding:32px 24px; text-align:center;">
-                            <p style="margin:0; font-size:12px; letter-spacing:0.35em; color:#a0f5cb; text-transform:uppercase;">ACSES</p>
-                            <h1 style="margin:12px 0 0; font-size:24px; font-weight:600; color:#ffffff;">{{ __('Reset your password') }}</h1>
+                        <td style="background:linear-gradient(135deg, {{ $brandColor }}, #145132); padding:36px 24px; text-align:center;">
+                            <img src="{{ asset('logo.png') }}" alt="ACSES Logo" width="70" height="70" style="width:70px; height:70px; max-width:70px; border-radius:16px; background-color:#ffffff; padding:6px; box-shadow:0 6px 16px rgba(0,0,0,0.15); display:inline-block; margin-bottom:16px;" />
+                            <p style="margin:0; font-size:11px; letter-spacing:0.3em; color:#a0f5cb; text-transform:uppercase; font-weight:700;">ACSES Portal</p>
+                            <h1 style="margin:8px 0 0; font-size:24px; font-weight:700; color:#ffffff;">{{ __('Reset your password') }}</h1>
                         </td>
                     </tr>
                     <tr>

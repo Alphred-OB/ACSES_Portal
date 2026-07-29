@@ -45,6 +45,11 @@ class AppServiceProvider extends ServiceProvider
             // For now, we allow all admins to ensure the tools are accessible.
             return true;
         });
+
+        // OWASP: Force HTTPS in production to prevent Cryptographic Failures (data in transit)
+        if ($this->app->environment('production')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 
     /**

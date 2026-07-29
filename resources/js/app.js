@@ -72,6 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const ruleItems = container.querySelectorAll('[data-password-rule]');
 
         const evaluateStrength = (value) => {
+            if (!value) {
+                container.classList.add('hidden');
+            } else {
+                container.classList.remove('hidden');
+            }
+
             const tests = {
                 length: value.length >= 8,
                 mixed: /[a-z]/.test(value) && /[A-Z]/.test(value),
@@ -84,6 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rule = item.getAttribute('data-password-rule');
                 const passed = rule ? Boolean(tests[rule]) : false;
                 item.dataset.state = passed ? 'pass' : 'fail';
+
+                if (passed) {
+                    item.classList.add('text-emerald-700', 'font-medium');
+                    item.classList.remove('text-slate-600');
+                } else {
+                    item.classList.remove('text-emerald-700', 'font-medium');
+                    item.classList.add('text-slate-600');
+                }
 
                 const passIcon = item.querySelector('[data-pass-icon]');
                 const failIcon = item.querySelector('[data-fail-icon]');
@@ -204,8 +218,17 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const handleKeyDown = (event, index) => {
-            if (event.key === 'Backspace' && !event.target.value && index > 0) {
-                focusInput(index - 1);
+            if (event.key === 'Backspace') {
+                event.preventDefault();
+                if (event.target.value) {
+                    event.target.value = '';
+                } else if (index > 0) {
+                    inputs[index - 1].value = '';
+                }
+                syncValue();
+                if (index > 0) {
+                    focusInput(index - 1);
+                }
             }
 
             if (event.key === 'ArrowLeft') {

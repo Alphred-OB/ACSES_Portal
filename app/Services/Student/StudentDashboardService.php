@@ -51,11 +51,19 @@ class StudentDashboardService
 
     public function quickActions(User $user): array
     {
-        return [
-            $this->outstandingDuesAction($user),
-            $this->announcementsAction($user),
-            $this->supportResourcesActionCard($user),
-        ];
+        $cacheKey = "student_actions_meta_{$user->id}";
+
+        return \Illuminate\Support\Facades\Cache::remember(
+            $cacheKey,
+            now()->addMinutes(10),
+            function () use ($user) {
+                return [
+                    $this->outstandingDuesAction($user),
+                    $this->announcementsAction($user),
+                    $this->supportResourcesActionCard($user),
+                ];
+            }
+        );
     }
 
     public function securityTips(): Collection
@@ -94,111 +102,125 @@ class StudentDashboardService
     public function calendarMatrix(): Collection
     {
         $today = Carbon::today();
-        $startOfMonth = $today->copy()->startOfMonth();
-        $endOfMonth = $today->copy()->endOfMonth();
+        $dateKeyStr = $today->toDateString();
 
-        $calendarStart = $startOfMonth->copy()->startOfWeek(Carbon::MONDAY);
-        $calendarEnd = $endOfMonth->copy()->endOfWeek(Carbon::SUNDAY);
+        return \Illuminate\Support\Facades\Cache::remember(
+            "student_dashboard_calendar_matrix_{$dateKeyStr}",
+            now()->addMinutes(60),
+            function () use ($today) {
+                $startOfMonth = $today->copy()->startOfMonth();
+                $endOfMonth = $today->copy()->endOfMonth();
 
-        $eventWindow = [$calendarStart->copy()->startOfDay(), $calendarEnd->copy()->endOfDay()];
+                $calendarStart = $startOfMonth->copy()->startOfWeek(Carbon::MONDAY);
+                $calendarEnd = $endOfMonth->copy()->endOfWeek(Carbon::SUNDAY);
 
-        $calendarEvents = Event::query()
-            ->whereBetween('start_at', $eventWindow)
-            ->orderBy('start_at')
-            ->get();
+                $eventWindow = [$calendarStart->copy()->startOfDay(), $calendarEnd->copy()->endOfDay()];
 
-        $calendarEventsByDate = $calendarEvents->groupBy(fn (Event $event) => optional($event->start_at)->toDateString());
+                $calendarEvents = Event::query()
+                    ->whereBetween('start_at', $eventWindow)
+                    ->orderBy('start_at')
+                    ->get();
 
-        $timelineEntries = AcademicTimelineEntry::query()
-            ->published()
-            ->whereBetween('starts_at', $eventWindow)
-            ->orderBy('starts_at')
-            ->get();
+                $calendarEventsByDate = $calendarEvents->groupBy(fn (Event $event) => optional($event->start_at)->toDateString());
 
-        $timelineEntriesByDate = $timelineEntries->groupBy(fn (AcademicTimelineEntry $entry) => optional($entry->starts_at)->toDateString());
-        $todayStart = $today->copy()->startOfDay();
+                $timelineEntries = AcademicTimelineEntry::query()
+                    ->published()
+                    ->whereBetween('starts_at', $eventWindow)
+                    ->orderBy('starts_at')
+                    ->get();
 
-        $days = collect(CarbonPeriod::create($calendarStart, $calendarEnd))->map(function (Carbon $date) use ($calendarEventsByDate, $timelineEntriesByDate, $startOfMonth, $endOfMonth, $today, $todayStart) {
-            $dateKey = $date->toDateString();
+                $timelineEntriesByDate = $timelineEntries->groupBy(fn (AcademicTimelineEntry $entry) => optional($entry->starts_at)->toDateString());
+                $todayStart = $today->copy()->startOfDay();
 
-            $eventsForDay = collect($calendarEventsByDate->get($dateKey, []))
-                ->map(function (Event $event) use ($todayStart) {
-                    $ctaUrl = $event->cta_url ?: route('student.events.index');
+                $days = collect(CarbonPeriod::create($calendarStart, $calendarEnd))->map(function (Carbon $date) use ($calendarEventsByDate, $timelineEntriesByDate, $startOfMonth, $endOfMonth, $today, $todayStart) {
+                    $dateKey = $date->toDateString();
+
+                    $eventsForDay = collect($calendarEventsByDate->get($dateKey, []))
+                        ->map(function (Event $event) use ($todayStart) {
+                            $ctaUrl = $event->cta_url ?: route('student.events.index');
+                            return [
+                                'id' => $event->id,
+                                'title' => $event->title,
+                                'time' => $event->start_at?->format('g:i A') ?? 'All day',
+                                'location' => $event->location,
+                                'is_upcoming' => $event->start_at ? $event->start_at->greaterThanOrEqualTo($todayStart) : false,
+                                'is_timeline' => false,
+                                'cta_url' => $ctaUrl,
+                                'is_external' => $event->cta_url ? Str::startsWith($event->cta_url, ['http://', 'https://']) : false,
+                                'description' => $event->description ? Str::limit(strip_tags($event->description), 160) : null,
+                                'category' => Str::headline($event->category ?? 'Event'),
+                            ];
+                        });
+
+                    $timelineForDay = collect($timelineEntriesByDate->get($dateKey, []))
+                        ->map(function (AcademicTimelineEntry $entry) use ($todayStart) {
+                            return [
+                                'title' => $entry->title,
+                                'time' => $entry->starts_at?->format('g:i A') ?? 'All day',
+                                'location' => $entry->summary,
+                                'is_upcoming' => $entry->starts_at ? $entry->starts_at->greaterThanOrEqualTo($todayStart) : false,
+                                'is_timeline' => true,
+                                'cta_url' => $entry->cta_url,
+                                'is_external' => $entry->cta_url ? Str::startsWith($entry->cta_url, ['http://', 'https://']) : false,
+                                'description' => $entry->description ? Str::limit(strip_tags($entry->description), 160) : ($entry->summary ? Str::limit(strip_tags($entry->summary), 160) : null),
+                                'category' => 'Academic milestone',
+                                'cta_label' => $entry->cta_label,
+                            ];
+                        });
+
+                    $combinedEvents = $eventsForDay->merge($timelineForDay);
+
+                    $isCurrentMonth = $date->greaterThanOrEqualTo($startOfMonth) && $date->lessThanOrEqualTo($endOfMonth);
+
                     return [
-                        'id' => $event->id,
-                        'title' => $event->title,
-                        'time' => $event->start_at?->format('g:i A') ?? 'All day',
-                        'location' => $event->location,
-                        'is_upcoming' => $event->start_at ? $event->start_at->greaterThanOrEqualTo($todayStart) : false,
-                        'is_timeline' => false,
-                        'cta_url' => $ctaUrl,
-                        'is_external' => $event->cta_url ? Str::startsWith($event->cta_url, ['http://', 'https://']) : false,
-                        'description' => $event->description ? Str::limit(strip_tags($event->description), 160) : null,
-                        'category' => Str::headline($event->category ?? 'Event'),
+                        'date_iso' => $date->toDateString(),
+                        'weekday' => $date->isoFormat('ddd'),
+                        'day' => $date->format('j'),
+                        'month' => $date->format('M'),
+                        'is_current_month' => $isCurrentMonth,
+                        'is_today' => $date->isSameDay($today),
+                        'has_upcoming' => $combinedEvents->contains(function (array $event) {
+                            return ! empty($event['is_upcoming']);
+                        }),
+                        'events' => $combinedEvents,
                     ];
                 });
 
-            $timelineForDay = collect($timelineEntriesByDate->get($dateKey, []))
-                ->map(function (AcademicTimelineEntry $entry) use ($todayStart) {
-                    return [
-                        'title' => $entry->title,
-                        'time' => $entry->starts_at?->format('g:i A') ?? 'All day',
-                        'location' => $entry->summary,
-                        'is_upcoming' => $entry->starts_at ? $entry->starts_at->greaterThanOrEqualTo($todayStart) : false,
-                        'is_timeline' => true,
-                        'cta_url' => $entry->cta_url,
-                        'is_external' => $entry->cta_url ? Str::startsWith($entry->cta_url, ['http://', 'https://']) : false,
-                        'description' => $entry->description ? Str::limit(strip_tags($entry->description), 160) : ($entry->summary ? Str::limit(strip_tags($entry->summary), 160) : null),
-                        'category' => 'Academic milestone',
-                        'cta_label' => $entry->cta_label,
-                    ];
-                });
-
-            $combinedEvents = $eventsForDay->merge($timelineForDay);
-
-            $isCurrentMonth = $date->greaterThanOrEqualTo($startOfMonth) && $date->lessThanOrEqualTo($endOfMonth);
-
-            return [
-                'date_iso' => $date->toDateString(),
-                'weekday' => $date->isoFormat('ddd'),
-                'day' => $date->format('j'),
-                'month' => $date->format('M'),
-                'is_current_month' => $isCurrentMonth,
-                'is_today' => $date->isSameDay($today),
-                'has_upcoming' => $combinedEvents->contains(function (array $event) {
-                    return ! empty($event['is_upcoming']);
-                }),
-                'events' => $combinedEvents,
-            ];
-        });
-
-        return $days->chunk(7)
-            ->map(fn (Collection $week) => $week->values())
-            ->values();
+                return $days->chunk(7)
+                    ->map(fn (Collection $week) => $week->values())
+                    ->values();
+            }
+        );
     }
 
     public function upcomingEvents(): Collection
     {
-        return Event::query()
-            ->upcoming()
-            ->limit(4)
-            ->get()
-            ->map(function (Event $event) {
-                $ctaUrl = $event->cta_url ?: route('student.events.index');
-                return [
-                    'title' => $event->title,
-                    'datetime' => optional($event->start_at)->format('M j · g:i A'),
-                    'location' => $event->location,
-                    'banner_url' => $event->banner_url,
-                    'banner_alt' => $event->banner_alt,
-                    'cta_url' => $ctaUrl,
-                    'is_external' => $event->cta_url ? Str::startsWith($event->cta_url, ['http://', 'https://']) : false,
-                    'category' => Str::headline($event->category ?? 'Event'),
-                    'start_at' => $event->start_at,
-                    'month_label' => optional($event->start_at)->format('M'),
-                    'day_label' => optional($event->start_at)->format('d'),
-                ];
-            });
+        return \Illuminate\Support\Facades\Cache::remember(
+            'student_dashboard_upcoming_events',
+            now()->addMinutes(60),
+            function () {
+                return Event::query()
+                    ->upcoming()
+                    ->limit(4)
+                    ->get()
+                    ->map(function (Event $event) {
+                        $ctaUrl = $event->cta_url ?: route('student.events.index');
+                        return [
+                            'title' => $event->title,
+                            'datetime' => optional($event->start_at)->format('M j · g:i A'),
+                            'location' => $event->location,
+                            'banner_url' => $event->banner_url,
+                            'banner_alt' => $event->banner_alt,
+                            'cta_url' => $ctaUrl,
+                            'is_external' => $event->cta_url ? Str::startsWith($event->cta_url, ['http://', 'https://']) : false,
+                            'category' => Str::headline($event->category ?? 'Event'),
+                            'start_at' => $event->start_at,
+                            'month_label' => optional($event->start_at)->format('M'),
+                            'day_label' => optional($event->start_at)->format('d'),
+                        ];
+                    });
+            }
+        );
     }
 
     public function supportResources(User $student = null): Collection
@@ -427,29 +449,37 @@ class StudentDashboardService
 
     public function academicTimeline(?string $academicYear = null): Collection
     {
-        return AcademicTimelineEntry::query()
-            ->published()
-            ->when($academicYear, static function ($query) use ($academicYear): void {
-                $query->where('academic_year', $academicYear);
-            })
-            ->orderBy('starts_at')
-            ->orderBy('id')
-            ->limit(12)
-            ->get()
-            ->map(function (AcademicTimelineEntry $entry) {
-                $startsAt = $entry->starts_at instanceof \Carbon\Carbon
-                    ? $entry->starts_at
-                    : ($entry->starts_at ? \Carbon\Carbon::parse($entry->starts_at) : null);
+        $cacheKey = 'student_dashboard_timeline_' . ($academicYear ?: 'current');
+        
+        return \Illuminate\Support\Facades\Cache::remember(
+            $cacheKey,
+            now()->addMinutes(60),
+            function () use ($academicYear) {
+                return AcademicTimelineEntry::query()
+                    ->published()
+                    ->when($academicYear, static function ($query) use ($academicYear): void {
+                        $query->where('academic_year', $academicYear);
+                    })
+                    ->orderBy('starts_at')
+                    ->orderBy('id')
+                    ->limit(12)
+                    ->get()
+                    ->map(function (AcademicTimelineEntry $entry) {
+                        $startsAt = $entry->starts_at instanceof \Carbon\Carbon
+                            ? $entry->starts_at
+                            : ($entry->starts_at ? \Carbon\Carbon::parse($entry->starts_at) : null);
 
-                return [
-                    'title' => $entry->title,
-                    'date_label' => $startsAt ? $startsAt->format('M j, Y') : null,
-                    'month_label' => $startsAt ? $startsAt->format('M') : null,
-                    'day_label' => $startsAt ? $startsAt->format('d') : null,
-                    'year_label' => $startsAt ? $startsAt->format('Y') : null,
-                    'academic_year' => $entry->academic_year,
-                    'is_past' => $entry->isPast(),
-                ];
-            });
+                        return [
+                            'title' => $entry->title,
+                            'date_label' => $startsAt ? $startsAt->format('M j, Y') : null,
+                            'month_label' => $startsAt ? $startsAt->format('M') : null,
+                            'day_label' => $startsAt ? $startsAt->format('d') : null,
+                            'year_label' => $startsAt ? $startsAt->format('Y') : null,
+                            'academic_year' => $entry->academic_year,
+                            'is_past' => $entry->isPast(),
+                        ];
+                    });
+            }
+        );
     }
 }

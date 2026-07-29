@@ -113,6 +113,31 @@ class AdminDashboardService
                 ];
             });
 
+        // Dues status breakdown for charts
+        $duesBreakdown = Due::query()
+            ->where('is_active', true)
+            ->selectRaw("payment_status, SUM(amount) as total_amount")
+            ->groupBy('payment_status')
+            ->pluck('total_amount', 'payment_status')
+            ->toArray();
+
+        $chartPaidAmount = (float) ($duesBreakdown['paid'] ?? 0);
+        $chartPendingAmount = (float) ($duesBreakdown['pending_verification'] ?? 0);
+        $chartOwingAmount = (float) ($duesBreakdown['owing'] ?? 0);
+        $totalDues = $chartPaidAmount + $chartPendingAmount + $chartOwingAmount;
+        $chartCollectionRate = $totalDues > 0 ? ($chartPaidAmount / $totalDues) * 100 : 0;
+
+        // Student counts grouped by class/programme
+        $classDistribution = User::query()
+            ->where('role', 'student')
+            ->selectRaw("class, COUNT(*) as count")
+            ->groupBy('class')
+            ->orderByDesc('count')
+            ->get();
+
+        $classLabels = $classDistribution->pluck('class')->map(fn($c) => $c ?? 'Unassigned')->toArray();
+        $classData = $classDistribution->pluck('count')->toArray();
+
         return [
             'adminName' => $adminName,
             'hero' => [
@@ -133,6 +158,17 @@ class AdminDashboardService
             'resourcesTotal' => SupportResource::query()->count(),
             'upcomingEvents' => $upcomingEvents,
             'recentSuggestions' => $recentSuggestions,
+            'chartsData' => [
+                'dues' => [
+                    'labels' => ['Paid', 'Pending Verification', 'Outstanding'],
+                    'data' => [$chartPaidAmount, $chartPendingAmount, $chartOwingAmount],
+                    'collectionRate' => round($chartCollectionRate, 1),
+                ],
+                'students' => [
+                    'labels' => $classLabels,
+                    'data' => $classData,
+                ],
+            ],
         ];
     }
 

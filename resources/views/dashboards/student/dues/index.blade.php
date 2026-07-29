@@ -1,60 +1,8 @@
 <x-layouts.dashboard :title="$title">
     @include('components.dashboard.skeleton-styles')
-    <div x-data="{ loading: true }" x-init="setTimeout(() => { loading = false }, 600)" class="mx-auto w-full max-w-6xl px-5 py-12 sm:px-6 lg:px-8">
-        <div x-show="loading" x-transition.opacity.duration.200ms class="space-y-10" role="status" aria-live="polite">
-            <section class="grid gap-6 md:grid-cols-2">
-                <article class="flex h-full flex-col rounded-3xl border border-[#0b3019]/15 bg-[#0b3019] p-6 text-white shadow-lg shadow-[#0b3019]/20">
-                    <div class="space-y-5">
-                        <div class="skeleton h-3 w-40 rounded-full bg-white/30"></div>
-                        <div class="skeleton h-8 w-32 rounded-2xl bg-white/40"></div>
-                        <div class="skeleton mt-6 h-12 w-full rounded-2xl bg-white/20"></div>
-                    </div>
-                </article>
+    <div class="mx-auto w-full max-w-[1600px] px-5 py-12 sm:px-6 lg:px-8">
 
-                <article class="flex h-full flex-col rounded-3xl border border-emerald-100 bg-emerald-50 p-6 text-emerald-900 shadow-lg shadow-emerald-100/40">
-                    <div class="space-y-5">
-                        <div class="skeleton h-3 w-36 rounded-full bg-emerald-200/60"></div>
-                        <div class="skeleton h-8 w-28 rounded-2xl bg-emerald-200/80"></div>
-                        <div class="skeleton mt-6 h-12 w-full rounded-2xl bg-emerald-100/80"></div>
-                    </div>
-                </article>
-            </section>
-
-            <section class="space-y-6 rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                <div class="space-y-3">
-                    <div class="skeleton h-5 w-48 rounded-full bg-slate-200"></div>
-                    <div class="skeleton h-4 w-64 rounded-full bg-slate-100"></div>
-                </div>
-
-                <div class="grid gap-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4 md:grid-cols-5">
-                    <div class="skeleton h-11 rounded-2xl bg-white md:col-span-2"></div>
-                    <div class="skeleton h-11 rounded-2xl bg-white"></div>
-                    <div class="skeleton h-11 rounded-2xl bg-white"></div>
-                    <div class="flex items-center justify-end gap-3 md:col-span-2 md:col-start-4">
-                        <div class="skeleton h-11 w-24 rounded-2xl bg-white"></div>
-                        <div class="skeleton h-11 w-28 rounded-2xl bg-[#0b3019]/10"></div>
-                    </div>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200/70">
-                    <ul class="divide-y divide-slate-200">
-                        @for ($i = 0; $i < 4; $i++)
-                            <li class="grid gap-4 bg-white px-5 py-4 lg:grid-cols-7">
-                                <div class="skeleton h-4 w-40 rounded-full bg-slate-100 lg:col-span-2"></div>
-                                <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                                <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                                <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                                <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                                <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                                <div class="skeleton h-9 rounded-full bg-slate-100"></div>
-                            </li>
-                        @endfor
-                    </ul>
-                </div>
-            </section>
-        </div>
-
-        <div x-show="!loading" x-transition.opacity.duration.200ms x-cloak class="space-y-10">
+        <div class="space-y-10">
             @if (session('status'))
                 <div class="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-sm">
                     <div class="flex items-start gap-3">
@@ -84,40 +32,40 @@
             @endif
 
             <section class="grid gap-6 md:grid-cols-2">
-                <article class="flex h-full flex-col rounded-3xl border border-[#0b3019]/15 bg-[#0b3019] p-6 text-white shadow-lg shadow-[#0b3019]/20">
-                    <header class="flex items-center justify-between gap-4">
-                        <div class="space-y-1">
-                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-white/70">Outstanding balance</p>
-                            <p class="text-3xl font-semibold">GHS {{ number_format((float) ($summary['outstanding_amount'] ?? 0), 2) }}</p>
+                <article class="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-[#0b3019] bg-[#0b3019] p-8 text-white shadow-lg transition hover:shadow-xl">
+                    <header class="relative z-10 flex items-center justify-between gap-4">
+                        <div class="space-y-2">
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300">Outstanding balance</p>
+                            <p class="text-4xl font-bold tracking-tight">GHS {{ number_format((float) ($summary['outstanding_amount'] ?? 0), 2) }}</p>
                         </div>
-                        <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15"><i class="ri-error-warning-line text-2xl"></i></span>
+                        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 transition group-hover:bg-white/20"><i class="ri-error-warning-line text-2xl text-emerald-100"></i></span>
                     </header>
                 </article>
 
-                <article class="flex h-full flex-col rounded-3xl border border-emerald-100 bg-emerald-50 p-6 text-emerald-900 shadow-lg shadow-emerald-100/40">
+                <article class="group flex h-full flex-col rounded-[24px] border border-emerald-100 bg-emerald-50 p-8 text-emerald-900 shadow-lg shadow-emerald-100/40 transition hover:shadow-xl hover:shadow-emerald-100/60">
                     <header class="flex items-center justify-between gap-4">
-                        <div class="space-y-1">
+                        <div class="space-y-2">
                             <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Payments recorded</p>
-                            <p class="text-3xl font-semibold">GHS {{ number_format((float) ($summary['paid_amount'] ?? 0), 2) }}</p>
+                            <p class="text-4xl font-bold tracking-tight">GHS {{ number_format((float) ($summary['paid_amount'] ?? 0), 2) }}</p>
                         </div>
-                        <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700"><i class="ri-coins-line text-2xl"></i></span>
+                        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 transition group-hover:bg-emerald-200"><i class="ri-coins-line text-2xl"></i></span>
                     </header>
                 </article>
             </section>
 
-            <section class="space-y-6 rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-            <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h2 class="text-xl font-semibold text-[#0b3019]">My dues history</h2>
-                    <p class="text-sm text-slate-600">Filter by academic year, status, or search by description or reference.</p>
-                </div>
-            </header>
+            <section class="space-y-8 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
+                <header class="flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">My dues history</h2>
+                        <p class="mt-1 text-sm text-slate-500">Filter by academic year, status, or search by description or reference.</p>
+                    </div>
+                </header>
 
             @php($activeStatus = $filters['status'] ?? '')
             @php($activeYear = $filters['academic_year'] ?? '')
             @php($searchTerm = $filters['search'] ?? '')
 
-            <form method="GET" class="grid gap-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 p-4 md:grid-cols-5">
+            <form method="GET" class="grid gap-4 rounded-[20px] border border-slate-100 bg-slate-50/50 p-5 md:grid-cols-5">
                 <div class="md:col-span-2 flex flex-col gap-2">
                     <label class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Search description or reference</label>
                     <input type="search" name="search" value="{{ $searchTerm }}" placeholder="e.g. departmental dues" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
@@ -181,9 +129,9 @@
                 'paid' => 'bg-emerald-50 text-emerald-700 border border-emerald-100',
             ])
 
-            <div class="overflow-hidden rounded-2xl border border-slate-200/70">
+            <div class="overflow-hidden rounded-[20px] border border-slate-200 bg-white">
                 <table class="hidden min-w-full divide-y divide-slate-200 text-left text-sm text-slate-600 lg:table">
-                    <thead class="bg-slate-50/80 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                    <thead class="bg-slate-50 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                         <tr>
                             <th class="px-5 py-3">Description</th>
                             <th class="px-5 py-3">Academic year</th>
@@ -194,9 +142,9 @@
                             <th class="px-5 py-3 text-right">Payment</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 bg-white">
+                    <tbody class="divide-y divide-slate-100 bg-white">
                         @forelse ($dues as $due)
-                            <tr class="transition hover:bg-slate-50/70">
+                            <tr class="transition hover:bg-slate-50/50">
                                 <td class="px-5 py-4">
                                     <p class="text-sm font-semibold text-slate-900">{{ $due->description }}</p>
                                     @if ($due->payment_notes)
@@ -218,11 +166,11 @@
                                     @php($status = $due->payment_status)
                                     @if ($status === 'owing')
                                         @if(($paymentSettings['mode'] ?? 'automated') === 'automated')
-                                            <form method="POST" action="{{ route('student.payments.paystack.initialize', $due) }}" class="flex justify-end">
+                                            <form method="POST" action="{{ route('student.payments.rushpay.initialize', $due) }}" class="flex justify-end">
                                                 @csrf
                                                 <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
                                                     <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>
-                                                    Pay with Paystack
+                                                    Pay Online
                                                 </button>
                                             </form>
                                         @else
@@ -353,7 +301,7 @@
                             </dl>
                             @if ($due->payment_status === 'owing')
                                 @if(($paymentSettings['mode'] ?? 'automated') === 'automated')
-                                    <form method="POST" action="{{ route('student.payments.paystack.initialize', $due) }}" class="mt-4">
+                                    <form method="POST" action="{{ route('student.payments.rushpay.initialize', $due) }}" class="mt-4">
                                         @csrf
                                         <button type="submit" class="w-full rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
                                             <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>

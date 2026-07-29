@@ -1,13 +1,15 @@
 @php($title = 'Terms & Conditions')
 
 <x-layouts.marketing :title="$title">
-    <section class="mx-auto w-full max-w-4xl space-y-8 px-6 py-16 sm:py-24">
+    <section class="mx-auto w-full max-w-[1200px] space-y-8 px-6 py-16 sm:py-24">
+        <a href="{{ url()->previous() }}" class="inline-flex items-center gap-1 text-sm text-slate-500 transition hover:text-[#0b3019]"><i class="ri-arrow-left-line"></i> Back</a>
+
         <header class="space-y-3 text-center">
             <h1 class="text-3xl font-semibold text-[#0b3019] sm:text-4xl">Terms &amp; Conditions</h1>
             <p class="text-sm text-slate-500">Effective {{ now()->isoFormat('MMMM D, YYYY') }}</p>
         </header>
 
-        <div class="space-y-6 rounded-3xl border border-slate-200/70 bg-white/95 p-8 shadow-xl shadow-slate-200/60">
+        <div class="space-y-6 rounded-[24px] border border-slate-100 bg-white/95 p-10 shadow-lg shadow-slate-200/40">
             <section class="space-y-3">
                 <h2 class="text-xl font-semibold text-slate-900">1. Acceptance of terms</h2>
                 <p class="text-sm leading-relaxed text-slate-600">

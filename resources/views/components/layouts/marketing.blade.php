@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="min-h-screen bg-gradient-to-br from-white via-slate-100 to-slate-200 text-slate-900">
     <div class="flex min-h-screen flex-col">
@@ -36,5 +37,6 @@
             </div>
         </footer>
     </div>
+    @stack('scripts')
 </body>
 </html>

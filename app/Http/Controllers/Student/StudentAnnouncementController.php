@@ -85,7 +85,7 @@ class StudentAnnouncementController extends Controller
             'title' => $announcement->title,
             'announcement' => $announcement,
             'related' => $related,
-            'renderedContent' => Str::markdown($announcement->content ?? ''),
+            'renderedContent' => Str::markdown($announcement->content ?? '', ['html_input' => 'strip']),
         ]);
     }
 }

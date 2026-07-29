@@ -13,6 +13,21 @@ class Due extends Model
 
     protected $table = 'dues';
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($due) {
+            \Illuminate\Support\Facades\Cache::forget("student_actions_meta_{$due->student_id}");
+            \Illuminate\Support\Facades\Cache::forget("student_dues_summary_{$due->student_id}");
+        });
+
+        static::deleted(function ($due) {
+            \Illuminate\Support\Facades\Cache::forget("student_actions_meta_{$due->student_id}");
+            \Illuminate\Support\Facades\Cache::forget("student_dues_summary_{$due->student_id}");
+        });
+    }
+
     protected $primaryKey = 'due_id';
 
     protected $fillable = [

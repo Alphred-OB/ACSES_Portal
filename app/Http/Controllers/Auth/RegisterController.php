@@ -75,32 +75,37 @@ class RegisterController extends Controller
                 break;
 
             case 'index_number':
-                if (!preg_match('/^\d{9,11}$/', $value)) return $this->unavailable('Reference number must be between 9 and 11 digits.');
+                if (strlen($value) < 9) {
+                    return $this->unavailable('Student ID / Reference number is incomplete.');
+                }
+                if (!preg_match('/^[a-zA-Z0-9\.\-\/]{9,30}$/', $value)) {
+                    return $this->unavailable('Student ID / Reference number contains invalid characters.');
+                }
                 break;
         }
 
         // 2. Database Availability Check
+        $fieldLabel = ($field === 'index_number') ? 'Index / Reference number' : str_replace('_', ' ', $field);
+
         // Check in users table
         $existsInUsers = User::where($field, $value)->exists();
         if ($existsInUsers) {
-            return $this->unavailable("This " . str_replace('_', ' ', $field) . " is already registered. Please contact the administrator.");
+            return $this->unavailable("This {$fieldLabel} is already registered. Please login or contact the administrator.");
         }
 
         // Check in pending_registrations table (only pending ones with verified email)
-        // Note: For email itself, we might want to check even unverified ones to prevent spam, 
-        // but sticking to the pattern: if it's verified/pending, it's taken.
         $existsInPending = PendingRegistration::where($field, $value)
             ->pending()
             ->whereNotNull('email_verified_at')
             ->exists();
 
         if ($existsInPending) {
-            return $this->unavailable("This " . str_replace('_', ' ', $field) . " is pending approval. Please contact the administrator if this is an error.");
+            return $this->unavailable("This {$fieldLabel} is pending approval. Please contact the administrator.");
         }
 
         return response()->json([
             'available' => true,
-            'message' => ucfirst(str_replace('_', ' ', $field)) . ' is available!',
+            'message' => ucfirst($fieldLabel) . ' is available!',
         ]);
     }
 
@@ -132,7 +137,11 @@ class RegisterController extends Controller
 
         $data = $request->validated();
         $email = strtolower($data['email']);
-        $fullName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+        $fullName = trim(implode(' ', array_filter([
+            $data['first_name'] ?? '',
+            $data['other_name'] ?? '',
+            $data['last_name'] ?? '',
+        ])));
         $class = $data['class'];
 
         // 2. Domain Restriction (Anti-Bot / Anti-Cheating)
@@ -155,24 +164,15 @@ class RegisterController extends Controller
             }
         }
 
-        // Check for existing verified users
-        $existingByEmail = User::where('email', $email)->first();
-        $existingByIndex = User::where('index_number', $data['index_number'])->first();
+        // 3. Duplicate Checks
+        // Note: The RegisterRequest handles the primary unique:users checks. 
+        // This is a secondary safeguard.
+        $existingUser = User::where('email', $email)->orWhere('index_number', $data['index_number'])->first();
 
-        $verifiedUser = null;
-
-        if ($existingByEmail && $existingByEmail->email_verified_at !== null) {
-            $verifiedUser = $existingByEmail;
-        }
-
-        if (! $verifiedUser && $existingByIndex && $existingByIndex->email_verified_at !== null) {
-            $verifiedUser = $existingByIndex;
-        }
-
-        if ($verifiedUser) {
+        if ($existingUser) {
             return redirect()->route('login')
                 ->withErrors([
-                    'email' => __('An active account already exists for this email or reference number. Please log in or contact the administrator.'),
+                    'email' => __('An account already exists for this email or reference number. Please log in or use the forgot password feature.'),
                 ]);
         }
 
@@ -211,43 +211,18 @@ class RegisterController extends Controller
         array $data,
         string $fullName
     ): RedirectResponse {
-        // Check for unverified user with same email or index
-        $existingByEmail = User::where('email', $data['email'])->first();
-        $existingByIndex = User::where('index_number', $data['index_number'])->first();
-
-        if ($existingByIndex && ! $existingByEmail && $existingByIndex->email_verified_at === null) {
-            return redirect()->route('auth.register')
-                ->withErrors([
-                    'email' => __('An account for this reference number is already pending with a different email. Please use the original email address or contact the ACSES team for assistance.'),
-                ])->withInput($request->except('password', 'password_confirmation'));
-        }
-
-        $user = $existingByEmail;
-
-        if ($user) {
-            $user->fullname = $fullName;
-            $user->username = $data['username'];
-            $user->email = $data['email'];
-            $user->password = Hash::make($data['password']);
-            $user->phone_number = $data['phone_number'] ?? null;
-            $user->index_number = $data['index_number'];
-            $user->class = $data['class'];
-            $user->year = $data['year'];
-            $user->role = 'student';
-            $user->save();
-        } else {
-            $user = User::create([
-                'fullname' => $fullName,
-                'username' => $data['username'],
-                'email' => $data['email'],
-                'password' => Hash::make($data['password']),
-                'phone_number' => $data['phone_number'] ?? null,
-                'index_number' => $data['index_number'],
-                'class' => $data['class'],
-                'year' => $data['year'],
-                'role' => 'student',
-            ]);
-        }
+        // Since RegisterRequest enforces unique constraints, we can safely create the user.
+        $user = User::create([
+            'fullname' => $fullName,
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'phone_number' => $data['phone_number'] ?? null,
+            'index_number' => $data['index_number'],
+            'class' => $data['class'],
+            'year' => $data['year'],
+            'role' => 'student',
+        ]);
 
         $this->dues->syncStudent($user);
 

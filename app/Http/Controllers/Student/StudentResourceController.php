@@ -74,46 +74,6 @@ class StudentResourceController extends Controller
                 ];
             });
 
-        if ($databaseResources->isNotEmpty()) {
-            return $databaseResources;
-        }
-
-        return collect($this->fallbackResources());
-    }
-
-    private function fallbackResources(): array
-    {
-        return collect([
-            [
-                'title' => 'Level 300 Algorithms handouts',
-                'description' => 'Official lecture slides and revision sheets for the Algorithms II course.',
-                'cta_label' => 'Download sample handout',
-                'cta_url' => '#',
-                'badge_label' => 'Handout',
-                'badge_icon' => 'fa-file-lines',
-            ],
-            [
-                'title' => 'Past question bank',
-                'description' => 'Practice with curated past questions across core ACSES modules.',
-                'cta_label' => 'Browse sample questions',
-                'cta_url' => '#',
-                'badge_label' => 'Past question',
-                'badge_icon' => 'fa-book-open',
-            ],
-            [
-                'title' => 'Lecture recording archive',
-                'description' => 'Catch up on missed sessions with recorded lectures from the current semester.',
-                'cta_label' => 'Open playlist',
-                'cta_url' => '#',
-                'badge_label' => 'Video',
-                'badge_icon' => 'fa-video',
-            ],
-        ])->map(function (array $resource) {
-            $resource['resource_type'] = 'link';
-            $resource['is_file'] = false;
-            $resource['open_in_new_tab'] = true;
-            $resource['icon'] = $resource['badge_icon'];
-            return $resource;
-        })->all();
+        return $databaseResources;
     }
 }

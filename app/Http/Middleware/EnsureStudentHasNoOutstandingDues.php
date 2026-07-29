@@ -23,6 +23,9 @@ class EnsureStudentHasNoOutstandingDues
             'student.payments.paystack.initialize',
             'student.payments.paystack.callback',
             'student.payments.paystack.receipt',
+            'student.payments.rushpay.initialize',
+            'student.payments.rushpay.checkout',
+            'student.payments.rushpay.callback',
             'student.payments.manual.submit',
             'auth.logout'
         ];
@@ -35,7 +38,7 @@ class EnsureStudentHasNoOutstandingDues
 
         if ($student) {
             // Check for actual outstanding dues
-            // We ignore 'pending_verification' IF it's a Paystack payment, 
+            // We ignore 'pending_verification' IF it's an automated payment (paystack/rushpay), 
             // but for manual payments (admin intercept) they stay blocked.
             $hasOutstanding = Due::query()
                 ->where('student_id', $student->getAuthIdentifier())
@@ -44,7 +47,7 @@ class EnsureStudentHasNoOutstandingDues
                     $q->where('payment_status', 'owing')
                       ->orWhere(function($sq) {
                           $sq->where('payment_status', 'pending_verification')
-                             ->where('payment_method', '!=', 'paystack');
+                             ->whereNotIn('payment_method', ['paystack', 'rushpay']);
                       });
                 })
                 ->exists();

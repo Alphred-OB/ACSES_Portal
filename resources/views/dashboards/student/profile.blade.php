@@ -11,163 +11,30 @@
         $hasProfileImage = (bool) ($profileImage && ! $removeRequested);
     @endphp
 
-    <div x-data="{ loading: true }" x-init="setTimeout(() => { loading = false }, 600)" class="mx-auto w-full max-w-5xl px-5 py-12 sm:px-6 lg:px-8">
-        <div x-show="loading" x-transition.opacity.duration.200ms class="space-y-8" role="status" aria-live="polite">
-            <section class="hidden sm:block overflow-hidden rounded-[24px] border border-[#0b3019]/15 bg-[#0b3019] p-8 text-white shadow-[0_20px_50px_-30px_rgba(11,48,25,0.4)]">
-                <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                    <div class="space-y-4">
-                        <div class="skeleton h-3 w-32 rounded-full bg-white/30"></div>
-                        <div class="skeleton h-9 w-64 rounded-2xl bg-white/20"></div>
-                        <div class="skeleton h-4 w-80 rounded-2xl bg-white/15"></div>
-                    </div>
-                    <div class="space-y-3 text-white/80">
-                        <div class="skeleton h-4 w-48 rounded-full bg-white/25"></div>
-                        <div class="skeleton h-4 w-40 rounded-full bg-white/20"></div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="grid gap-4 md:grid-cols-2">
-                <div class="skeleton h-16 rounded-3xl bg-slate-200/70"></div>
-                <div class="skeleton h-16 rounded-3xl bg-slate-200/70"></div>
-            </div>
-
-            <div class="grid gap-6 lg:grid-cols-3">
-                <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="flex flex-col items-center gap-5">
-                        <div class="skeleton h-32 w-32 rounded-full bg-slate-200"></div>
-                        <div class="flex flex-wrap justify-center gap-3">
-                            <div class="skeleton h-10 w-32 rounded-full bg-slate-200"></div>
-                            <div class="skeleton h-10 w-24 rounded-full bg-slate-100"></div>
-                        </div>
-                        <div class="skeleton h-3 w-48 rounded-full bg-slate-100"></div>
-                    </div>
-                </article>
-                <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10 lg:col-span-2">
-                    <div class="space-y-4">
-                        <div class="skeleton h-5 w-48 rounded-full bg-slate-200"></div>
-                        <div class="skeleton h-4 w-64 rounded-full bg-slate-100"></div>
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            @for ($i = 0; $i < 6; $i++)
-                                <div class="space-y-2">
-                                    <div class="skeleton h-3 w-32 rounded-full bg-slate-200"></div>
-                                    <div class="skeleton h-10 rounded-2xl bg-slate-100"></div>
-                                </div>
-                            @endfor
-                        </div>
-                        <div class="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-end">
-                            <div class="skeleton h-4 w-40 rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-10 w-36 rounded-full bg-[#0b3019]/20"></div>
-                        </div>
-                    </div>
-                </article>
-            </div>
-
-            <div class="grid gap-6 lg:grid-cols-2">
-                <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="space-y-4">
-                        <div class="skeleton h-5 w-52 rounded-full bg-slate-200"></div>
-                        <div class="skeleton h-4 w-72 rounded-full bg-slate-100"></div>
-                        <div class="space-y-3">
-                            @for ($i = 0; $i < 3; $i++)
-                                <div class="space-y-2">
-                                    <div class="skeleton h-3 w-32 rounded-full bg-slate-200"></div>
-                                    <div class="skeleton h-10 rounded-2xl bg-slate-100"></div>
-                                </div>
-                            @endfor
-                        </div>
-                        <div class="flex flex-wrap justify-end gap-2 pt-2">
-                            <div class="skeleton h-10 w-28 rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-10 w-32 rounded-full bg-[#0b3019]/20"></div>
-                        </div>
-                    </div>
-                </article>
-                <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="space-y-4">
-                        <div class="skeleton h-5 w-48 rounded-full bg-slate-200"></div>
-                        <div class="space-y-3">
-                            @for ($i = 0; $i < 3; $i++)
-                                <div class="flex items-center gap-3">
-                                    <div class="skeleton h-10 w-10 rounded-full bg-[#0b3019]/10"></div>
-                                    <div class="flex-1 space-y-2">
-                                        <div class="skeleton h-3 w-32 rounded-full bg-slate-200"></div>
-                                        <div class="skeleton h-3 w-44 rounded-full bg-slate-100"></div>
-                                    </div>
-                                </div>
-                            @endfor
-                        </div>
-                    </div>
-                </article>
-            </div>
-
-            <div class="grid gap-6 sm:grid-cols-2">
-                <article class="space-y-4 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="skeleton h-5 w-56 rounded-full bg-slate-200"></div>
-                    @for ($i = 0; $i < 5; $i++)
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="skeleton h-4 w-40 rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-4 w-24 rounded-full bg-slate-200"></div>
-                        </div>
-                    @endfor
-                </article>
-                <article class="space-y-4 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="skeleton h-5 w-48 rounded-full bg-slate-200"></div>
-                    @for ($i = 0; $i < 4; $i++)
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="skeleton h-4 w-36 rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-4 w-20 rounded-full bg-slate-200"></div>
-                        </div>
-                    @endfor
-                </article>
-            </div>
-        </div>
-
-        <div x-show="!loading" x-transition.opacity.duration.200ms x-cloak class="space-y-10">
-            <section class="hidden sm:block animate-fade-slide overflow-hidden rounded-[24px] border border-[#0b3019]/15 bg-gradient-to-br from-[#0b3019] via-[#114127] to-[#0b3019] p-8 text-white shadow-[0_20px_50px_-30px_rgba(11,48,25,0.4)]">
-            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                <div class="space-y-4">
-                    <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-100">Profile</span>
-                    <div class="space-y-2">
-                        <h1 class="text-3xl font-semibold md:text-4xl">Hello, {{ $student->fullname ?? $student->username ?? 'Student' }}</h1>
-                        <p class="max-w-2xl text-sm text-emerald-100/85">
-                            Review and keep your personal, contact, and academic details current so departments can reach you quickly when needed.
-                        </p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-2xl font-semibold">
-                        @php($initials = collect(explode(' ', $student->fullname ?? $student->username ?? 'Student'))->map(fn ($part) => Str::substr($part, 0, 1))->implode(''))
-                        {{ Str::upper(Str::substr($initials, 0, 2)) }}
-                    </span>
-                    <div class="hidden text-sm text-emerald-100/80 sm:flex sm:flex-col">
-                        <span class="font-semibold">{{ $student->email }}</span>
-                        <span>{{ $student->index_number ?? 'Reference unavailable' }}</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+    <div class="mx-auto w-full max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8" x-data="{ activeTab: 'id_card' }">
+        
+        <!-- Status Messages -->
         @if (session('status'))
-            <div class="animate-fade-slide rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-lg shadow-emerald-100/60">
+            <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-emerald-950 shadow-sm backdrop-blur-sm animate-fade-slide">
                 <div class="flex items-start gap-3">
-                    <i class="ri-checkbox-circle-line text-xl" aria-hidden="true"></i>
+                    <i class="ri-checkbox-circle-fill text-xl text-emerald-600"></i>
                     <div>
-                        <p class="text-sm font-semibold">Profile updated</p>
-                        <p class="text-sm text-emerald-800">{{ session('status') }}</p>
+                        <p class="text-sm font-bold">Action Completed</p>
+                        <p class="text-xs text-emerald-800 mt-0.5">{{ session('status') }}</p>
                     </div>
                 </div>
             </div>
         @endif
 
         @if ($errors->any())
-            <div class="animate-fade-slide rounded-3xl border border-rose-200 bg-rose-50 p-4 text-rose-900 shadow-lg shadow-rose-100/60">
+            <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50/80 p-4 text-rose-950 shadow-sm backdrop-blur-sm animate-fade-slide">
                 <div class="flex items-start gap-3">
-                    <i class="ri-error-warning-line text-xl" aria-hidden="true"></i>
+                    <i class="ri-error-warning-fill text-xl text-rose-600"></i>
                     <div>
-                        <p class="text-sm font-semibold">We found {{ $errors->count() }} issue{{ $errors->count() === 1 ? '' : 's' }}</p>
-                        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-rose-800">
+                        <p class="text-sm font-bold">Please correct the following errors:</p>
+                        <ul class="mt-1 list-disc space-y-0.5 pl-5 text-xs text-rose-800">
                             @foreach ($errors->all() as $error)
-                                <li class="text-sm text-rose-800">{{ $error }}</li>
+                                <li>{{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
@@ -175,541 +42,409 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data" class="space-y-10" data-profile-form>
+        <!-- Tabbed Navigation Bar -->
+        <nav class="flex items-center gap-1.5 border-b border-slate-200/60 pb-px mb-8 overflow-x-auto whitespace-nowrap scrollbar-none" aria-label="Settings tabs">
+            <button type="button" @click="activeTab = 'id_card'" 
+                    :class="activeTab === 'id_card' ? 'border-[#0b3019] text-[#0b3019] bg-[#0b3019]/5 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900 font-semibold'"
+                    class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm transition-all duration-200 rounded-t-xl">
+                <i class="ri-id-card-line text-base"></i>
+                <span>Digital ID Card</span>
+            </button>
+            <button type="button" @click="activeTab = 'profile_settings'" 
+                    :class="activeTab === 'profile_settings' ? 'border-[#0b3019] text-[#0b3019] bg-[#0b3019]/5 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900 font-semibold'"
+                    class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm transition-all duration-200 rounded-t-xl">
+                <i class="ri-user-settings-line text-base"></i>
+                <span>Personal Profile</span>
+            </button>
+            <button type="button" @click="activeTab = 'security_devices'" 
+                    :class="activeTab === 'security_devices' ? 'border-[#0b3019] text-[#0b3019] bg-[#0b3019]/5 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900 font-semibold'"
+                    class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm transition-all duration-200 rounded-t-xl">
+                <i class="ri-shield-keyhole-line text-base"></i>
+                <span>Security & Devices</span>
+            </button>
+        </nav>
+
+        <!-- Main Form Scope (All Settings are in one form to maintain input validity) -->
+        <form method="POST" action="{{ route('student.profile.update') }}" enctype="multipart/form-data" 
+              class="space-y-8" data-profile-form>
             @csrf
 
-            <section class="grid gap-6 lg:grid-cols-3">
-                <article class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <header class="flex items-start justify-between">
-                        <div>
-                            <h2 class="text-lg font-semibold text-[#0b3019]">Profile photo</h2>
-                            <p class="text-sm text-slate-500">Upload a clear portrait so staff can recognise you easily.</p>
+            <!-- ================= TAB 1: DIGITAL ID CARD ================= -->
+            <div x-show="activeTab === 'id_card'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
+                <div class="max-w-2xl mx-auto">
+                    <!-- Glassmorphic ID Card Container -->
+                    <div class="relative overflow-hidden rounded-[32px] border border-[#0b3019]/30 bg-gradient-to-br from-[#0b3019] via-[#0d3f21] to-[#051e0f] p-8 text-white shadow-[0_25px_60px_-15px_rgba(11,48,25,0.45)] transition-all duration-500 group/card hover:shadow-[0_30px_70px_-15px_rgba(11,48,25,0.55)]">
+                        
+                        <!-- Glow highlight -->
+                        <div class="absolute -right-24 -top-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+                        <div class="absolute -left-24 -bottom-24 h-48 w-48 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none"></div>
+
+                        <!-- Micro biometric scanning lines (watermark style) -->
+                        <div class="absolute inset-0 bg-[radial-gradient(#ffffff03_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
+
+                        <!-- Card Header -->
+                        <div class="flex items-center justify-between border-b border-white/10 pb-5 relative z-10">
+                            <div class="flex items-center gap-3.5">
+                                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 p-2 backdrop-blur-md border border-white/20">
+                                    <img src="{{ asset('logo.png') }}" alt="ACSES Logo" class="h-full w-full object-contain">
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-emerald-400">ACSES Student Member</p>
+                                    <p class="text-xs font-bold uppercase tracking-wider text-white/80">University of Mines & Technology</p>
+                                </div>
+                            </div>
+                            
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300 border border-emerald-500/30">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Active
+                            </span>
                         </div>
-                    </header>
 
-                    <div class="mt-6 space-y-6">
-                        <div class="flex flex-col items-center gap-4">
-                            <div class="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#0b3019]/20 bg-[#0b3019]/5">
-                                <img data-avatar-preview src="{{ $hasProfileImage ? $profileImage : '' }}" alt="{{ $displayName }} profile photo" class="{{ $hasProfileImage ? '' : 'hidden' }} h-full w-full object-cover" />
-                                <span data-avatar-fallback class="{{ $hasProfileImage ? 'hidden' : '' }} text-2xl font-semibold uppercase text-[#0b3019]">{{ $initials ?: 'ST' }}</span>
+                        <!-- Card Body -->
+                        <div class="mt-8 flex flex-col items-center gap-8 sm:flex-row sm:items-start text-center sm:text-left relative z-10">
+                            <!-- Avatar Portrait -->
+                            <div class="relative shrink-0 group/avatar">
+                                <div class="relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/5 p-1 shadow-2xl backdrop-blur-sm transition-all duration-500 group-hover/avatar:scale-105 group-hover/avatar:border-emerald-400/40">
+                                    @if ($hasProfileImage)
+                                        <img data-avatar-preview src="{{ $profileImage }}" alt="{{ $displayName }} profile photo" class="h-full w-full rounded-xl object-cover" />
+                                    @else
+                                        <span data-avatar-fallback class="text-4xl font-bold uppercase text-emerald-300">{{ $initials ?: 'ST' }}</span>
+                                    @endif
+                                </div>
+                                <div class="absolute -bottom-2 right-4 rounded-md bg-[#0b3019] px-2 py-0.5 text-[8px] font-black uppercase tracking-wider text-emerald-400 border border-emerald-500/30">Verified</div>
                             </div>
-                            <div class="flex flex-wrap items-center justify-center gap-3">
-                                <button type="button" data-avatar-trigger class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-[#0b3019]/90 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40">
-                                    <i class="ri-upload-2-line text-base" aria-hidden="true"></i>
-                                    Choose photo
-                                </button>
-                                <button type="button" data-avatar-remove class="{{ $hasProfileImage ? '' : 'hidden' }} inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-200/80">
-                                    <i class="ri-delete-bin-6-line text-base" aria-hidden="true"></i>
-                                    Remove
-                                </button>
-                            </div>
-                            <p class="text-center text-xs text-slate-500" data-avatar-helper>Select a square image (minimum 400×400px). A crop dialog will appear so you can fine-tune the frame.</p>
-                        </div>
 
-                        <input type="file" name="profile_picture" accept="image/*" class="hidden" data-avatar-input>
-                        <input type="hidden" name="profile_picture_cropped" value="{{ old('profile_picture_cropped') }}" data-avatar-cropped>
-                        <input type="hidden" name="remove_profile_picture" value="{{ $removeRequested ? '1' : '0' }}" data-avatar-remove-input>
-                    </div>
+                            <!-- Student placement & metrics -->
+                            <div class="flex-1 w-full space-y-5">
+                                <div>
+                                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">{{ $student->fullname ?? 'Sample Student' }}</h2>
+                                    <p class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 mt-1.5">MEMBER DIRECTORY</p>
+                                </div>
 
-                    
-                </article>
-
-                <article class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10 lg:col-span-2">
-                    <header>
-                        <h2 class="text-lg font-semibold text-[#0b3019]">Personal &amp; contact details</h2>
-                        <p class="text-sm text-slate-500">Ensure your contact information stays up to date.</p>
-                    </header>
-                    <div class="mt-6 grid gap-6 sm:grid-cols-2">
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Full name</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-user-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input type="text" name="fullname" value="{{ old('fullname', $student->fullname) }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-600" readonly>
-                            </div>
-                        </label>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Username</span>
-                            <input type="text" value="{{ $student->username }}" disabled class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-                        </label>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Primary email</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-mail-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input
-                                    type="email"
-                                    name="pending_email"
-                                    id="pending_email"
-                                    value="{{ old('pending_email', $student->pending_email ?? $student->email) }}"
-                                    class="w-full rounded-2xl border {{ $student->pending_email ? 'border-amber-300 bg-amber-50 text-slate-900' : 'border-slate-200 bg-white text-slate-900' }} py-3 pl-11 pr-4 text-sm shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40"
-                                    placeholder="you@example.com"
-                                    autocomplete="email"
-                                >
-                            </div>
-                            @error('pending_email')
-                                <p class="text-xs font-semibold text-rose-600">{{ $message }}</p>
-                            @enderror
-
-                            @if ($student->pending_email)
-                                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700">
-                                    <div class="flex items-start gap-2">
-                                        <i class="ri-alert-line mt-0.5 text-base" aria-hidden="true"></i>
-                                        <div class="space-y-2">
-                                            <p class="text-xs font-semibold uppercase tracking-[0.25em] text-amber-600">Pending verification</p>
-                                            <p class="text-xs leading-5 text-amber-700">We sent a verification link to <span class="font-semibold">{{ $student->pending_email }}</span>. Check your inbox or resend the link below.</p>
-                                            <div class="flex flex-wrap gap-2">
-                                                <button type="button" class="inline-flex items-center gap-2 rounded-full bg-amber-600 px-4 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-600/40" onclick="document.getElementById('pending_email').value='{{ $student->pending_email }}'; this.form.requestSubmit();">
-                                                    <i class="ri-refresh-line text-base" aria-hidden="true"></i>
-                                                    Resend verification
-                                                </button>
-                                                <button type="button" class="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-white px-4 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500/30" onclick="document.getElementById('pending_email').value=''; this.form.requestSubmit();">
-                                                    <i class="ri-close-line text-base" aria-hidden="true"></i>
-                                                    Cancel request
-                                                </button>
-                                            </div>
-                                        </div>
+                                <!-- Placement grid info -->
+                                <div class="grid grid-cols-1 gap-x-6 gap-y-3.5 text-xs text-emerald-100/90 sm:grid-cols-2 pt-2">
+                                    <div class="flex items-center gap-3 justify-center sm:justify-start">
+                                        <i class="ri-hashtag text-emerald-400 text-sm"></i>
+                                        <span>Ref: <strong class="text-white">{{ $student->index_number ?? 'Not assigned' }}</strong></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 justify-center sm:justify-start">
+                                        <i class="ri-graduation-cap-line text-emerald-400 text-sm"></i>
+                                        <span>Prog: <strong class="text-white">{{ $student->class ?? 'Not set' }}</strong></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 justify-center sm:justify-start">
+                                        <i class="ri-calendar-line text-emerald-400 text-sm"></i>
+                                        <span>Year: <strong class="text-white">Year {{ $student->year ?? 'N/A' }}</strong></span>
+                                    </div>
+                                    <div class="flex items-center gap-3 justify-center sm:justify-start">
+                                        <i class="ri-phone-line text-emerald-400 text-sm"></i>
+                                        <span>Phone: <strong class="text-white">{{ $student->phone_number ?? 'Not set' }}</strong></span>
                                     </div>
                                 </div>
-                            @else
-                                <p class="text-xs text-slate-500">This address is verified. Change it to trigger a new verification.</p>
-                            @endif
-                        </label>
-                        
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Phone number</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-phone-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input type="text" name="phone_number" value="{{ old('phone_number', $student->phone_number) }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-600" readonly>
+
+                                <!-- Email Row -->
+                                <div class="flex items-center gap-3 justify-center sm:justify-start text-xs border-t border-white/10 pt-4 mt-2 w-full">
+                                    <i class="ri-mail-line text-emerald-400"></i>
+                                    <span class="text-emerald-200/80 font-medium">{{ $student->email }}</span>
+                                </div>
                             </div>
-                        </label>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Reference number</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-id-card-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input type="text" value="{{ $student->index_number ?? 'Not assigned' }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-600" readonly>
-                            </div>
-                        </label>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Programme / class</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-school-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input type="text" name="class" value="{{ old('class', $student->class) }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-600" readonly>
-                            </div>
-                        </label>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Year of study</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-calendar-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input type="text" value="{{ $student->year ? 'Year ' . $student->year : 'Not set' }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-slate-600" readonly>
-                            </div>
-                        </label>
+                        </div>
+
                     </div>
 
-                       <div class="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-end">
-                <p class="text-sm text-slate-500">Last updated {{ optional($student->updated_at)->diffForHumans() ?? 'recently' }}</p>
-                <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#0b3019]/90 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40">
-                    <i class="ri-save-line text-base" aria-hidden="true"></i>
-                    Save changes
-                </button>
-            </div>
-                </article>
-            </section>
-
-            <section class="grid gap-6 lg:grid-cols-2">
-                <article
-                    class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10"
-                    x-data="{
-                        editing: false,
-                        open() {
-                            this.editing = true;
-                            this.$nextTick(() => this.$refs.currentPassword?.focus());
-                        },
-                        cancel() {
-                            this.editing = false;
-                            if (this.$refs.currentPassword) this.$refs.currentPassword.value = '';
-                            if (this.$refs.newPassword) {
-                                this.$refs.newPassword.value = '';
-                                this.$refs.newPassword.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                            if (this.$refs.confirmPassword) this.$refs.confirmPassword.value = '';
-                        }
-                    }"
-                >
-                    <header>
-                        <h2 class="text-lg font-semibold text-[#0b3019]">Security &amp; password</h2>
-                        <p class="text-sm text-slate-500">Leave these fields blank to keep your existing password.</p>
-                    </header>
-                    <div class="mt-6" x-cloak x-show="!editing">
-                        <button
-                            type="button"
-                            class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-5 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40"
-                            x-on:click="open()"
-                        >
-                            <i class="ri-lock-2-line text-base" aria-hidden="true"></i>
-                            Change password
+                    <!-- Manage quick access note -->
+                    <div class="mt-6 text-center">
+                        <button type="button" @click="activeTab = 'profile_settings'" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-98">
+                            <i class="ri-edit-line"></i>
+                            <span>Edit Profile Contact Info</span>
                         </button>
                     </div>
-                    <div class="mt-6 space-y-6" x-cloak x-show="editing" x-transition.origin-top>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Current password</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-lock-2-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input
-                                    type="password"
-                                    name="current_password"
-                                    id="current_password"
-                                    x-ref="currentPassword"
-                                    class="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40"
-                                >
-                                <button type="button" class="absolute inset-y-0 right-0 mr-3 inline-flex items-center justify-center rounded-full bg-transparent px-2 text-slate-500 transition hover:text-[#0b3019]" data-password-toggle="#current_password">
-                                    <i data-eye class="ri-eye-line text-base" aria-hidden="true"></i>
-                                    <i data-eye-off class="ri-eye-off-line hidden text-base" aria-hidden="true"></i>
+                </div>
+            </div>
+
+            <!-- ================= TAB 2: PROFILE SETTINGS ================= -->
+            <div x-show="activeTab === 'profile_settings'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
+                
+                <div class="grid gap-6 lg:grid-cols-3">
+                    
+                    <!-- Left: Profile avatar image update -->
+                    <article class="rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Profile avatar</h3>
+                        <div class="mt-6 flex flex-col items-center gap-4">
+                            <div class="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#0b3019]/20 bg-slate-50 transition-transform duration-300">
+                                <img data-avatar-preview src="{{ $hasProfileImage ? $profileImage : '' }}" alt="{{ $displayName }} profile photo" class="{{ $hasProfileImage ? '' : 'hidden' }} h-full w-full object-cover" />
+                                <span data-avatar-fallback class="{{ $hasProfileImage ? 'hidden' : '' }} text-2xl font-bold uppercase text-[#0b3019]">{{ $initials ?: 'ST' }}</span>
+                            </div>
+                            
+                            <div class="flex flex-wrap items-center justify-center gap-2">
+                                <button type="button" @click="document.querySelector('[data-avatar-input]').click()" data-avatar-trigger class="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-[#0b3019] px-4 text-xs font-bold text-white shadow-sm transition hover:bg-[#082212] active:scale-95">
+                                    <i class="ri-upload-cloud-line"></i>
+                                    <span>Upload Photo</span>
+                                </button>
+                                <button type="button" data-avatar-remove class="{{ $hasProfileImage ? '' : 'hidden' }} inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-4 text-xs font-bold text-rose-700 transition hover:bg-rose-100 active:scale-95">
+                                    <i class="ri-delete-bin-6-line"></i>
+                                    <span>Remove</span>
                                 </button>
                             </div>
-                        </label>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">New password</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-shield-keyhole-line text-base" aria-hidden="true"></i>
-                                </span>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    id="new_password"
-                                    x-ref="newPassword"
-                                    class="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40"
-                                    autocomplete="new-password"
-                                >
-                                <button type="button" class="absolute inset-y-0 right-0 mr-3 inline-flex items-center justify-center rounded-full bg-transparent px-2 text-slate-500 transition hover:text-[#0b3019]" data-password-toggle="#new_password">
-                                    <i data-eye class="ri-eye-line text-base" aria-hidden="true"></i>
-                                    <i data-eye-off class="ri-eye-off-line hidden text-base" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                            <div class="space-y-3" data-password-strength data-password-input="#new_password">
-                                <div class="h-2 w-full overflow-hidden rounded-full bg-slate-200">
-                                    <div class="h-full w-1/12 rounded-full bg-red-500 transition-all duration-200" data-password-strength-bar></div>
+                            <p class="text-center text-[10px] leading-relaxed text-slate-500 max-w-xs" data-avatar-helper>Select a square image (minimum 400×400px). A crop dialog will assist you in positioning.</p>
+                        </div>
+                    </article>
+
+                    <!-- Right: Contact form fields -->
+                    <article class="lg:col-span-2 rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm space-y-6">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Contact information</h3>
+                        
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <!-- Primary Email -->
+                            <label class="flex flex-col gap-1.5">
+                                <span class="text-xs font-bold uppercase tracking-[0.1em] text-slate-400">Primary Email Address</span>
+                                <div class="relative">
+                                    <i class="ri-mail-line pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="email" name="pending_email" id="pending_email" value="{{ old('pending_email', $student->pending_email ?? $student->email) }}" 
+                                           class="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/20 transition-all">
                                 </div>
-                                <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                    <span>Strength</span>
-                                    <span data-password-strength-label>Weak</span>
+                                
+                                @if ($student->pending_email)
+                                    <div class="mt-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                                        <p class="font-bold">Verification Pending</p>
+                                        <p class="mt-0.5 leading-relaxed">Sent verification link to <strong>{{ $student->pending_email }}</strong>. Revert or verify to finalize.</p>
+                                    </div>
+                                @endif
+                            </label>
+
+                            <!-- Phone Number -->
+                            <label class="flex flex-col gap-1.5">
+                                <span class="text-xs font-bold uppercase tracking-[0.1em] text-slate-400">Phone Number</span>
+                                <div class="relative">
+                                    <i class="ri-phone-line pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" name="phone_number" value="{{ old('phone_number', $student->phone_number) }}" 
+                                           class="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/20 transition-all">
                                 </div>
-                                <ul class="space-y-2 text-xs text-slate-500">
-                                    <li class="flex items-center gap-2" data-password-rule="length">
-                                        <span class="flex h-4 w-4 items-center justify-center" data-fail-icon>
-                                            <i class="ri-close-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        <span class="hidden flex h-4 w-4 items-center justify-center text-[#0b3019]" data-pass-icon>
-                                            <i class="ri-check-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        At least 8 characters
-                                    </li>
-                                    <li class="flex items-center gap-2" data-password-rule="mixed">
-                                        <span class="flex h-4 w-4 items-center justify-center" data-fail-icon>
-                                            <i class="ri-close-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        <span class="hidden flex h-4 w-4 items-center justify-center text-[#0b3019]" data-pass-icon>
-                                            <i class="ri-check-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        Upper &amp; lowercase letters
-                                    </li>
-                                    <li class="flex items-center gap-2" data-password-rule="number">
-                                        <span class="flex h-4 w-4 items-center justify-center" data-fail-icon>
-                                            <i class="ri-close-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        <span class="hidden flex h-4 w-4 items-center justify-center text-[#0b3019]" data-pass-icon>
-                                            <i class="ri-check-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        Include at least one number
-                                    </li>
-                                    <li class="flex items-center gap-2" data-password-rule="symbol">
-                                        <span class="flex h-4 w-4 items-center justify-center" data-fail-icon>
-                                            <i class="ri-close-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        <span class="hidden flex h-4 w-4 items-center justify-center text-[#0b3019]" data-pass-icon>
-                                            <i class="ri-check-line text-[13px]" aria-hidden="true"></i>
-                                        </span>
-                                        Add a special character
-                                    </li>
-                                </ul>
+                            </label>
+                        </div>
+
+                        <!-- Readonly Placements -->
+                        <div class="pt-6 border-t border-slate-100 space-y-4">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Academic Placement (Read-only)</h4>
+                            <div class="grid gap-4 sm:grid-cols-3 text-xs text-slate-500">
+                                <div>
+                                    <span class="block font-bold text-slate-400 uppercase tracking-wider text-[10px]">Full name</span>
+                                    <span class="text-sm font-semibold text-slate-800 mt-1 block">{{ $student->fullname }}</span>
+                                </div>
+                                <div>
+                                    <span class="block font-bold text-slate-400 uppercase tracking-wider text-[10px]">Programme</span>
+                                    <span class="text-sm font-semibold text-slate-800 mt-1 block">{{ $student->class }}</span>
+                                </div>
+                                <div>
+                                    <span class="block font-bold text-slate-400 uppercase tracking-wider text-[10px]">Year Level</span>
+                                    <span class="text-sm font-semibold text-slate-800 mt-1 block">Year {{ $student->year }}</span>
+                                </div>
                             </div>
-                        </label>
-                        <label class="flex flex-col gap-2">
-                            <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Confirm new password</span>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                                    <i class="ri-lock-password-line text-base" aria-hidden="true"></i>
+
+                            <div class="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 text-xs text-slate-500 flex gap-3">
+                                <i class="ri-information-line text-slate-400 text-lg shrink-0"></i>
+                                <div>
+                                    <span class="font-bold text-slate-700 block">Need to update official details?</span>
+                                    <span class="mt-0.5 block leading-relaxed text-slate-500">Official registry placements (Name, Programme, and Year) cannot be changed directly by students. Please contact an executive or system administrator to request updates.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </article>
+                </div>
+
+                <input type="file" name="profile_picture" accept="image/*" class="hidden" data-avatar-input>
+                <input type="hidden" name="profile_picture_cropped" value="{{ old('profile_picture_cropped') }}" data-avatar-cropped>
+                <input type="hidden" name="remove_profile_picture" value="{{ $removeRequested ? '1' : '0' }}" data-avatar-remove-input>
+
+                <!-- Action Button Controls -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="submit" class="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-[#0b3019] px-6 text-sm font-bold text-white shadow-sm transition hover:bg-[#082212] active:scale-95">
+                        <i class="ri-save-line"></i>
+                        <span>Save Profile Changes</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= TAB 3: SECURITY & DEVICES ================= -->
+            <div x-show="activeTab === 'security_devices'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
+                
+                <div class="grid gap-6 md:grid-cols-2">
+                    
+                    <!-- Left: Password Change block -->
+                    <article class="rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm flex flex-col justify-between" x-data="{ showPass: false, showNew: false }">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+                                    <i class="ri-lock-password-line text-xl"></i>
                                 </span>
-                                <input
-                                    type="password"
-                                    name="password_confirmation"
-                                    id="password_confirmation"
-                                    x-ref="confirmPassword"
-                                    class="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40"
-                                    autocomplete="new-password"
-                                >
-                                <button type="button" class="absolute inset-y-0 right-0 mr-3 inline-flex items-center justify-center rounded-full bg-transparent px-2 text-slate-500 transition hover:text-[#0b3019]" data-password-toggle="#password_confirmation">
-                                    <i data-eye class="ri-eye-line text-base" aria-hidden="true"></i>
-                                    <i data-eye-off class="ri-eye-off-line hidden text-base" aria-hidden="true"></i>
-                                </button>
+                                <div>
+                                    <h3 class="text-base font-bold text-slate-900">Security Credentials</h3>
+                                    <p class="text-xs text-slate-500">Update account login password.</p>
+                                </div>
                             </div>
-                        </label>
-                        <div class="flex flex-wrap justify-end gap-2 pt-2">
-                            <button
-                                type="button"
-                                class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-600 shadow transition hover:-translate-y-0.5 hover:border-slate-300 hover:text-[#0b3019] focus:outline-none focus:ring-2 focus:ring-slate-200/80"
-                                x-on:click="cancel()"
-                            >
-                                <i class="ri-close-line text-base" aria-hidden="true"></i>
+
+                            <p class="mt-4 text-xs leading-relaxed text-slate-500" x-show="!showPass">
+                                Maintain login security. Leave blank if you don't intend to reset your current password.
+                            </p>
+
+                            <!-- Password Fields -->
+                            <div x-show="showPass" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="mt-4 space-y-4 pt-4 border-t border-slate-100">
+                                
+                                <label class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Current Password</span>
+                                    <input type="password" name="current_password" class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:border-[#0b3019]/60 focus:outline-none">
+                                </label>
+
+                                <label class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">New Password</span>
+                                    <input type="password" name="password" class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:border-[#0b3019]/60 focus:outline-none">
+                                </label>
+
+                                <label class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Confirm Password</span>
+                                    <input type="password" name="password_confirmation" class="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:border-[#0b3019]/60 focus:outline-none">
+                                </label>
+
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex gap-2">
+                            <button type="button" x-show="!showPass" @click="showPass = true" 
+                                    class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-50 active:scale-95">
+                                <i class="ri-key-2-line"></i>
+                                <span>Change password</span>
+                            </button>
+                            <button type="button" x-show="showPass" @click="showPass = false" 
+                                    class="inline-flex h-10 w-1/2 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 transition hover:bg-slate-50">
                                 Cancel
                             </button>
-                            <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-[#0b3019]/90 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40">
-                                <i class="ri-check-line text-base" aria-hidden="true"></i>
+                            <button type="submit" x-show="showPass" 
+                                    class="inline-flex h-10 w-1/2 items-center justify-center rounded-full bg-[#0b3019] px-4 text-xs font-bold text-white transition hover:bg-[#082212]">
                                 Save password
                             </button>
                         </div>
-                    </div>
-                </article>
-                <article class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <h2 class="text-lg font-semibold text-[#0b3019]">Support contacts</h2>
-                    <p class="mt-2 text-sm text-slate-500">Need assistance? Reach the ACSES support team directly.</p>
-                    <ul class="mt-4 space-y-4 text-sm text-slate-600">
-                        <li class="flex items-center gap-3">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0b3019]/10 text-[#0b3019]">
-                                <i class="ri-phone-line text-lg" aria-hidden="true"></i>
-                            </span>
-                            <div>
-                                <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Hotline</span>
-                                <p class="mt-1 text-base font-semibold text-slate-900">055 935 9824</p>
-                                <p class="text-xs text-slate-500">Available 08:00 – 20:00 GMT daily</p>
-                            </div>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-[#0b3019]/10 text-[#0b3019]">
-                                <i class="ri-mail-send-line text-lg" aria-hidden="true"></i>
-                            </span>
-                            <div>
-                                <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Email</span>
-                                <p class="mt-1 text-base font-semibold text-slate-900">acsesrepos@gmail.com</p>
-                                <p class="text-xs text-slate-500">Send detailed issues for next-day responses</p>
-                            </div>
-                        </li>
-                    </ul>
-                </article>
-            </section>
+                    </article>
 
-            {{-- Trusted Devices Section --}}
-            <section class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                        <div class="flex items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
-                                <i class="ri-device-line text-xl" aria-hidden="true"></i>
-                            </span>
-                            <div>
-                                <h2 class="text-lg font-semibold text-[#0b3019]">Trusted Devices</h2>
-                                <p class="text-sm text-slate-500">Devices you've verified won't need a one-time code to sign in.</p>
+                    <!-- Right: Trusted Devices -->
+                    <article class="rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm">
+                        <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                                    <i class="ri-device-line text-xl"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-base font-bold text-slate-900">Trusted Devices</h3>
+                                    <p class="text-xs text-slate-500">Authorized devices bypassing 2FA.</p>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    @if(isset($trustedDevices) && $trustedDevices->count() > 1)
-                        <form method="POST" action="{{ route('student.profile.devices.revoke-all') }}" onsubmit="return confirm('Are you sure you want to remove all other devices? You will need to verify them again on next login.');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-200/80">
-                                <i class="ri-logout-circle-r-line text-base" aria-hidden="true"></i>
-                                Sign out other devices
-                            </button>
-                        </form>
-                    @endif
-                </header>
 
-                <div class="mt-6">
-                    @if(isset($trustedDevices) && $trustedDevices->count() > 0)
-                        <ul class="divide-y divide-slate-100">
-                            @foreach($trustedDevices as $device)
-                                @php($isCurrent = isset($currentFingerprint) && $device->device_fingerprint === $currentFingerprint)
-                                <li class="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between {{ $isCurrent ? 'bg-emerald-50/50 -mx-4 px-4 rounded-2xl' : '' }}">
-                                    <div class="flex items-start gap-3">
-                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full {{ $isCurrent ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500' }}">
-                                            @if(str_contains(strtolower($device->device_name ?? ''), 'mobile') || str_contains(strtolower($device->device_name ?? ''), 'android') || str_contains(strtolower($device->device_name ?? ''), 'ios'))
-                                                <i class="ri-smartphone-line text-lg" aria-hidden="true"></i>
-                                            @else
-                                                <i class="ri-computer-line text-lg" aria-hidden="true"></i>
+                            @if(isset($trustedDevices) && $trustedDevices->count() > 1)
+                                <button type="submit" form="revoke-all-form" class="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-[10px] font-bold text-rose-700 transition hover:bg-rose-100 active:scale-95">
+                                    <i class="ri-logout-circle-r-line"></i>
+                                    <span>Sign out others</span>
+                                </button>
+                            @endif
+                        </header>
+
+                        <!-- Device List -->
+                        <div class="mt-6 max-h-[220px] overflow-y-auto overflow-x-hidden pr-1 scrollbar-thin">
+                            @if(isset($trustedDevices) && $trustedDevices->count() > 0)
+                                <ul class="divide-y divide-slate-100">
+                                    @foreach($trustedDevices as $device)
+                                        @php($isCurrent = isset($currentFingerprint) && $device->device_fingerprint === $currentFingerprint)
+                                        <li class="flex items-center justify-between gap-4 py-3 px-2 rounded-xl transition hover:bg-slate-50/80 {{ $isCurrent ? 'bg-emerald-50/40' : '' }} group/device">
+                                            <div class="flex items-center gap-3 min-w-0">
+                                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full {{ $isCurrent ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">
+                                                    @if(str_contains(strtolower($device->device_name ?? ''), 'mobile') || str_contains(strtolower($device->device_name ?? ''), 'android') || str_contains(strtolower($device->device_name ?? ''), 'ios'))
+                                                        <i class="ri-smartphone-line"></i>
+                                                    @else
+                                                        <i class="ri-computer-line"></i>
+                                                    @endif
+                                                </span>
+                                                <div class="min-w-0 flex-1">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="font-bold text-slate-900 truncate text-xs">{{ $device->device_name ?? 'Unknown Device' }}</span>
+                                                        @if($isCurrent)
+                                                            <span class="inline-flex items-center rounded-full bg-emerald-100 px-1.5 py-0.2 text-[8px] font-black text-emerald-700 uppercase">Current</span>
+                                                        @endif
+                                                    </div>
+                                                    <p class="text-[10px] text-slate-500 truncate mt-0.5">
+                                                        {{ $device->ip_address ?? 'Unknown IP' }} &middot; Active {{ $device->last_used_at ? $device->last_used_at->diffForHumans() : 'Unknown' }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            @if(!$isCurrent)
+                                                <button type="submit" form="revoke-device-{{ $device->id }}" class="text-slate-400 hover:text-rose-600 transition-colors p-1 hover:scale-110 active:scale-95">
+                                                    <i class="ri-close-circle-line text-lg"></i>
+                                                </button>
                                             @endif
-                                        </span>
-                                        <div class="min-w-0 flex-1">
-                                            <div class="flex items-center gap-2">
-                                                <span class="font-semibold text-slate-900 truncate">{{ $device->device_name ?? 'Unknown Device' }}</span>
-                                                @if($isCurrent)
-                                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                                                        <i class="ri-checkbox-circle-fill text-xs" aria-hidden="true"></i>
-                                                        This device
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-                                                <span class="flex items-center gap-1">
-                                                    <i class="ri-global-line" aria-hidden="true"></i>
-                                                    {{ $device->ip_address ?? 'Unknown IP' }}
-                                                </span>
-                                                <span class="flex items-center gap-1">
-                                                    <i class="ri-time-line" aria-hidden="true"></i>
-                                                    Last used {{ $device->last_used_at ? $device->last_used_at->diffForHumans() : 'Unknown' }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @if(!$isCurrent)
-                                        <form method="POST" action="{{ route('student.profile.devices.revoke', $device) }}" onsubmit="return confirm('Remove this device? It will require verification on next login.');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-slate-200/80">
-                                                <i class="ri-close-line text-sm" aria-hidden="true"></i>
-                                                Remove
-                                            </button>
-                                        </form>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    @else
-                        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-8 text-center">
-                            <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                                <i class="ri-device-line text-2xl" aria-hidden="true"></i>
-                            </span>
-                            <p class="mt-4 text-sm font-semibold text-slate-600">No trusted devices yet</p>
-                            <p class="mt-1 text-xs text-slate-500">When you sign in from a new device and verify it with an OTP, it will appear here.</p>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <div class="text-center py-8 text-xs text-slate-400">
+                                    No trusted devices recorded yet.
+                                </div>
+                            @endif
                         </div>
-                    @endif
-                </div>
+                    </article>
 
-                <div class="mt-6 rounded-2xl border border-[#0b3019]/10 bg-[#0b3019]/5 px-4 py-3">
-                    <div class="flex items-start gap-3">
-                        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0b3019]/10 text-[#0b3019]">
-                            <i class="ri-shield-check-line text-base" aria-hidden="true"></i>
-                        </span>
-                        <div class="text-xs text-slate-600">
-                            <p class="font-semibold text-[#0b3019]">About Device Security</p>
-                            <p class="mt-1 leading-relaxed">We automatically verify new devices with a one-time code sent to your email. Once verified, that device is trusted and you can sign in instantly. Remove devices you don't recognize or no longer use.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="grid gap-6 sm:grid-cols-2">
-                <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#0b3019]/10 text-[#0b3019]">
-                            <i class="ri-id-card-line text-xl" aria-hidden="true"></i>
-                        </span>
-                        <div>
-                            <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Contact &amp; identity</h2>
-                            <p class="text-xs text-slate-500">Snapshot of how we recognise you across ACSES.</p>
-                        </div>
-                    </div>
-                    <dl class="mt-6 space-y-3 text-sm text-slate-600">
-                        <div class="flex items-center justify-between gap-3">
-                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-user-line text-base text-[#0b3019]" aria-hidden="true"></i> Full name</dt>
-                            <dd class="font-semibold text-slate-800">{{ $student->fullname }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between gap-3">
-                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-mail-line text-base text-[#0b3019]" aria-hidden="true"></i> Email</dt>
-                            <dd class="font-semibold text-slate-800">{{ $student->email }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between gap-3">
-                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-phone-line text-base text-[#0b3019]" aria-hidden="true"></i> Phone number</dt>
-                            <dd class="font-semibold text-slate-800">{{ $student->phone_number ?? 'Not provided' }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between gap-3">
-                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-hashtag text-base text-[#0b3019]" aria-hidden="true"></i> Reference number</dt>
-                            <dd class="font-semibold text-slate-800">{{ $student->index_number ?? '—' }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.2em] text-slate-400">
-                            <dt class="flex items-center gap-2"><i class="ri-calendar-line text-sm text-[#0b3019]" aria-hidden="true"></i> Created</dt>
-                            <dd class="text-[13px] font-semibold text-slate-500">{{ optional($student->created_at)->format('M d, Y · g:i A') }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.2em] text-slate-400">
-                            <dt class="flex items-center gap-2"><i class="ri-time-line text-sm text-[#0b3019]" aria-hidden="true"></i> Last updated</dt>
-                            <dd class="text-[13px] font-semibold text-slate-500">{{ optional($student->updated_at)->format('M d, Y · g:i A') }}</dd>
-                        </div>
-                    </dl>
-                </article>
-
-                <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="flex items-center gap-3">
-                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#0b3019]/10 text-[#0b3019]">
-                            <i class="ri-graduation-cap-line text-xl" aria-hidden="true"></i>
-                        </span>
-                        <div>
-                            <h2 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Academic placement</h2>
-                            <p class="text-xs text-slate-500">See where you currently sit within the programme.</p>
-                        </div>
-                    </div>
-                    <dl class="mt-6 space-y-3 text-sm text-slate-600">
-                        <div class="flex items-center justify-between gap-3">
-                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-book-open-line text-base text-[#0b3019]" aria-hidden="true"></i> Class</dt>
-                            <dd class="font-semibold text-slate-800">{{ $student->class ?? 'Not assigned' }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between gap-3">
-                            <dt class="flex items-center gap-2 text-slate-500"><i class="ri-medal-line text-base text-[#0b3019]" aria-hidden="true"></i> Year</dt>
-                            <dd class="font-semibold text-slate-800">{{ $student->year ? 'Year ' . $student->year : 'Not set' }}</dd>
-                        </div>
-                    </dl>
-                </article>
-            </section>
-
-            <div data-avatar-loading-overlay class="fixed inset-0 z-[65] hidden items-center justify-center bg-white/80 backdrop-blur-sm">
-                <div class="flex flex-col items-center space-y-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#0b3019]/20 bg-white">
-                        <i class="ri-loader-4-line animate-spin text-2xl text-[#0b3019]" aria-hidden="true"></i>
-                    </div>
-                    <p class="text-sm font-medium text-slate-700">Updating profile photo</p>
                 </div>
             </div>
 
-            <div data-avatar-overlay class="fixed inset-0 z-[60] hidden items-center justify-center overflow-y-auto bg-slate-900/60 px-4 py-10 backdrop-blur-sm md:px-8">
-                <div data-avatar-editor class="relative mx-auto w-full max-w-3xl rounded-[28px] border border-white/10 bg-white p-6 shadow-[0_45px_120px_-45px_rgba(11,48,25,0.8)] md:p-8">
+            <!-- ================= PHOTO CROPPER MODALS & OVERLAYS ================= -->
+            <div data-avatar-loading-overlay class="fixed inset-0 z-[65] hidden items-center justify-center bg-white/80 backdrop-blur-sm">
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-full border border-[#0b3019]/20 bg-white shadow-md">
+                        <i class="ri-loader-4-line animate-spin text-2xl text-[#0b3019]" aria-hidden="true"></i>
+                    </div>
+                    <p class="text-xs font-bold text-slate-700">Updating profile photo...</p>
+                </div>
+            </div>
+
+            <div data-avatar-overlay class="fixed inset-0 z-[60] hidden items-center justify-center overflow-y-auto bg-slate-950/60 px-4 py-10 backdrop-blur-sm md:px-8">
+                <div data-avatar-editor class="relative mx-auto w-full max-w-2xl rounded-[28px] border border-white/10 bg-white p-6 shadow-2xl md:p-8">
                     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div class="space-y-1">
-                            <h3 class="text-xl font-semibold text-[#0b3019] md:text-2xl">Adjust profile photo</h3>
-                            <p class="text-sm text-slate-500 md:max-w-2xl">Drag the image to reposition, or use the zoom controls so your face fills the frame. When you’re happy, apply the crop.</p>
+                            <h3 class="text-lg font-bold text-[#0b3019] md:text-xl">Adjust Profile Photo</h3>
+                            <p class="text-xs text-slate-500 md:max-w-2xl">Drag the image to reposition, or zoom so your face fits within the border.</p>
                         </div>
-                        <button type="button" data-avatar-cancel class="inline-flex h-9 w-9 items-center justify-center self-start rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
+                        <button type="button" data-avatar-cancel class="inline-flex h-8 w-8 items-center justify-center self-start rounded-full border border-slate-200 text-slate-400 transition hover:text-[#0b3019] hover:bg-slate-50">
                             <span class="sr-only">Close crop dialog</span>
                             <i class="ri-close-line text-base" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <div class="mt-6 flex max-h-[65vh] min-h-[320px] items-center justify-center overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 p-3 md:min-h-[400px]">
+                    <div class="mt-6 flex max-h-[60vh] min-h-[300px] items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-2 md:min-h-[360px]">
                         <img data-avatar-editor-image class="max-h-full w-full object-contain" alt="Adjust profile crop" />
                     </div>
-                    <div data-avatar-controls class="mt-6 hidden flex flex-wrap items-center justify-end gap-3">
-                        <button type="button" data-avatar-apply class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-[#0b3019]/90 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40">
-                            <i class="ri-check-line text-base" aria-hidden="true"></i>
-                            Use crop
-                        </button>
-                        <button type="button" data-avatar-cancel class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200/80">
-                            <i class="ri-close-line text-base" aria-hidden="true"></i>
+                    <div data-avatar-controls class="mt-6 hidden flex flex-wrap items-center justify-end gap-2">
+                        <button type="button" data-avatar-cancel class="inline-flex h-9 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 transition hover:bg-slate-50">
                             Cancel
+                        </button>
+                        <button type="button" data-avatar-apply class="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-[#0b3019] px-5 text-xs font-bold text-white shadow transition hover:bg-[#082212]">
+                            <i class="ri-check-line text-sm" aria-hidden="true"></i>
+                            Apply Crop
                         </button>
                     </div>
                 </div>
             </div>
+
         </form>
 
-        </div>
+        <!-- Hidden Device Revocation Forms (Outside the main form block) -->
+        @if(isset($trustedDevices))
+            @foreach($trustedDevices as $device)
+                <form id="revoke-device-{{ $device->id }}" method="POST" action="{{ route('student.profile.devices.revoke', $device) }}" class="hidden">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            @endforeach
+            
+            <form id="revoke-all-form" method="POST" action="{{ route('student.profile.devices.revoke-all') }}" class="hidden">
+                @csrf
+                @method('DELETE')
+            </form>
+        @endif
+
     </div>
 </x-layouts.dashboard>

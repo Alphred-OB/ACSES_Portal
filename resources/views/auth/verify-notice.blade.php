@@ -14,9 +14,9 @@
                 </svg>
             </div>
 
-            <div class="space-y-2">
-                <h1 class="text-2xl font-semibold text-slate-900">Verify your email</h1>
-                <p class="text-sm text-slate-600">
+            <div class="space-y-1.5">
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Verify your email</h1>
+                <p class="text-sm text-slate-500">
                     Enter the 6-digit code we sent to <span class="font-medium text-slate-900">{{ $pending['email'] ?? 'your email' }}</span> to activate your account.
                 </p>
                 @if (session('status'))
@@ -29,7 +29,7 @@
 
         <form method="POST" action="{{ route('auth.verify.submit') }}" class="space-y-4" data-auth-form>
             @csrf
-            <div class="space-y-2" data-otp-container data-otp-target="#verification-code">
+            <div class="space-y-1.5" data-otp-container data-otp-target="#verification-code">
                 <label for="verification-code" class="block text-sm font-medium text-slate-700">Verification code</label>
                 <input id="verification-code" name="code" type="hidden" value="{{ $oldCode }}" required>
                 <div class="flex justify-center gap-3">
@@ -40,14 +40,14 @@
                             maxlength="1"
                             autocomplete="{{ $index === 0 ? 'one-time-code' : 'off' }}"
                             data-otp-input
-                            class="h-14 w-12 rounded-xl border border-slate-300 bg-white text-center text-lg font-semibold tracking-widest text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30"
+                            class="h-14 w-12 rounded-xl border border-slate-300 bg-white text-center text-lg font-semibold tracking-widest text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]"
                             aria-label="Verification digit {{ $index + 1 }}"
                             value="{{ $digit }}"
                         >
                     @endforeach
                 </div>
                 @error('code')
-                    <p class="text-sm text-red-600">{{ $message }}</p>
+                    <p class="text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -56,7 +56,7 @@
             </button>
         </form>
 
-        <div class="space-y-2 text-center text-sm text-slate-600">
+        <div class="space-y-1.5 text-center text-sm text-slate-500">
             <p>Didn’t get the code? It might take a moment. You can request a new one below.</p>
             <form method="POST" action="{{ route('auth.verify.resend') }}" class="flex items-center justify-center gap-2">
                 @csrf

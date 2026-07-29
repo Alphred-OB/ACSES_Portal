@@ -164,6 +164,19 @@ Route::get('/student/dues/{due}/receipt', [StudentPaystackPaymentController::cla
     ->middleware('auth:student')
     ->name('student.payments.paystack.receipt');
 
+// RushPay Integration
+Route::post('/student/dues/{due}/rushpay', [\App\Http\Controllers\Student\StudentRushPayPaymentController::class, 'initialize'])
+    ->middleware('auth:student')
+    ->name('student.payments.rushpay.initialize');
+
+Route::get('/student/payments/rushpay/checkout/{reference}', [\App\Http\Controllers\Student\StudentRushPayPaymentController::class, 'checkout'])
+    ->middleware('auth:student')
+    ->name('student.payments.rushpay.checkout');
+
+Route::get('/student/payments/rushpay/callback', [\App\Http\Controllers\Student\StudentRushPayPaymentController::class, 'callback'])
+    ->middleware('auth:student')
+    ->name('student.payments.rushpay.callback');
+
 Route::post('/student/dues/{due}/manual-pay', [\App\Http\Controllers\Student\StudentManualPaymentController::class, 'store'])
     ->middleware(['auth:student', 'throttle:6,1'])
     ->name('student.payments.manual.submit');

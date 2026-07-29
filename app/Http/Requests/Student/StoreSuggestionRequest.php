@@ -17,7 +17,7 @@ class StoreSuggestionRequest extends FormRequest
             'category' => ['required', 'string', 'max:60'],
             'subject' => ['required', 'string', 'max:160'],
             'message' => ['required', 'string'],
-            'attachment' => ['nullable', 'file', 'max:4096'],
+            'attachment' => ['nullable', 'file', 'max:4096', 'mimes:pdf,jpg,jpeg,png,doc,docx'],
         ];
     }
 }

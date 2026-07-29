@@ -73,14 +73,14 @@
         </td>
         <td class="px-6 py-4 align-top">
             <div class="flex items-center justify-end gap-2">
-                <a href="{{ route('admin.events.edit', $event) }}" class="inline-flex items-center gap-1 rounded-full border border-slate-200/70 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-[#0b3019]/40 hover:text-[#0b3019]" aria-label="Edit event">
+                <a href="{{ route('admin.events.edit', $event) }}" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:border-[#0b3019]/40 hover:text-[#0b3019]" aria-label="Edit event">
                     <i class="ri-edit-line text-sm" aria-hidden="true"></i>
                     Edit
                 </a>
                 <form method="POST" action="{{ route('admin.events.destroy', $event) }}" onsubmit="return confirm('Delete this event? This action cannot be undone.');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="inline-flex items-center gap-1 rounded-full border border-rose-200/70 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-100" aria-label="Delete event">
+                    <button type="submit" class="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-100" aria-label="Delete event">
                         <i class="ri-delete-bin-6-line text-sm" aria-hidden="true"></i>
                         Delete
                     </button>
@@ -97,7 +97,7 @@
                 </span>
                 <p class="text-base font-semibold text-slate-700">No events scheduled yet</p>
                 <p class="text-sm text-slate-500">Get started by creating your first event. It will appear here once saved.</p>
-                <a href="{{ route('admin.events.create') }}" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#0b3019]/20 transition hover:-translate-y-0.5 hover:shadow-xl">
+                <a href="{{ route('admin.events.create') }}" class="h-9 inline-flex items-center gap-1.5 rounded-lg bg-[#0b3019] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#072412] active:scale-95">
                     <i class="ri-add-line text-base" aria-hidden="true"></i>
                     Create event
                 </a>

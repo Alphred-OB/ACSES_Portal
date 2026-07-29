@@ -16,6 +16,7 @@ class StudentEmailValidator
         'cy' => 'Cyber Security',
         'is' => 'Information System',
         'ce' => 'Computer Science',
+        'ro' => 'Robotics',
     ];
 
     /**
@@ -81,7 +82,7 @@ class StudentEmailValidator
         $expectedClass = $this->getExpectedClass($email);
 
         if ($expectedClass === null) {
-            return 'Your school email prefix is not recognized. Expected prefixes: CY (Cyber Security), IS (Information System), CE (Computer Science).';
+            return 'Your school email prefix is not recognized. Expected prefixes: CY (Cyber Security), IS (Information System), CE (Computer Science), RO (Robotics).';
         }
 
         if ($expectedClass !== $selectedClass) {

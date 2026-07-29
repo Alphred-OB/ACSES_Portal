@@ -16,6 +16,19 @@ class Announcement extends Model
 {
     use HasFactory;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($announcement) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+
+        static::deleted(function ($announcement) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+    }
+
     protected $fillable = [
         'title',
         'slug',

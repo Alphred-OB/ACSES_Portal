@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'student.no_outstanding_dues' => EnsureStudentHasNoOutstandingDues::class,
         ]);
+
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Handle rate limiting with JSON response for AJAX requests

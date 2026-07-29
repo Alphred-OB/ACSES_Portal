@@ -13,6 +13,7 @@ class StudentAccountService
         'Cyber Security',
         'Information System',
         'Computer Science',
+        'Robotics',
     ];
 
     public const DEFAULT_YEARS = [1, 2, 3, 4];

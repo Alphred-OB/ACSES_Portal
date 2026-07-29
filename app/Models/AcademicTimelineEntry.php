@@ -11,6 +11,19 @@ class AcademicTimelineEntry extends Model
 {
     use HasFactory;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($entry) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+
+        static::deleted(function ($entry) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+    }
+
     protected $fillable = [
         'title',
         'starts_at',

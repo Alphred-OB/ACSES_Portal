@@ -1,16 +1,6 @@
 @php($title = 'Reset password')
 
 <x-layouts.auth :title="$title" card-width="max-w-lg">
-    <x-slot:hero>
-        <div class="mx-auto w-full max-w-lg text-center text-white">
-            <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white/10 shadow-lg">
-                <img src="{{ asset('logo.png') }}" alt="ACSES Portal Logo" class="h-full w-full object-contain" loading="lazy">
-            </div>
-            <h1 class="text-2xl font-semibold">Finish resetting your password</h1>
-            <p class="mt-2 text-sm text-white/80">Choose a strong new password to secure your ACSES account.</p>
-        </div>
-    </x-slot:hero>
-
     <div class="space-y-8">
         <div class="space-y-3 text-center">
             <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#0b3019]/10 text-[#0b3019]">
@@ -20,8 +10,8 @@
                     <path d="M18 5v14" />
                 </svg>
             </div>
-            <h1 class="text-2xl font-semibold text-slate-900">Set a new password</h1>
-            <p class="text-sm text-slate-600">Create a strong password to secure your ACSES Portal account.</p>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Set a new password</h1>
+            <p class="text-sm text-slate-500">Create a strong password to secure your ACSES Portal account.</p>
         </div>
 
         @if (session('status'))
@@ -30,23 +20,23 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('password.update') }}" class="space-y-6" data-auth-form>
+        <form method="POST" action="{{ route('password.update') }}" class="space-y-5" data-auth-form>
             @csrf
 
             <input type="hidden" name="token" value="{{ $token }}">
             <input type="hidden" name="email" value="{{ $email }}">
 
-            <div class="space-y-2">
+            <div class="space-y-1.5">
                 <label for="password" class="block text-sm font-medium text-slate-700">New password</label>
                 <div class="relative">
-                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect width="18" height="11" x="3" y="11" rx="2" />
                             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                         </svg>
                     </span>
                     <input id="password" name="password" type="password" required autocomplete="new-password"
-                        class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30"
+                        class="block w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]"
                         placeholder="Create a new password" />
                     <button type="button" data-password-toggle="#password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 transition hover:text-slate-600" aria-label="Toggle password visibility">
                         <svg data-eye xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -61,21 +51,21 @@
                     </button>
                 </div>
                 @error('password')
-                    <p class="text-sm text-red-600">{{ $message }}</p>
+                    <p class="text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-1.5">
                 <label for="password_confirmation" class="block text-sm font-medium text-slate-700">Confirm password</label>
                 <div class="relative">
-                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <rect width="18" height="11" x="3" y="11" rx="2" />
                             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                         </svg>
                     </span>
                     <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"
-                        class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30"
+                        class="block w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]"
                         placeholder="Re-enter new password" />
                     <button type="button" data-password-toggle="#password_confirmation" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 transition hover:text-slate-600" aria-label="Toggle password visibility">
                         <svg data-eye xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -90,29 +80,18 @@
                     </button>
                 </div>
                 @error('password_confirmation')
-                    <p class="text-sm text-red-600">{{ $message }}</p>
+                    <p class="text-xs text-red-500">{{ $message }}</p>
                 @enderror
             </div>
 
-            <button type="submit" class="flex w-full items-center justify-center space-x-2 rounded-xl bg-[#0b3019] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#0b3019]/25 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#094018] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b3019]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="m5 12 5 5L20 7" />
-                </svg>
+            <button type="submit" class="flex w-full items-center justify-center space-x-2 rounded-lg bg-[#0b3019] px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-[#094018] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b3019]">
                 <span>Update password</span>
+                <i data-lucide="arrow-right" class="text-sm" aria-hidden="true"></i>
             </button>
         </form>
 
         <div class="text-center text-sm text-slate-500">
             <a href="{{ route('login') }}" class="font-semibold text-[#0b3019] hover:underline">Back to sign in</a>
-        </div>
-    </div>
-
-    <div id="auth-loading-overlay" class="hidden fixed inset-0 z-40 items-center justify-center bg-white/80 backdrop-blur-sm">
-        <div class="flex flex-col items-center space-y-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#0b3019]/20">
-                <i class="ri-loader-4-line animate-spin text-2xl text-[#0b3019]" aria-hidden="true"></i>
-            </div>
-            <p class="text-sm font-medium text-slate-700">Saving your new password…</p>
         </div>
     </div>
 </x-layouts.auth>

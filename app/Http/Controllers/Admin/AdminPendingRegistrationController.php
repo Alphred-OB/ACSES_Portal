@@ -34,7 +34,7 @@ class AdminPendingRegistrationController extends Controller
         }
 
         $statuses = ['pending', 'approved', 'rejected'];
-        $classOptions = ['Cyber Security', 'Computer Science', 'Information System'];
+        $classOptions = ['Cyber Security', 'Computer Science', 'Information System', 'Robotics'];
         $yearOptions = ['1', '2', '3', '4'];
 
         $registrations = PendingRegistration::query()

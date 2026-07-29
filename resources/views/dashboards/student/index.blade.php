@@ -1,455 +1,277 @@
 <x-layouts.dashboard :title="$title">
-    @include('components.dashboard.skeleton-styles')
+    <div class="mx-auto w-full max-w-[1600px] px-5 py-8 sm:px-6 lg:px-8 relative">
+        <div class="space-y-8 relative z-10">
+            
+            @php($duesAction = collect($quickActions ?? [])->firstWhere('label', 'Outstanding dues'))
+            @php($nextEvent = ($events ?? collect())->first())
 
-    <div x-data="{ loading: true }" x-init="setTimeout(() => { loading = false }, 600)" class="mx-auto w-full max-w-6xl px-5 py-12 sm:px-6 lg:px-8">
-        <div x-show="loading" x-transition.opacity.duration.200ms class="space-y-12" role="status" aria-live="polite">
-            <section class="hidden sm:block overflow-hidden rounded-[28px] border border-[#0b3019]/15 bg-[#0b3019] p-10 shadow-[0_24px_60px_-30px_rgba(11,48,25,0.45)]">
-                <div class="space-y-5">
-                    <div class="skeleton h-3 w-48 rounded-full bg-white/25"></div>
-                    <div class="skeleton h-9 w-3/4 rounded-2xl bg-white/20"></div>
-                    <div class="skeleton h-4 w-2/3 rounded-2xl bg-white/15"></div>
-                    <div class="flex flex-wrap gap-2">
-                        @for ($i = 0; $i < 4; $i++)
-                            <span class="skeleton inline-block h-6 w-20 rounded-full bg-white/10"></span>
-                        @endfor
+            <!-- Hero Section: Mobile (compact) -->
+            <section class="sm:hidden overflow-hidden rounded-2xl border border-[#0b3019] bg-[#0b3019] px-5 py-4 text-white shadow-md animate-fade-slide">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-300">ACSES Portal</p>
+                        <h1 class="mt-0.5 text-base font-bold tracking-tight truncate">
+                            {{ $hero['greeting'] ?? 'Welcome back' }}, {{ $hero['first_name'] ?? 'Student' }}!
+                        </h1>
+                        @if ($duesAction)
+                            <div class="mt-1.5 flex items-center gap-1.5 text-xs text-emerald-100/80">
+                                <i data-lucide="wallet" class="h-3 w-3 text-emerald-400 shrink-0"></i>
+                                <span>{{ $duesAction['state'] ?? 'Dues' }}{{ !empty($duesAction['value']) ? ' · ' . $duesAction['value'] : '' }}</span>
+                            </div>
+                        @endif
                     </div>
+                    <a href="{{ route('student.dues.index') }}" class="shrink-0 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 active:scale-95">
+                        <i data-lucide="wallet" class="h-4 w-4"></i>
+                    </a>
                 </div>
             </section>
 
-            <section class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                @for ($i = 0; $i < 3; $i++)
-                    <article class="rounded-3xl border border-[#0b3019]/10 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
+            <!-- Hero Section: Desktop -->
+            <section class="hidden sm:flex flex-col justify-between overflow-hidden rounded-[24px] border border-[#0b3019] bg-[#0b3019] p-8 text-white shadow-lg relative animate-fade-slide hover:shadow-[0_20px_40px_-15px_rgba(11,48,25,0.3)] transition-all duration-500">
+                
+                <div class="relative z-10 space-y-6">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-emerald-300">ACSES Student Portal</p>
+                        <h1 class="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+                            {{ $hero['greeting'] ?? 'Welcome back' }}, {{ $hero['first_name'] ?? 'Student' }}!
+                        </h1>
+                        <p class="mt-3 max-w-2xl text-base text-emerald-50/80">
+                            {{ $hero['message'] ?? 'Stay on top of your academic tasks, dues, and campus life in one place.' }}
+                        </p>
+                    </div>
+
+                    @if ($duesAction || $nextEvent)
+                        <div class="flex flex-wrap items-center gap-4 border-t border-emerald-800/50 pt-5">
+                            @if ($duesAction)
+                                <div class="flex items-center gap-2 text-sm text-emerald-100">
+                                    <i data-lucide="wallet" class="h-4 w-4 text-emerald-400"></i>
+                                    <span class="font-medium">{{ $duesAction['state'] ?? 'Dues' }}</span>
+                                    @if (!empty($duesAction['value']))
+                                        <span class="opacity-75">&middot; {{ $duesAction['value'] }}</span>
+                                    @endif
+                                </div>
+                            @endif
+                            @if ($nextEvent)
+                                <div class="flex items-center gap-2 text-sm text-emerald-100">
+                                    <i data-lucide="calendar" class="h-4 w-4 text-emerald-400"></i>
+                                    <span class="font-medium">Next: {{ \Illuminate\Support\Str::limit($nextEvent['title'] ?? 'Event', 30) }}</span>
+                                    @if (!empty($nextEvent['datetime']))
+                                        <span class="opacity-75">&middot; {{ $nextEvent['datetime'] }}</span>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </section>
+
+            <!-- Quick Actions Grid -->
+            <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                @foreach ($quickActions as $index => $action)
+                    @php($delayClass = $index === 0 ? 'animate-fade-slide-delay-200' : ($index === 1 ? 'animate-fade-slide-delay-400' : 'animate-fade-slide-delay-600'))
+                    <article class="group relative overflow-hidden rounded-[20px] border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-[0_12px_30px_-10px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:border-[#0b3019]/30 animate-fade-slide {{ $delayClass }}">
                         <div class="flex items-start gap-4">
-                            <div class="skeleton h-12 w-12 rounded-2xl bg-[#0b3019]/10"></div>
-                            <div class="flex-1 space-y-3">
-                                <div class="skeleton h-3 w-32 rounded-full bg-slate-200"></div>
-                                <div class="skeleton h-7 w-20 rounded-2xl bg-slate-200"></div>
-                                <div class="skeleton h-4 w-full rounded-2xl bg-slate-200/80"></div>
-                                <div class="skeleton h-4 w-1/2 rounded-full bg-slate-200/80"></div>
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-50 text-[#0b3019] group-hover:bg-[#0b3019]/5 group-hover:scale-110 transition-all duration-300">
+                                <i data-lucide="{{ $index === 0 ? 'wallet' : ($index === 1 ? 'calendar-check' : 'bell') }}" class="h-5 w-5"></i>
+                            </div>
+                            <div class="flex-1 space-y-1">
+                                <div class="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                    <span>{{ $action['label'] ?? 'Action' }}</span>
+                                    @if (!empty($action['state']))
+                                        <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
+                                            {{ $action['state'] }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-2xl font-bold tracking-tight text-slate-900">{{ $action['value'] ?? '--' }}</p>
+                                <p class="text-sm text-slate-500">{{ $action['summary'] ?? '' }}</p>
+                                
+                                <div class="pt-3">
+                                    <a href="{{ $action['cta_url'] ?? '#' }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-[#0b3019] transition hover:text-[#0b3019]/80">
+                                        {{ $action['cta'] ?? 'View details' }}
+                                        <i data-lucide="arrow-right" class="h-4 w-4 transform group-hover:translate-x-1.5 transition-transform duration-300"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </article>
-                @endfor
+                @endforeach
             </section>
 
-            <section class="grid gap-6 lg:grid-cols-3">
-                <article class="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-lg shadow-[#0b3019]/10 lg:col-span-2">
-                    <div class="space-y-4">
-                        <div class="skeleton h-5 w-48 rounded-full bg-slate-200"></div>
-                        <div class="skeleton h-4 w-72 rounded-full bg-slate-100"></div>
-                        <div class="grid gap-3 sm:grid-cols-3">
-                            @for ($i = 0; $i < 6; $i++)
-                                <div class="skeleton h-20 rounded-2xl bg-slate-100"></div>
-                            @endfor
-                        </div>
-                    </div>
-                </article>
-                <aside class="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                    <div class="space-y-4">
-                        <div class="skeleton h-5 w-44 rounded-full bg-slate-200"></div>
-                        @for ($i = 0; $i < 3; $i++)
-                            <div class="space-y-2">
-                                <div class="skeleton h-3 w-24 rounded-full bg-slate-100"></div>
-                                <div class="skeleton h-4 w-full rounded-2xl bg-slate-100"></div>
-                                <div class="skeleton h-4 w-32 rounded-full bg-slate-100"></div>
+            <!-- Lower Dashboard Grid -->
+            <div class="grid gap-6 lg:grid-cols-3">
+                
+                <!-- Main Content Column -->
+                <div class="space-y-6 lg:col-span-2">
+                    
+                    <!-- Calendar Section -->
+                    <section class="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm animate-fade-slide animate-fade-slide-delay-400">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Department Calendar</h2>
+                                <p class="text-sm text-slate-500">Upcoming classes, exams, and events.</p>
                             </div>
-                        @endfor
-                    </div>
-                </aside>
-            </section>
-
-            <section class="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                <div class="space-y-4">
-                    <div class="skeleton h-5 w-48 rounded-full bg-slate-200"></div>
-                    <div class="skeleton h-4 w-72 rounded-full bg-slate-100"></div>
-                    <div class="space-y-3">
-                        @for ($i = 0; $i < 4; $i++)
-                            <div class="skeleton h-16 rounded-2xl bg-slate-100"></div>
-                        @endfor
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <div x-show="!loading" x-transition.opacity.duration.200ms x-cloak class="space-y-12">
-        @php($duesAction = collect($quickActions ?? [])->firstWhere('label', 'Outstanding dues'))
-        @php($nextEvent = ($events ?? collect())->first())
-
-        <section class="hidden sm:block relative animate-fade-slide overflow-hidden rounded-[28px] border border-[#0b3019]/15 bg-gradient-to-br from-[#0b3019] via-[#0f3f22] to-[#0b3019] p-10 text-white shadow-[0_24px_60px_-30px_rgba(11,48,25,0.4)]">
-            <div class="pointer-events-none absolute -inset-20 opacity-25">
-                <div class="h-full w-full animate-spin duration-[48000ms] ease-linear motion-reduce:animate-none">
-                    <div class="h-full w-full rounded-[56px] bg-[conic-gradient(from_120deg_at_50%_50%,rgba(255,255,255,0.35),rgba(255,255,255,0)_70%)] blur-3xl"></div>
-                </div>
-            </div>
-            <div class="relative flex flex-col gap-6">
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100/80">ACSES Student Portal</p>
-                <div class="space-y-4">
-                    <h1 class="text-3xl font-semibold md:text-4xl">{{ $hero['greeting'] ?? 'Welcome back' }}, {{ $hero['first_name'] ?? 'Student' }}!</h1>
-                    <p class="max-w-2xl text-sm text-emerald-100/85">
-                        {{ $hero['message'] ?? 'Stay on top of your academic tasks, dues, and campus life in one place.' }}
-                    </p>
-                </div>
-                <div class="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-100/80">
-                    @foreach ($hero['chips'] ?? [] as $chip)
-                        <span class="rounded-full bg-white/10 px-3 py-1">{{ $chip }}</span>
-                    @endforeach
-                </div>
-                @if ($duesAction || $nextEvent)
-                    <div class="mt-2 flex flex-wrap gap-3 text-xs text-emerald-50/90">
-                        @if ($duesAction)
-                            <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
-                                <i class="ri-wallet-3-line text-sm" aria-hidden="true"></i>
-                                <span class="text-[11px] font-semibold tracking-[0.22em]">{{ strtoupper($duesAction['state'] ?? 'Dues') }}</span>
-                                @if (!empty($duesAction['value']))
-                                    <span class="text-emerald-100/80">· {{ $duesAction['value'] }}</span>
-                                @endif
-                            </div>
-                        @endif
-                        @if ($nextEvent)
-                            <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
-                                <i class="ri-calendar-event-line text-sm" aria-hidden="true"></i>
-                                <span class="text-[11px] font-semibold tracking-[0.22em]">NEXT EVENT</span>
-                                <span class="text-xs font-medium">
-                                    {{ \Illuminate\Support\Str::limit($nextEvent['title'] ?? 'Upcoming event', 40) }}
-                                </span>
-                                @if (!empty($nextEvent['datetime']))
-                                    <span class="text-emerald-100/80">· {{ $nextEvent['datetime'] }}</span>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-                @endif
-            </div>
-        </section>
-
-        <section class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            @foreach ($quickActions as $index => $action)
-                <article class="rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/12 animate-fade-slide {{ $index > 0 ? 'delay-[' . (60 * $index) . 'ms]' : '' }}">
-                    <div class="flex items-start gap-4">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0b3019]/10 text-[#0b3019]">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" class="h-7 w-7" aria-hidden="true">
-                                {!! $action['icon_svg'] ?? '<circle cx="12" cy="12" r="6" />' !!}
-                            </svg>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019]/70">
-                                <span>{{ $action['label'] ?? 'Action' }}</span>
-                                @if (!empty($action['state']))
-                                    <span class="rounded-full bg-[#0b3019]/7 px-2 py-0.5 text-[10px] tracking-[0.22em]">
-                                        {{ strtoupper($action['state']) }}
-                                    </span>
-                                @endif
-                            </div>
-                            <p class="text-2xl font-semibold text-[#0b3019]">{{ $action['value'] ?? '--' }}</p>
-                            <p class="text-sm text-slate-600">{{ $action['summary'] ?? '' }}</p>
-                            <a href="{{ $action['cta_url'] ?? '#' }}" class="inline-flex items-center gap-2 text-sm font-semibold text-[#0b3019] transition hover:underline">
-                                {{ $action['cta'] ?? 'Open' }}
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                    <path d="m9 5 7 7-7 7" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </article>
-            @endforeach
-        </section>
-
-        <section class="space-y-6">
-            @php($tipCollection = $securityTips->values())
-            @php($firstTip = $tipCollection->first())
-
-            <article class="animate-fade-slide rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/10" data-tip-slider data-tip-autoplay="5000" data-tip-tips='@json($tipCollection)'>
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-[#0b3019]">Daily tech & security tips</h2>
-                    <div class="hidden items-center gap-2 text-xs text-slate-500">
-                        <span data-tip-counter>{{ $tipCollection->isNotEmpty() ? '1/' . $tipCollection->count() : '0/0' }}</span>
-                        <div class="flex items-center gap-1">
-                            <button type="button" class="rounded-full border border-slate-200 p-1 text-[#0b3019] transition hover:bg-[#0b3019]/10 disabled:opacity-40" data-tip-prev aria-label="Previous tip">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                    <path d="m15 19-7-7 7-7" />
-                                </svg>
-                            </button>
-                            <button type="button" class="rounded-full border border-slate-200 p-1 text-[#0b3019] transition hover:bg-[#0b3019]/10 disabled:opacity-40" data-tip-next aria-label="Next tip">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                    <path d="m9 5 7 7-7 7" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                @if ($tipCollection->isEmpty())
-                    <div class="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-center text-sm text-slate-500">
-                        No security advisories today. Stay vigilant and check back tomorrow.
-                    </div>
-                @else
-                    <div class="mt-5 space-y-4">
-                        <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-5" data-tip-panel>
-                            <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                <span data-tip-category>{{ $firstTip['category'] ?? 'Security' }}</span>
-                                <span data-tip-published>{{ $firstTip['published'] ?? '' }}</span>
-                            </div>
-                            <h3 class="mt-3 text-base font-semibold text-slate-900" data-tip-title>{{ $firstTip['title'] ?? '' }}</h3>
-                            <p class="mt-2 text-sm text-slate-600" data-tip-excerpt>{{ $firstTip['excerpt'] ?? '' }}</p>
-                        </div>
-                        <div class="hidden items-center gap-2" data-tip-dots>
-                            @foreach ($tipCollection as $index => $tip)
-                                <button type="button" class="h-1.5 w-6 rounded-full transition {{ $index === 0 ? 'bg-[#0b3019]' : 'bg-slate-200' }}" data-tip-dot="{{ $index }}" aria-label="View tip"></button>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            </article>
-
-            <article class="animate-fade-slide rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/10 delay-[120ms]">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-[#0b3019]">Upcoming events</h2>
-                    <a href="{{ route('student.events.index') }}" class="text-sm font-semibold text-[#0b3019] transition hover:underline">All events</a>
-                </div>
-                <ul class="mt-5 space-y-3">
-                    @forelse ($events as $event)
-                        <li class="rounded-2xl border border-slate-200/60 bg-white/80 px-4 py-3">
-                            <div class="flex items-start gap-3">
-                                @if (!empty($event['banner_url']))
-                                    <img
-                                        src="{{ $event['banner_url'] }}"
-                                        alt="{{ $event['banner_alt'] ?? ($event['title'] . ' banner') }}"
-                                        class="h-12 w-12 rounded-2xl object-cover ring-1 ring-[#0b3019]/10"
-                                        loading="lazy"
-                                    >
-                                @else
-                                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0b3019]/10 text-[#0b3019]">
-                                        <i class="ri-calendar-event-fill text-lg" aria-hidden="true"></i>
-                                    </span>
-                                @endif
-                                <div class="flex-1">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <h3 class="text-sm font-semibold text-slate-900">{{ $event['title'] }}</h3>
-                                        <span class="text-xs text-slate-500 whitespace-nowrap">{{ $event['datetime'] }}</span>
-                                    </div>
-                                    @if ($event['location'])
-                                        <p class="mt-1 text-xs text-slate-500">{{ $event['location'] }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                        </li>
-                    @empty
-                        <li class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-center text-sm text-slate-500">
-                            No upcoming events scheduled. We’ll update this space soon.
-                        </li>
-                    @endforelse
-                </ul>
-            </article>
-        </section>
-
-        <section class="grid gap-6 lg:grid-cols-3">
-            <article class="animate-fade-slide rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/10 lg:col-span-2">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 class="text-lg font-semibold text-[#0b3019]">Department calendar</h2>
-                        <p class="text-sm text-slate-500">Stay aligned with upcoming events and key milestones.</p>
-                    </div>
-                    <span class="inline-flex items-center rounded-full border border-[#0b3019]/20 bg-[#0b3019]/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019]/80">{{ $calendarMonthLabel }}</span>
-                </div>
-
-                <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200">
-                    <div class="overflow-x-auto sm:overflow-visible">
-                        <div class="grid w-full grid-cols-7 bg-slate-50 text-[11px] uppercase tracking-[0.25em] text-slate-500 sm:text-xs">
-                            @foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $weekday)
-                                <div class="px-3 py-2 font-semibold">{{ $weekday }}</div>
-                            @endforeach
-                        </div>
-
-                        <div class="grid w-full grid-cols-7 border-t border-slate-200 text-xs sm:text-sm">
-                            @foreach ($calendarWeeks as $week)
-                                @foreach ($week as $day)
-                                    <div class="flex min-h-[96px] flex-col border-slate-200 p-2 sm:p-3 {{ $loop->last ? '' : 'border-r' }} {{ $loop->parent->last ? '' : 'border-b' }} {{ $day['is_current_month'] ? 'bg-white' : 'bg-slate-50/70 text-slate-400' }}">
-                                        <div class="flex items-center justify-between">
-                                            <span class="hidden text-xs font-semibold uppercase tracking-[0.2em] {{ $day['is_today'] ? 'text-[#0b3019]' : 'text-slate-400' }} sm:inline">{{ $day['month'] }}</span>
-                                            <span @class([
-                                                'flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold',
-                                                'bg-[#0b3019] text-white' => $day['is_today'],
-                                                'bg-[#0b3019]/10 text-[#0b3019] ring-1 ring-[#0b3019]/40' => !$day['is_today'] && $day['is_current_month'] && !empty($day['has_upcoming']),
-                                                'text-slate-700' => !$day['is_today'] && !($day['is_current_month'] && !empty($day['has_upcoming'])),
-                                            ])>
-                                                {{ $day['day'] }}
-                                            </span>
-                                        </div>
-                                        <div class="mt-2 space-y-2 sm:mt-3">
-                                            @foreach ($day['events'] as $event)
-                                                <a
-                                                    href="{{ $event['cta_url'] ?? route('student.events.index') }}"
-                                                    @class([
-                                                        'group relative hidden w-full rounded-xl border border-[#0b3019]/15 bg-[#0b3019]/5 p-2 text-[11px] text-[#0b3019] transition hover:-translate-y-0.5 hover:shadow-md sm:block',
-                                                        'ring-2 ring-[#0b3019]/30' => !empty($event['is_upcoming']),
-                                                    ])
-                                                    x-data="{ open: false }"
-                                                    @mouseenter="open = true"
-                                                    @focus="open = true"
-                                                    @mouseleave="open = false"
-                                                    @blur="open = false"
-                                                    :class="open ? 'z-40 shadow-xl' : 'z-10'"
-                                                    @if (!empty($event['is_external'])) target="_blank" rel="noopener" @endif
-                                                    aria-label="{{ $event['title'] }}{{ $event['time'] ? ' · ' . $event['time'] : '' }}"
-                                                >
-                                                    <div class="hidden items-start justify-between gap-2 sm:flex">
-                                                        <p class="max-w-full truncate font-semibold" title="{{ $event['title'] }}">{{ \Illuminate\Support\Str::limit($event['title'], 28) }}</p>
-                                                        <span class="hidden rounded-full bg-white/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0b3019]/80 group-hover:inline">{{ $event['category'] ?? 'Event' }}</span>
-                                                    </div>
-                                                    <p class="mt-1 hidden text-[10px] font-medium text-[#0b3019]/70 sm:block sm:text-[11px] sm:uppercase sm:tracking-[0.2em]">{{ $event['time'] ?? 'All day' }}</p>
-                                                    @if (!empty($event['location']))
-                                                        <p class="mt-1 hidden truncate text-[11px] text-slate-600 sm:block" title="{{ $event['location'] }}">{{ \Illuminate\Support\Str::limit($event['location'], 24) }}</p>
-                                                    @endif
-                                                    @if (!empty($event['description']))
-                                                        <div
-                                                            x-show="open"
-                                                            x-transition.opacity.duration.150ms
-                                                            class="absolute right-0 top-full z-50 mt-2 hidden w-56 rounded-lg border border-white/30 bg-white/95 p-3 text-left text-[10px] text-slate-700 shadow-xl sm:block"
-                                                            role="tooltip"
-                                                        >
-                                                            <p class="font-semibold text-[#0b3019]">{{ $event['title'] }}</p>
-                                                            <p class="mt-1 text-[11px] uppercase tracking-[0.2em] text-[#0b3019]/70">{{ $event['time'] ?? 'All day' }}</p>
-                                                            <p class="mt-1 text-[11px] text-slate-600">{{ $event['description'] }}</p>
-                                                            @if (!empty($event['cta_url']))
-                                                                <span class="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-[#0b3019]">Open details →</span>
-                                                            @endif
-                                                        </div>
-                                                    @endif
-                                                </a>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                    <span class="inline-flex items-center gap-2">
-                        <span class="inline-block h-3 w-3 rounded-full bg-[#0b3019]"></span>
-                        Today
-                    </span>
-                    <span class="inline-flex items-center gap-2">
-                        <span class="inline-block h-3 w-3 rounded-full border border-[#0b3019]/40 bg-[#0b3019]/10"></span>
-                        Upcoming event
-                    </span>
-                    <span class="inline-flex items-center gap-2">
-                        <span class="inline-block h-3 w-3 rounded-full border border-amber-300 bg-amber-200"></span>
-                        Academic timeline milestone
-                    </span>
-                </div>
-            </article>
-
-            <aside class="animate-fade-slide rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/10 delay-[120ms]">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h2 class="text-lg font-semibold text-[#0b3019]">Upcoming events</h2>
-                        <p class="text-sm text-slate-500">Quick view of what’s next on your calendar.</p>
-                    </div>
-                    <a href="{{ route('student.events.index') }}" class="text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019]/70 transition hover:text-[#0b3019]">All events</a>
-                </div>
-                <ul class="mt-5 space-y-4">
-                    @forelse ($events as $event)
-                        <li class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/90 p-4">
-                            <span class="inline-flex h-11 w-11 flex-col items-center justify-center rounded-2xl border border-[#0b3019]/20 bg-[#0b3019]/5 text-[11px] font-semibold text-[#0b3019]">
-                                <span>{{ $event['month_label'] ?? 'TBA' }}</span>
-                                <span class="text-base">{{ $event['day_label'] ?? '--' }}</span>
+                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                {{ $calendarMonthLabel }}
                             </span>
-                            <div class="flex-1">
-                                <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019]/70">
-                                    <span>{{ $event['category'] ?? 'Event' }}</span>
-                                    @if (!empty($event['location']))
-                                        <span class="text-slate-400">{{ \Illuminate\Support\Str::limit($event['location'], 24) }}</span>
-                                    @endif
-                                </div>
-                                <h3 class="mt-1 text-base font-semibold text-slate-900">{{ \Illuminate\Support\Str::limit($event['title'], 60) }}</h3>
-                                @if (!empty($event['datetime']))
-                                    <p class="mt-1 text-xs text-slate-500">{{ $event['datetime'] }}</p>
-                                @endif
-                                <a
-                                    href="{{ $event['cta_url'] ?? route('student.events.index') }}"
-                                    @if (!empty($event['is_external'])) target="_blank" rel="noopener" @endif
-                                    class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#0b3019] transition hover:underline"
-                                >
-                                    View details
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                        <path d="m9 5 7 7-7 7" />
-                                    </svg>
-                                </a>
+                        </div>
+
+                        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                            <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                @foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $weekday)
+                                    <div class="px-2 py-3 text-center sm:text-left sm:px-4 sm:py-3">{{ $weekday }}</div>
+                                @endforeach
                             </div>
-                        </li>
-                    @empty
-                        <li class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-center text-sm text-slate-500">
-                            Upcoming event highlights will appear here as your schedule fills up.
-                        </li>
-                    @endforelse
-                </ul>
-            </aside>
-        </section>
-
-        <section class="animate-fade-slide rounded-3xl border border-[#0b3019]/15 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h2 class="text-lg font-semibold text-[#0b3019]">Academic timeline</h2>
-                    <p class="text-sm text-slate-500">Track upcoming milestones and deadlines set by your department.</p>
-                </div>
-                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    <span class="inline-flex items-center gap-2 rounded-full border border-[#0b3019]/20 bg-[#0b3019]/5 px-3 py-1 text-[#0b3019]/80">Upcoming</span>
-                    <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-slate-400">Past</span>
-                </div>
-            </div>
-
-            <div class="mt-6 relative">
-                <div class="absolute left-[1.25rem] top-0 bottom-0 w-px bg-slate-200 sm:left-1/2"></div>
-                <ul class="space-y-4">
-                    @forelse ($timelineEntries as $entry)
-                        <li class="relative grid grid-cols-1 sm:grid-cols-2">
-                            @php($isLeftAligned = $loop->iteration % 2 === 1)
-
-                            <div class="col-span-1 pl-12 {{ $isLeftAligned ? 'sm:col-start-1 sm:pr-8' : 'sm:col-start-2 sm:pl-8' }}">
-                                <div @class([
-                                    'rounded-2xl border p-5 transition',
-                                    'border-[#0b3019]/25 bg-[#0b3019]/5 shadow-inner shadow-[#0b3019]/10' => empty($entry['is_past']),
-                                    'border-slate-200 bg-white/80 text-slate-500' => !empty($entry['is_past']),
-                                ])>
-                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                        <div class="space-y-1">
-                                            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019]">
-                                                {{ $entry['date_label'] ?? ($entry['starts_at'] ?? 'TBA') }}
-                                            </p>
-                                            <h3 class="text-base font-semibold text-[#0b3019]">{{ $entry['title'] }}</h3>
+                            <div class="grid grid-cols-7 text-sm">
+                                @foreach ($calendarWeeks as $week)
+                                    @foreach ($week as $day)
+                                        <div class="flex min-h-[100px] flex-col border-b border-r border-slate-100 p-2 sm:p-3 {{ $day['is_current_month'] ? 'bg-white' : 'bg-slate-50/50 text-slate-400' }} hover:bg-[#0b3019]/[0.02] hover:text-slate-900 transition-all duration-200">
+                                            <div class="flex justify-between items-center">
+                                                <span class="hidden sm:inline-block text-[10px] font-semibold uppercase text-slate-400">{{ $day['month'] }}</span>
+                                                <span @class([
+                                                    'flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-transform duration-200 hover:scale-110',
+                                                    'bg-[#0b3019] text-white' => $day['is_today'],
+                                                    'bg-emerald-50 text-emerald-700' => !$day['is_today'] && $day['is_current_month'] && !empty($day['has_upcoming']),
+                                                    'text-slate-700' => !$day['is_today'] && !empty($day['is_current_month']) && empty($day['has_upcoming']),
+                                                ])>
+                                                    {{ $day['day'] }}
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="mt-2 space-y-1.5">
+                                                @foreach ($day['events'] as $event)
+                                                    <a href="{{ $event['cta_url'] ?? route('student.events.index') }}" 
+                                                       class="block truncate rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 transition-all duration-200 hover:bg-slate-200 hover:scale-[1.02] active:scale-[0.98]"
+                                                       title="{{ $event['title'] }}">
+                                                        {{ $event['title'] }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
                                         </div>
-                                        @if (!empty($entry['cta_url']) && !empty($entry['cta_label']))
-                                            <a href="{{ $entry['cta_url'] }}" class="inline-flex items-center gap-2 self-start rounded-full border border-[#0b3019]/20 bg-white px-4 py-2 text-sm font-semibold text-[#0b3019] transition hover:-translate-y-0.5 hover:border-[#0b3019]/40">
-                                                {{ $entry['cta_label'] }}
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                                    <path d="m9 5 7 7-7 7" />
-                                                </svg>
-                                            </a>
-                                        @endif
-                                    </div>
-                                </div>
+                                    @endforeach
+                                @endforeach
                             </div>
+                        </div>
+                    </section>
 
-                            <div class="pointer-events-none absolute left-[1.25rem] top-3 z-10 -translate-x-1/2 sm:left-1/2">
-                                <div @class([
-                                    'inline-flex h-10 w-10 flex-col items-center justify-center rounded-2xl border text-[11px] font-semibold',
-                                    'border-[#0b3019]/40 bg-[#0b3019]/5 text-[#0b3019]' => empty($entry['is_past']),
-                                    'border-slate-200 bg-white text-slate-400' => !empty($entry['is_past']),
-                                ])>
-                                    <span class="leading-none uppercase tracking-[0.18em]">{{ $entry['month_label'] ?? 'TBA' }}</span>
-                                    <span class="text-sm leading-tight">{{ $entry['day_label'] ?? '—' }}</span>
+                    <!-- Academic Timeline -->
+                    <section class="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm animate-fade-slide animate-fade-slide-delay-600">
+                        <div class="mb-6 flex items-center justify-between">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Academic Timeline</h2>
+                                <p class="text-sm text-slate-500">Key dates and deadlines.</p>
+                            </div>
+                        </div>
+
+                        <div class="relative ml-3 border-l-2 border-slate-100 py-2">
+                            <ul class="space-y-8">
+                                @forelse ($timelineEntries as $entry)
+                                    <li class="relative pl-6 group">
+                                        <!-- Timeline Dot -->
+                                        <div @class([
+                                            'absolute -left-[5px] top-1.5 h-2 w-2 rounded-full ring-4 ring-white transition-transform duration-300 group-hover:scale-125',
+                                            'bg-[#0b3019]' => empty($entry['is_past']),
+                                            'bg-slate-300' => !empty($entry['is_past']),
+                                        ])></div>
+                                        
+                                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 transition-transform duration-200 group-hover:translate-x-1">
+                                            <div>
+                                                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                                    {{ $entry['date_label'] ?? ($entry['starts_at'] ?? 'TBA') }}
+                                                </p>
+                                                <h3 @class([
+                                                    'mt-1 text-base font-semibold',
+                                                    'text-slate-900' => empty($entry['is_past']),
+                                                    'text-slate-500 line-through' => !empty($entry['is_past']),
+                                                ])>
+                                                    {{ $entry['title'] }}
+                                                </h3>
+                                            </div>
+                                            @if (!empty($entry['cta_url']) && !empty($entry['cta_label']) && empty($entry['is_past']))
+                                                <a href="{{ $entry['cta_url'] }}" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition-all duration-200 hover:bg-[#0b3019] hover:text-white hover:border-[#0b3019] active:scale-95">
+                                                    {{ $entry['cta_label'] }}
+                                                    <i data-lucide="external-link" class="h-3 w-3"></i>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @empty
+                                    <li class="pl-6 text-sm text-slate-500">No upcoming academic milestones.</li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- Sidebar Column -->
+                <div class="space-y-6">
+                    
+                    <!-- Security Tips -->
+                    @php($tipCollection = $securityTips->take(5)->values())
+                    @php($firstTip = $tipCollection->first())
+                    
+                    <section class="rounded-[24px] border border-slate-200 bg-[#0b3019]/[0.02] p-6 shadow-sm animate-fade-slide animate-fade-slide-delay-400" data-tip-slider data-tip-autoplay="5000" data-tip-tips='@json($tipCollection)'>
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="shield-alert" class="h-5 w-5 text-[#0b3019]"></i>
+                            <h2 class="text-base font-bold text-slate-900">Security Advisory</h2>
+                            <span data-tip-counter class="hidden"></span>
+                        </div>
+                        
+                        @if ($tipCollection->isEmpty())
+                            <p class="text-sm text-slate-500">No recent security advisories.</p>
+                        @else
+                            <div class="min-h-[120px] transition-all duration-200" data-tip-panel>
+                                <div class="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                                    <span data-tip-category>{{ $firstTip['category'] ?? 'Security' }}</span>
+                                    <span data-tip-published>{{ $firstTip['published'] ?? '' }}</span>
+                                </div>
+                                <h3 class="mt-2 text-sm font-semibold text-slate-900 leading-snug" data-tip-title>{{ $firstTip['title'] ?? '' }}</h3>
+                                <p class="mt-2 text-sm text-slate-600 line-clamp-3" data-tip-excerpt>{{ $firstTip['excerpt'] ?? '' }}</p>
+                            </div>
+                            
+                            <!-- Slider Dots -->
+                            <div class="mt-4 flex items-center justify-between">
+                                <div class="flex flex-wrap gap-1.5" data-tip-dots>
+                                    @foreach ($tipCollection as $index => $tip)
+                                        <button type="button" class="h-1.5 w-4 rounded-full transition-colors duration-200 {{ $index === 0 ? 'bg-[#0b3019]' : 'bg-slate-200' }}" data-tip-dot="{{ $index }}" aria-label="View tip"></button>
+                                    @endforeach
+                                </div>
+                                <div class="flex gap-1 shrink-0 ml-2">
+                                    <button type="button" data-tip-prev class="p-1 text-slate-400 hover:text-slate-700 transition"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+                                    <button type="button" data-tip-next class="p-1 text-slate-400 hover:text-slate-700 transition"><i data-lucide="chevron-right" class="h-4 w-4"></i></button>
                                 </div>
                             </div>
-                        </li>
-                    @empty
-                        <li class="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-6 text-center text-sm text-slate-500">
-                            Academic timeline updates from your department will appear here once published.
-                        </li>
-                    @endforelse
-                </ul>
+                        @endif
+                    </section>
+
+                    <!-- Upcoming Events List -->
+                    <section class="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm animate-fade-slide animate-fade-slide-delay-600">
+                        <div class="flex items-center justify-between mb-5">
+                            <h2 class="text-base font-bold text-slate-900">Next Events</h2>
+                            <a href="{{ route('student.events.index') }}" class="text-xs font-semibold text-[#0b3019] hover:underline">View all</a>
+                        </div>
+                        
+                        <ul class="space-y-4">
+                            @forelse ($events as $event)
+                                <li class="flex items-start gap-3 hover:bg-slate-50 hover:-translate-y-0.5 hover:shadow-sm px-2 py-1.5 -mx-2 rounded-xl transition-all duration-200 group/item">
+                                    <div class="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-center group-hover/item:bg-[#0b3019]/5 group-hover/item:border-[#0b3019]/25 transition-all duration-200">
+                                        <span class="text-[10px] font-bold uppercase text-slate-500">{{ $event['month_label'] ?? 'TBA' }}</span>
+                                        <span class="text-sm font-bold text-slate-900 leading-tight">{{ $event['day_label'] ?? '--' }}</span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="truncate text-sm font-semibold text-slate-900 group-hover/item:text-[#0b3019] transition-colors duration-200">{{ $event['title'] }}</h3>
+                                        <p class="truncate text-xs text-slate-500">{{ $event['datetime'] ?? 'TBA' }}</p>
+                                    </div>
+                                </li>
+                            @empty
+                                <li class="text-sm text-slate-500 text-center py-4">No upcoming events.</li>
+                            @endforelse
+                        </ul>
+                    </section>
+
+                </div>
             </div>
-        </section>
+        </div>
     </div>
 </x-layouts.dashboard>

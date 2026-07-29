@@ -1,362 +1,374 @@
 @php($title = 'Create Account')
 
-<x-layouts.auth :title="$title" card-width="max-w-2xl">
-    <x-slot:hero>
-        <div class="mx-auto w-full max-w-lg text-center">
-            <div class="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white/90 shadow-lg">
-                <img src="{{ asset('logo.png') }}" alt="ACSES Portal Logo" class="h-full w-full object-contain" loading="lazy">
+<x-layouts.auth :title="$title" card-width="max-w-xl">
+    <div class="mx-auto w-full">
+        <!-- Wizard Step Header Indicator -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div class="step-indicator flex flex-col items-center flex-1 active-step" data-step-indicator="1">
+                    <div class="step-num flex h-9 w-9 items-center justify-center rounded-full bg-[#0b3019] text-xs font-bold text-white shadow-sm ring-4 ring-[#0b3019]/10 transition-all">1</div>
+                    <span class="step-label mt-2 text-xs font-semibold text-[#0b3019]">Personal</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 -mt-5 transition-all" data-step-line="1"></div>
+                <div class="step-indicator flex flex-col items-center flex-1 opacity-50" data-step-indicator="2">
+                    <div class="step-num flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-600 transition-all">2</div>
+                    <span class="step-label mt-2 text-xs font-medium text-slate-500">Academic</span>
+                </div>
+                <div class="h-[2px] flex-1 bg-slate-200 -mt-5 transition-all" data-step-line="2"></div>
+                <div class="step-indicator flex flex-col items-center flex-1 opacity-50" data-step-indicator="3">
+                    <div class="step-num flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-600 transition-all">3</div>
+                    <span class="step-label mt-2 text-xs font-medium text-slate-500">Security</span>
+                </div>
             </div>
-            <h1 class="mt-8 text-3xl font-semibold tracking-tight text-white lg:text-4xl">Join the ACSES Community</h1>
-            <p class="mt-4 max-w-md text-base text-white/80 mx-auto">
-                Create an account to manage registrations, dues, and stay informed about departmental updates.
-            </p>
-        </div>
-    </x-slot:hero>
-
-    <div class="mx-auto w-full max-w-7xl">
-        <div class="mb-8 text-center lg:text-left">
-            <h2 class="text-2xl font-semibold text-slate-900">Student Registration</h2>
-            <p class="mt-2 text-sm text-slate-600">Provide your student details to get started.</p>
         </div>
 
-        <form method="POST" action="{{ route('auth.register.submit') }}" class="space-y-12" data-auth-form>
+        <form method="POST" action="{{ route('auth.register.submit') }}" class="space-y-6" data-auth-form id="wizard-form">
             @csrf
 
-            <!-- Security Honeypot (Invisible to humans) -->
+            <!-- Security Honeypot -->
             <div class="hidden" aria-hidden="true">
                 <input type="text" name="website_origin" tabindex="-1" autocomplete="off">
             </div>
 
             @if(session('error'))
-                <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 animate-pulse">
+                <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
                     <div class="flex items-center gap-2">
-                        <i class="ri-alert-line text-lg"></i>
+                        <i data-lucide="triangle-alert" class="text-lg"></i>
                         <span>{{ session('error') }}</span>
                     </div>
                 </div>
             @endif
-                <div class="grid gap-6 lg:grid-cols-2">
-                    <div class="lg:col-span-2 grid gap-6 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <label for="first_name" class="block text-sm font-medium text-slate-700">First name</label>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                    <i class="ri-user-line text-lg" aria-hidden="true"></i>
-                                </span>
-                                <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" required autocomplete="given-name" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Kofi" />
-                            </div>
-                            @error('first_name')
-                                <p class="text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
 
-                        <div class="space-y-2">
-                            <label for="last_name" class="block text-sm font-medium text-slate-700">Last name</label>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                    <i class="ri-user-3-line text-lg" aria-hidden="true"></i>
-                                </span>
-                                <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" required autocomplete="family-name" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Mensah" />
-                            </div>
-                            @error('last_name')
-                                <p class="text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+            <!-- STEP 1: Academic & Personal Overview -->
+            <div data-step="1" class="space-y-5">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold text-slate-900">Personal & Academic Info</h2>
+                    <p class="text-xs text-slate-500">Enter your name, username, program, and current level</p>
+                </div>
 
-                    <div class="space-y-2">
-                        <label for="username" class="block text-sm font-medium text-slate-700">Username</label>
+                <div class="grid gap-4 md:grid-cols-3">
+                    <div class="space-y-1.5">
+                        <label for="first_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">First name</label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                <i class="ri-user-star-line text-lg" aria-hidden="true"></i>
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i data-lucide="user" class="text-base" aria-hidden="true"></i>
                             </span>
-                            <input id="username" name="username" type="text" value="{{ old('username') }}" required autocomplete="username" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="kofimensah" />
-                            {{-- Validation status indicator --}}
-                            <div id="username-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                {{-- Spinner (checking) --}}
-                                <i id="username-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
-                                {{-- Checkmark (available) --}}
-                                <i id="username-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
-                                {{-- X (taken) --}}
-                                <i id="username-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
-                            </div>
+                            <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" required autocomplete="given-name" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="Kofi" />
                         </div>
-                        {{-- Validation message --}}
-                        <div id="username-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
-                        @error('username')
-                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @error('first_name')
+                            <p class="text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="space-y-2">
-                        <label for="index_number" class="block text-sm font-medium text-slate-700">Reference number</label>
+                    <div class="space-y-1.5">
+                        <label for="other_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Other name <span class="normal-case font-normal text-slate-400">(optional)</span></label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                <i class="ri-hashtag text-lg" aria-hidden="true"></i>
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i data-lucide="user" class="text-base" aria-hidden="true"></i>
                             </span>
-                            <input id="index_number" name="index_number" type="text" value="{{ old('index_number') }}" required inputmode="numeric" pattern="\d{9,11}" maxlength="11" data-numeric-only class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="9012345623" />
-                            {{-- Validation status indicator --}}
-                            <div id="index_number-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <i id="index_number-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
-                                <i id="index_number-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
-                                <i id="index_number-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
-                            </div>
+                            <input id="other_name" name="other_name" type="text" value="{{ old('other_name') }}" autocomplete="additional-name" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="Kwame" />
                         </div>
-                        {{-- Validation message --}}
-                        <div id="index_number-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
-                        @error('index_number')
-                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @error('other_name')
+                            <p class="text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="space-y-2">
-                        <label for="email" class="block text-sm font-medium text-slate-700">Email address</label>
+                    <div class="space-y-1.5">
+                        <label for="last_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Last name</label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                <i class="ri-mail-line text-lg" aria-hidden="true"></i>
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i data-lucide="user" class="text-base" aria-hidden="true"></i>
                             </span>
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="cy-yourname@st.umat.edu.gh" />
-                            {{-- Validation status indicator --}}
-                            <div id="email-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <i id="email-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
-                                <i id="email-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
-                                <i id="email-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
-                            </div>
+                            <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" required autocomplete="family-name" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="Mensah" />
                         </div>
-                        {{-- Validation message --}}
-                        <div id="email-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
-                        @error('email')
-                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @error('last_name')
+                            <p class="text-xs text-red-500">{{ $message }}</p>
                         @enderror
-
-                        {{-- Email verification notice --}}
-                        <div id="email-verification-notice" class="hidden rounded-xl border p-3 text-xs">
-                            <div id="school-email-notice" class="hidden">
-                                <div class="flex items-start gap-2 text-emerald-700">
-                                    <i class="ri-shield-check-line text-base mt-0.5"></i>
-                                    <div>
-                                        <p class="font-semibold">School Email Detected</p>
-                                        <p class="text-emerald-600">You'll receive a quick email verification code to activate your account instantly.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="non-school-email-notice" class="hidden">
-                                <div class="flex items-start gap-2 text-amber-700">
-                                    <i class="ri-user-search-line text-base mt-0.5"></i>
-                                    <div>
-                                        <p class="font-semibold">Manual Verification Required</p>
-                                        <p class="text-amber-600">Non-school emails require admin approval. You'll receive an email once your application is reviewed (usually 1-2 business days).</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="email-mismatch-notice" class="hidden">
-                                <div class="flex items-start gap-2 text-rose-700">
-                                    <i class="ri-error-warning-line text-base mt-0.5"></i>
-                                    <div>
-                                        <p class="font-semibold">Program Mismatch</p>
-                                        <p class="text-rose-600" id="mismatch-message"></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="phone_number" class="block text-sm font-medium text-slate-700">Phone number</label>
-                        <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                <i class="ri-phone-line text-lg" aria-hidden="true"></i>
-                            </span>
-                            <input id="phone_number" name="phone_number" type="tel" value="{{ old('phone_number') }}" inputmode="numeric" pattern="\d{9,11}" maxlength="11" data-numeric-only class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="0541234567" />
-                            {{-- Validation status indicator --}}
-                            <div id="phone_number-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <i id="phone_number-checking" class="ri-loader-4-line hidden animate-spin text-lg text-slate-400" aria-hidden="true"></i>
-                                <i id="phone_number-available" class="ri-check-line hidden text-lg text-emerald-500" aria-hidden="true"></i>
-                                <i id="phone_number-taken" class="ri-close-line hidden text-lg text-rose-500" aria-hidden="true"></i>
-                            </div>
-                        </div>
-                        {{-- Validation message --}}
-                        <div id="phone_number-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
-                        @error('phone_number')
-                            <p class="text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="lg:col-span-2 grid gap-6 md:grid-cols-2">
-                        <div class="space-y-2">
-                            <label for="class" class="block text-sm font-medium text-slate-700">Program</label>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                    <i class="ri-book-open-line text-lg" aria-hidden="true"></i>
-                                </span>
-                                <select id="class" name="class" required class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
-                                    <option value="" disabled {{ old('class') ? '' : 'selected' }}>Select program</option>
-                                    @foreach (['Cyber Security', 'Computer Science', 'Information System'] as $program)
-                                        <option value="{{ $program }}" {{ old('class') === $program ? 'selected' : '' }}>{{ $program }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @error('class')
-                                <p class="text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div class="space-y-2">
-                            <label for="year" class="block text-sm font-medium text-slate-700">Year</label>
-                            <div class="relative">
-                                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                    <i class="ri-medal-line text-lg" aria-hidden="true"></i>
-                                </span>
-                                <select id="year" name="year" required class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 shadow-sm transition focus:border[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
-                                    <option value="" disabled {{ old('year') ? '' : 'selected' }}>Select year</option>
-                                    @foreach (['1', '2', '3', '4'] as $year)
-                                        <option value="{{ $year }}" {{ old('year') === $year ? 'selected' : '' }}>Year {{ $year }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            @error('year')
-                                <p class="text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="space-y-2">
-                        <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-                        <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                <i class="ri-lock-password-line text-lg" aria-hidden="true"></i>
-                            </span>
-                            <input id="password" name="password" type="password" required autocomplete="new-password" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Create a secure password" />
-                            <button type="button" data-password-toggle="#password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 transition hover:text-slate-600" aria-label="Toggle password visibility">
-                                <i data-eye class="ri-eye-line text-lg" aria-hidden="true"></i>
-                                <i data-eye-off class="ri-eye-off-line hidden text-lg" aria-hidden="true"></i>
-                            </button>
+                <div class="space-y-1.5">
+                    <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Username</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i data-lucide="user-check" class="text-base" aria-hidden="true"></i>
+                        </span>
+                        <input id="username" name="username" type="text" value="{{ old('username') }}" required autocomplete="username" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="kofimensah" />
+                        <div id="username-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i id="username-checking" data-lucide="loader-circle" class="hidden animate-spin text-lg text-slate-400"></i>
+                            <i id="username-available" data-lucide="check" class="hidden text-lg text-emerald-500"></i>
+                            <i id="username-taken" data-lucide="x" class="hidden text-lg text-rose-500"></i>
                         </div>
-                        @error('password')
-                            <p class="text-sm text-red-600">{{ $message }}</p>
+                    </div>
+                    <div id="username-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
+                    @error('username')
+                        <p class="text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div class="space-y-1.5">
+                        <label for="class" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Program</label>
+                        <div class="relative">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i data-lucide="book-open" class="text-base" aria-hidden="true"></i>
+                            </span>
+                            <select id="class" name="class" required class="block w-full appearance-none rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]">
+                                <option value="" disabled {{ old('class') ? '' : 'selected' }}>Select program</option>
+                                <optgroup label="Computer Science Department" class="font-bold text-slate-900 bg-slate-50">
+                                    <option value="Computer Science" {{ old('class') === 'Computer Science' ? 'selected' : '' }} class="font-normal text-slate-800 bg-white">Computer Science</option>
+                                </optgroup>
+                                <optgroup label="Cyber Security & Information System Department" class="font-bold text-slate-900 bg-slate-50">
+                                    <option value="Cyber Security" {{ old('class') === 'Cyber Security' ? 'selected' : '' }} class="font-normal text-slate-800 bg-white">Cyber Security</option>
+                                    <option value="Information System" {{ old('class') === 'Information System' ? 'selected' : '' }} class="font-normal text-slate-800 bg-white">Information System</option>
+                                    <option value="Robotics" {{ old('class') === 'Robotics' ? 'selected' : '' }} class="font-normal text-slate-800 bg-white">Robotics</option>
+                                </optgroup>
+                            </select>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                <i data-lucide="chevron-down" class="text-base"></i>
+                            </span>
+                        </div>
+                        @error('class')
+                            <p class="text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4" data-password-strength data-password-input="#password">
-                        <div class="flex items-center justify-between text-xs font-medium text-slate-600">
-                            <span>Password strength</span>
-                            <span data-password-strength-label class="text-slate-500">Weak</span>
-                        </div>
-                        <div class="h-2 w-full rounded-full bg-slate-200">
-                            <div data-password-strength-bar class="h-2 w-1/12 rounded-full bg-red-500 transition-all duration-300"></div>
-                        </div>
-                        <ul class="space-y-1 text-xs text-slate-500">
-                            <li class="flex items-center gap-2 data-[state=pass]:text-[#0b3019]" data-password-rule="length" data-state="fail">
-                                <svg data-pass-icon xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 12 4.5 4.5L19 7" />
-                                </svg>
-                                <svg data-fail-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 5 14 14" />
-                                    <path d="m19 5-14 14" />
-                                </svg>
-                                <span>At least 8 characters</span>
-                            </li>
-                            <li class="flex items-center gap-2 data-[state=pass]:text-[#0b3019]" data-password-rule="mixed" data-state="fail">
-                                <svg data-pass-icon xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 12 4.5 4.5L19 7" />
-                                </svg>
-                                <svg data-fail-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 5 14 14" />
-                                    <path d="m19 5-14 14" />
-                                </svg>
-                                <span>Includes uppercase and lowercase letters</span>
-                            </li>
-                            <li class="flex items-center gap-2 data-[state=pass]:text-[#0b3019]" data-password-rule="number" data-state="fail">
-                                <svg data-pass-icon xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 12 4.5 4.5L19 7" />
-                                </svg>
-                                <svg data-fail-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 5 14 14" />
-                                    <path d="m19 5-14 14" />
-                                </svg>
-                                <span>Contains at least one number</span>
-                            </li>
-                            <li class="flex items-center gap-2 data-[state=pass]:text-[#0b3019]" data-password-rule="symbol" data-state="fail">
-                                <svg data-pass-icon xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 12 4.5 4.5L19 7" />
-                                </svg>
-                                <svg data-fail-icon xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m5 5 14 14" />
-                                    <path d="m19 5-14 14" />
-                                </svg>
-                                <span>Contains at least one special character</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label for="password_confirmation" class="block text-sm font-medium text-slate-700">Confirm password</label>
+                    <div class="space-y-1.5">
+                        <label for="year" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Level</label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <rect width="18" height="11" x="3" y="11" rx="2" />
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                </svg>
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i data-lucide="medal" class="text-base" aria-hidden="true"></i>
                             </span>
-                            <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="block w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Confirm your password" />
-                            <button type="button" data-password-toggle="#password_confirmation" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 transition hover:text-slate-600" aria-label="Toggle password visibility">
-                                <svg data-eye xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M2.458 12C3.732 7.943 7.522 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S3.732 16.057 2.458 12Z" />
-                                    <circle cx="12" cy="12" r="3" />
-                                </svg>
-                                <svg data-eye-off xmlns="http://www.w3.org/2000/svg" class="hidden h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="m3 3 18 18" />
-                                    <path d="M10.584 10.59a1.999 1.999 0 0 0 2.828 2.83" />
-                                    <path d="M9.878 5.132A9.76 9.76 0 0 1 12 5c4.478 0 8.268 2.943 9.542 7a9.88 9.88 0 0 1-1.616 3.043m-4.112 2.773A9.711 9.711 0 0 1 12 19c-4.478 0-8.268-2.943-9.542-7a9.835 9.835 0 0 1 2.223-3.592" />
-                                </svg>
-                            </button>
+                            <select id="year" name="year" required class="block w-full appearance-none rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]">
+                                <option value="" disabled {{ old('year') ? '' : 'selected' }}>Select level</option>
+                                @foreach (['1' => 'Level 100', '2' => 'Level 200', '3' => 'Level 300', '4' => 'Level 400'] as $val => $label)
+                                    <option value="{{ $val }}" {{ old('year') === (string)$val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                <i data-lucide="chevron-down" class="text-base"></i>
+                            </span>
                         </div>
-                        @error('password_confirmation')
-                            <p class="text-sm text-red-600">{{ $message }}</p>
+                        @error('year')
+                            <p class="text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-start space-x-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                <input id="accept_terms" name="accept_terms" type="checkbox" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-[#0b3019] focus:ring-[#0b3019]" {{ old('accept_terms') ? 'checked' : '' }}>
-                <label for="accept_terms" class="text-sm text-slate-600">
-                    I agree to the
-                    <a href="{{ route('legal.terms') }}" class="font-semibold text-[#0b3019] hover:underline">Terms</a>
-                    and
-                    <a href="{{ route('legal.privacy') }}" class="font-semibold text-[#0b3019] hover:underline">Privacy Policy</a>
-                    of the ACSES Portal.
-                </label>
-            </div>
-            @error('accept_terms')
-                <p class="text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <!-- STEP 2: Student Identification & Contact -->
+            <div data-step="2" class="hidden space-y-5">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold text-slate-900">Student Verification</h2>
+                    <p class="text-xs text-slate-500">Provide your official student identifier and contact info</p>
+                </div>
 
-            <div class="flex items-center justify-end">
-                <button id="submit-btn" type="submit" class="flex items-center justify-center space-x-2 rounded-xl bg-[#0b3019] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#0b3019]/30 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#094018] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b3019] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
-                    <i class="ri-user-add-line text-lg" aria-hidden="true"></i>
-                    <span>Create account</span>
+                <!-- Dynamic Student ID / Reference Field -->
+                <div class="space-y-1.5">
+                    <label id="index_number_label" for="index_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">
+                        Index Number <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i data-lucide="hash" class="text-base" aria-hidden="true"></i>
+                        </span>
+                        <input id="index_number" name="index_number" type="text" value="{{ old('index_number') }}" required maxlength="30" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-sm uppercase text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="e.g. FOE.55.012.088.24" />
+                        <div id="index_number-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i id="index_number-checking" data-lucide="loader-circle" class="hidden animate-spin text-lg text-slate-400"></i>
+                            <i id="index_number-available" data-lucide="check" class="hidden text-lg text-emerald-500"></i>
+                            <i id="index_number-taken" data-lucide="x" class="hidden text-lg text-rose-500"></i>
+                        </div>
+                    </div>
+                    <!-- Helpful Dynamic Context Note for Students -->
+                    <div id="id_field_hint" class="flex items-center gap-1.5 text-xs text-slate-500 pt-0.5">
+                        <i data-lucide="info" class="h-3.5 w-3.5 text-emerald-700 shrink-0"></i>
+                        <span id="id_hint_text">Enter your official Index Number assigned by the university.</span>
+                    </div>
+                    <div id="index_number-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
+                    @error('index_number')
+                        <p class="text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Email address</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i data-lucide="mail" class="text-base" aria-hidden="true"></i>
+                        </span>
+                        <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="email" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="cy-yourname@st.umat.edu.gh" />
+                        <div id="email-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i id="email-checking" data-lucide="loader-circle" class="hidden animate-spin text-lg text-slate-400"></i>
+                            <i id="email-available" data-lucide="check" class="hidden text-lg text-emerald-500"></i>
+                            <i id="email-taken" data-lucide="x" class="hidden text-lg text-rose-500"></i>
+                        </div>
+                    </div>
+                    <div id="email-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
+                    @error('email')
+                        <p class="text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+
+                    <div id="email-verification-notice" class="hidden rounded-xl border p-3 text-xs">
+                        <div id="school-email-notice" class="hidden">
+                            <div class="flex items-start gap-2 text-emerald-700">
+                                <i data-lucide="shield-check" class="text-base mt-0.5"></i>
+                                <div>
+                                    <p class="font-semibold">School Email Detected</p>
+                                    <p class="text-emerald-600">You'll receive a quick email verification code to activate your account instantly.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="non-school-email-notice" class="hidden">
+                            <div class="flex items-start gap-2 text-amber-700">
+                                <i data-lucide="user-search" class="text-base mt-0.5"></i>
+                                <div>
+                                    <p class="font-semibold">Manual Verification Required</p>
+                                    <p class="text-amber-600">Non-school emails require admin approval. You'll receive an email once reviewed.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="email-mismatch-notice" class="hidden">
+                            <div class="flex items-start gap-2 text-rose-700">
+                                <i data-lucide="alert-circle" class="text-base mt-0.5"></i>
+                                <div>
+                                    <p class="font-semibold">Program Mismatch</p>
+                                    <p class="text-rose-600" id="mismatch-message"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="phone_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Phone number</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i data-lucide="phone" class="text-base" aria-hidden="true"></i>
+                        </span>
+                        <input id="phone_number" name="phone_number" type="tel" value="{{ old('phone_number') }}" inputmode="numeric" pattern="\d{9,11}" maxlength="11" data-numeric-only class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="0541234567" />
+                        <div id="phone_number-status-icon" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i id="phone_number-checking" data-lucide="loader-circle" class="hidden animate-spin text-lg text-slate-400"></i>
+                            <i id="phone_number-available" data-lucide="check" class="hidden text-lg text-emerald-500"></i>
+                            <i id="phone_number-taken" data-lucide="x" class="hidden text-lg text-rose-500"></i>
+                        </div>
+                    </div>
+                    <div id="phone_number-feedback" class="hidden rounded-lg px-3 py-2 text-xs"></div>
+                    @error('phone_number')
+                        <p class="text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- STEP 3: Security & Confirmation -->
+            <div data-step="3" class="hidden space-y-5">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold text-slate-900">Security Credentials</h2>
+                    <p class="text-xs text-slate-500">Create a secure password and accept the terms</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Password</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i data-lucide="lock" class="text-base" aria-hidden="true"></i>
+                        </span>
+                        <input id="password" name="password" type="password" required autocomplete="new-password" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="Create a secure password" />
+                        <button type="button" data-password-toggle="#password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 transition hover:text-slate-600">
+                            <i data-eye data-lucide="eye" class="text-base"></i>
+                            <i data-eye-off data-lucide="eye-off" class="hidden text-base"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="hidden space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4" data-password-strength data-password-input="#password">
+                    <div class="flex items-center justify-between text-xs font-medium text-slate-600">
+                        <span>Password strength</span>
+                        <span data-password-strength-label class="text-slate-500 font-semibold">Weak</span>
+                    </div>
+                    <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                        <div data-password-strength-bar class="h-2 w-1/12 rounded-full bg-red-500 transition-all duration-300"></div>
+                    </div>
+                    <div class="pt-1 space-y-1.5 text-xs text-slate-600">
+                        <p class="font-semibold text-slate-700 mb-1 text-[11px] uppercase tracking-wider">Password Requirements:</p>
+                        <div class="flex items-center gap-2" data-password-rule="length">
+                            <span data-pass-icon class="hidden text-emerald-600 font-bold">✓</span>
+                            <span data-fail-icon class="text-slate-400 font-bold">•</span>
+                            <span>At least 8 characters long</span>
+                        </div>
+                        <div class="flex items-center gap-2" data-password-rule="mixed">
+                            <span data-pass-icon class="hidden text-emerald-600 font-bold">✓</span>
+                            <span data-fail-icon class="text-slate-400 font-bold">•</span>
+                            <span>Contains uppercase & lowercase letters</span>
+                        </div>
+                        <div class="flex items-center gap-2" data-password-rule="number">
+                            <span data-pass-icon class="hidden text-emerald-600 font-bold">✓</span>
+                            <span data-fail-icon class="text-slate-400 font-bold">•</span>
+                            <span>Contains at least one number (0-9)</span>
+                        </div>
+                        <div class="flex items-center gap-2" data-password-rule="symbol">
+                            <span data-pass-icon class="hidden text-emerald-600 font-bold">✓</span>
+                            <span data-fail-icon class="text-slate-400 font-bold">•</span>
+                            <span>Contains a special character (@, #, $, !, etc.)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="password_confirmation" class="block text-xs font-semibold uppercase tracking-wider text-slate-700">Confirm password</label>
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                            <i data-lucide="lock" class="text-base" aria-hidden="true"></i>
+                        </span>
+                        <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="block w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-12 text-sm text-slate-900 shadow-sm transition focus:border-[#0b3019] focus:outline-none hover:border-slate-300 focus:ring-1 focus:ring-[#0b3019]" placeholder="Confirm your password" />
+                        <button type="button" data-password-toggle="#password_confirmation" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 transition hover:text-slate-600">
+                            <i data-eye data-lucide="eye" class="text-base"></i>
+                            <i data-eye-off data-lucide="eye-off" class="hidden text-base"></i>
+                        </button>
+                    </div>
+                    @error('password_confirmation')
+                        <p class="text-xs text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="flex items-start space-x-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                    <input id="accept_terms" name="accept_terms" type="checkbox" value="1" required class="mt-1 h-4 w-4 rounded border-slate-300 text-[#0b3019] focus:ring-[#0b3019]" {{ old('accept_terms') ? 'checked' : '' }}>
+                    <label for="accept_terms" class="text-sm text-slate-500">
+                        I agree to the
+                        <a href="{{ route('legal.terms') }}" class="font-semibold text-[#0b3019] hover:underline">Terms</a>
+                        and
+                        <a href="{{ route('legal.privacy') }}" class="font-semibold text-[#0b3019] hover:underline">Privacy Policy</a>
+                        of the ACSES Portal.
+                    </label>
+                </div>
+            </div>
+
+            <!-- Wizard Navigation Buttons -->
+            <div class="pt-4 flex items-center justify-between border-t border-slate-100">
+                <button type="button" id="prev-step-btn" class="hidden flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                    <i data-lucide="arrow-left" class="text-sm"></i>
+                    <span>Back</span>
                 </button>
+                <div class="ml-auto flex items-center gap-3">
+                    <button type="button" id="next-step-btn" class="flex items-center gap-2 rounded-lg bg-[#0b3019] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#094018] active:scale-[0.98]">
+                        <span>Continue</span>
+                        <i data-lucide="arrow-right" class="text-sm"></i>
+                    </button>
+                    <button id="submit-btn" type="submit" class="hidden flex items-center justify-center space-x-2 rounded-lg bg-[#0b3019] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#094018] active:scale-[0.98]">
+                        <span>Create account</span>
+                        <i data-lucide="check" class="text-sm"></i>
+                    </button>
+                </div>
             </div>
         </form>
 
-        <div class="mt-8 text-center text-sm text-slate-600">
+        <div class="mt-8 text-center text-sm text-slate-500">
             <p>
                 Already have an account?
                 <a href="{{ route('login') }}" class="font-semibold text-[#0b3019] hover:underline">Sign in</a>
-                instead.
             </p>
-        </div>
-    </div>
-
-    <div id="auth-loading-overlay" class="hidden fixed inset-0 z-40 items-center justify-center bg-white/80 backdrop-blur-sm">
-        <div class="flex flex-col items-center space-y-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#0b3019]/20">
-                <i class="ri-loader-4-line animate-spin text-2xl text-[#0b3019]" aria-hidden="true"></i>
-            </div>
-            <p class="text-sm font-medium text-slate-700">Creating your account…</p>
         </div>
     </div>
 
@@ -375,7 +387,8 @@
             const CLASS_PREFIXES = {
                 'cy': 'Cyber Security',
                 'is': 'Information System',
-                'ce': 'Computer Science'
+                'ce': 'Computer Science',
+                'ro': 'Robotics'
             };
 
             function validateEmail() {
@@ -415,7 +428,7 @@
                         mismatchNotice.classList.remove('hidden');
                         noticeContainer.classList.remove('border-emerald-200', 'bg-emerald-50', 'border-amber-200', 'bg-amber-50');
                         noticeContainer.classList.add('border-rose-200', 'bg-rose-50');
-                        mismatchMessage.textContent = 'Your school email prefix is not recognized. Expected prefixes: CY (Cyber Security), IS (Information System), CE (Computer Science).';
+                        mismatchMessage.textContent = 'Your school email prefix is not recognized. Expected prefixes: CY (Cyber Security), IS (Information System), CE (Computer Science), RO (Robotics).';
                     } else {
                         // Valid school email
                         schoolEmailNotice.classList.remove('hidden');
@@ -467,7 +480,7 @@
                         },
                         index_number: {
                             input: document.getElementById('index_number'),
-                            regex: /^\d{9,11}$/
+                            regex: /^[a-zA-Z0-9\.\-\/]{9,30}$/
                         },
                         phone_number: {
                             input: document.getElementById('phone_number'),
@@ -714,6 +727,146 @@
             }
 
             new ValidationManager();
+        });
+    </script>
+
+    {{-- Step Wizard Controller Script --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentStep = 1;
+            const totalSteps = 3;
+            const prevBtn = document.getElementById('prev-step-btn');
+            const nextBtn = document.getElementById('next-step-btn');
+            const submitBtn = document.getElementById('submit-btn');
+
+            function updateWizardUI() {
+                // Toggle step content visibility
+                document.querySelectorAll('[data-step]').forEach(stepEl => {
+                    const stepNum = parseInt(stepEl.getAttribute('data-step'), 10);
+                    if (stepNum === currentStep) {
+                        stepEl.classList.remove('hidden');
+                    } else {
+                        stepEl.classList.add('hidden');
+                    }
+                });
+
+                // Update Step Indicators
+                document.querySelectorAll('[data-step-indicator]').forEach(indEl => {
+                    const stepNum = parseInt(indEl.getAttribute('data-step-indicator'), 10);
+                    const numBadge = indEl.querySelector('.step-num');
+                    const labelText = indEl.querySelector('.step-label');
+
+                    if (stepNum === currentStep) {
+                        indEl.classList.remove('opacity-50');
+                        numBadge.className = 'step-num flex h-9 w-9 items-center justify-center rounded-full bg-[#0b3019] text-xs font-bold text-white shadow-sm ring-4 ring-[#0b3019]/10 transition-all';
+                        labelText.className = 'step-label mt-2 text-xs font-semibold text-[#0b3019]';
+                    } else if (stepNum < currentStep) {
+                        indEl.classList.remove('opacity-50');
+                        numBadge.className = 'step-num flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white transition-all';
+                        labelText.className = 'step-label mt-2 text-xs font-medium text-slate-700';
+                    } else {
+                        indEl.classList.add('opacity-50');
+                        numBadge.className = 'step-num flex h-9 w-9 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-600 transition-all';
+                        labelText.className = 'step-label mt-2 text-xs font-medium text-slate-500';
+                    }
+                });
+
+                // Update connecting lines
+                document.querySelectorAll('[data-step-line]').forEach(lineEl => {
+                    const lineNum = parseInt(lineEl.getAttribute('data-step-line'), 10);
+                    if (lineNum < currentStep) {
+                        lineEl.className = 'h-[2px] flex-1 bg-emerald-600 -mt-5 transition-all';
+                    } else {
+                        lineEl.className = 'h-[2px] flex-1 bg-slate-200 -mt-5 transition-all';
+                    }
+                });
+
+                // Update button controls
+                if (currentStep === 1) {
+                    prevBtn.classList.add('hidden');
+                } else {
+                    prevBtn.classList.remove('hidden');
+                }
+
+                if (currentStep === totalSteps) {
+                    nextBtn.classList.add('hidden');
+                    submitBtn.classList.remove('hidden');
+                } else {
+                    nextBtn.classList.remove('hidden');
+                    submitBtn.classList.add('hidden');
+                }
+            }
+
+            function validateCurrentStep() {
+                const activeStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+                if (!activeStepEl) return true;
+
+                const inputs = activeStepEl.querySelectorAll('input[required], select[required]');
+                let isValid = true;
+
+                inputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        isValid = false;
+                        input.reportValidity();
+                    }
+                });
+
+                return isValid;
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function() {
+                    if (validateCurrentStep()) {
+                        if (currentStep < totalSteps) {
+                            currentStep++;
+                            updateWizardUI();
+                        }
+                    }
+                });
+            }
+
+            function updateStudentIdLabel() {
+                const yearSelect = document.getElementById('year');
+                const idLabel = document.getElementById('index_number_label');
+                const idInput = document.getElementById('index_number');
+                const idHintText = document.getElementById('id_hint_text');
+
+                if (!yearSelect || !idLabel || !idInput) return;
+
+                const selectedLevel = yearSelect.value;
+                if (selectedLevel === '1') {
+                    // Level 100 freshers
+                    idLabel.innerHTML = 'Reference / Admission Number <span class="text-rose-500">*</span>';
+                    idInput.placeholder = 'e.g. 9012345623';
+                    if (idHintText) {
+                        idHintText.textContent = 'Level 100 freshers without an Index Number should enter their Reference / Admission Number.';
+                    }
+                } else {
+                    // Level 200, 300, 400
+                    idLabel.innerHTML = 'Index Number <span class="text-rose-500">*</span>';
+                    idInput.placeholder = 'e.g. FOE.55.012.088.24';
+                    if (idHintText) {
+                        idHintText.textContent = 'Enter your official university Index Number (e.g. FOE.55.012.088.24).';
+                    }
+                }
+            }
+
+            const yearSelectEl = document.getElementById('year');
+            if (yearSelectEl) {
+                yearSelectEl.addEventListener('change', updateStudentIdLabel);
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function() {
+                    if (currentStep > 1) {
+                        currentStep--;
+                        updateWizardUI();
+                    }
+                });
+            }
+
+            updateStudentIdLabel();
+            updateWizardUI();
         });
     </script>
 

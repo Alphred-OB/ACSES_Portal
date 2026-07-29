@@ -1,111 +1,8 @@
 <x-layouts.dashboard :title="$title">
     @include('components.dashboard.skeleton-styles')
 
-    <div x-data="{ loading: true }" x-init="setTimeout(() => { loading = false }, 600)" class="mx-auto w-full max-w-6xl space-y-10 px-4 py-12 sm:px-6 lg:px-8">
-        <div x-show="loading" x-transition.opacity.duration.200ms class="space-y-8" role="status" aria-live="polite">
-            <section class="hidden sm:block overflow-hidden rounded-[24px] border border-[#0b3019]/15 bg-[#0b3019] p-8 text-white shadow-[0_20px_50px_-30px_rgba(11,48,25,0.4)]">
-                <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                    <div class="space-y-4">
-                        <div class="skeleton h-3 w-32 rounded-full bg-white/25"></div>
-                        <div class="skeleton h-9 w-64 rounded-2xl bg-white/20"></div>
-                        <div class="skeleton h-4 w-80 rounded-2xl bg-white/15"></div>
-                    </div>
-                    <div class="mt-6 w-full max-w-sm rounded-3xl border border-white/20 bg-white/10 p-6 shadow-inner md:mt-0">
-                        <div class="skeleton h-3 w-40 rounded-full bg-white/30"></div>
-                        <div class="mt-4 space-y-3">
-                            <div class="skeleton h-4 w-full rounded-2xl bg-white/20"></div>
-                            <div class="skeleton h-4 w-3/4 rounded-2xl bg-white/20"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="grid gap-8 lg:grid-cols-3">
-                <section class="lg:col-span-2 space-y-6">
-                    <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                        <div class="space-y-3">
-                            <div class="skeleton h-5 w-56 rounded-full bg-slate-200"></div>
-                            <div class="skeleton h-4 w-72 rounded-full bg-slate-100"></div>
-                        </div>
-                        <div class="mt-6 space-y-5">
-                            <div class="grid gap-5 sm:grid-cols-2">
-                                <div class="space-y-2">
-                                    <div class="skeleton h-3 w-28 rounded-full bg-slate-200"></div>
-                                    <div class="skeleton h-11 rounded-2xl bg-slate-100"></div>
-                                </div>
-                                <div class="space-y-2">
-                                    <div class="skeleton h-3 w-32 rounded-full bg-slate-200"></div>
-                                    <div class="skeleton h-11 rounded-2xl bg-slate-100"></div>
-                                </div>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="skeleton h-3 w-36 rounded-full bg-slate-200"></div>
-                                <div class="skeleton h-32 rounded-2xl bg-slate-100"></div>
-                            </div>
-                            <div class="space-y-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-4">
-                                <div class="skeleton h-3 w-40 rounded-full bg-slate-200"></div>
-                                <div class="skeleton h-4 w-3/4 rounded-full bg-slate-100"></div>
-                                <div class="skeleton h-9 w-32 rounded-full bg-slate-100"></div>
-                            </div>
-                            <div class="flex justify-end">
-                                <div class="skeleton h-11 w-40 rounded-full bg-[#0b3019]/20"></div>
-                            </div>
-                        </div>
-                    </article>
-                </section>
-
-                <aside class="space-y-6">
-                    <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                        <div class="skeleton h-3 w-44 rounded-full bg-slate-200"></div>
-                        <div class="mt-5 space-y-4">
-                            @for ($i = 0; $i < 3; $i++)
-                                <div class="flex gap-3">
-                                    <div class="skeleton h-6 w-6 rounded-full bg-[#0b3019]/10"></div>
-                                    <div class="flex-1 space-y-2">
-                                        <div class="skeleton h-4 w-32 rounded-full bg-slate-200"></div>
-                                        <div class="skeleton h-3 w-48 rounded-full bg-slate-100"></div>
-                                    </div>
-                                </div>
-                            @endfor
-                        </div>
-                    </article>
-                    <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                        <div class="skeleton h-3 w-40 rounded-full bg-slate-200"></div>
-                        <div class="mt-5 space-y-3">
-                            <div class="skeleton h-4 w-full rounded-full bg-slate-100"></div>
-                            <div class="skeleton h-4 w-3/4 rounded-full bg-slate-100"></div>
-                        </div>
-                    </article>
-                </aside>
-            </div>
-
-            <section class="space-y-4 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/5">
-                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div class="space-y-2">
-                        <div class="skeleton h-5 w-48 rounded-full bg-slate-200"></div>
-                        <div class="skeleton h-4 w-72 rounded-full bg-slate-100"></div>
-                    </div>
-                    <div class="skeleton h-4 w-40 rounded-full bg-slate-100"></div>
-                </div>
-                <div class="space-y-3">
-                    @for ($i = 0; $i < 3; $i++)
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                            <div class="space-y-2">
-                                <div class="skeleton h-4 w-2/3 rounded-full bg-slate-200"></div>
-                                <div class="skeleton h-4 w-full rounded-full bg-slate-100"></div>
-                                <div class="flex flex-wrap gap-3">
-                                    <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                                    <div class="skeleton h-4 w-24 rounded-full bg-slate-100"></div>
-                                    <div class="skeleton h-4 w-20 rounded-full bg-slate-100"></div>
-                                </div>
-                            </div>
-                        </div>
-                    @endfor
-                </div>
-            </section>
-        </div>
-
-        <div x-show="!loading" x-transition.opacity.duration.200ms x-cloak class="space-y-10">
+    <div class="mx-auto w-full max-w-[1600px] space-y-10 px-4 py-12 sm:px-6 lg:px-8">
+        <div class="space-y-10">
             <section class="hidden sm:block animate-fade-slide overflow-hidden rounded-[24px] border border-[#0b3019]/15 bg-gradient-to-br from-[#0b3019] via-[#114127] to-[#0b3019] p-8 text-white shadow-[0_20px_50px_-30px_rgba(11,48,25,0.4)]">
                 <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                     <div class="space-y-4">
@@ -117,7 +14,7 @@
                             </p>
                         </div>
                     </div>
-                    <div class="rounded-3xl border border-white/20 bg-white/10 px-6 py-4 text-sm text-emerald-50 shadow-inner">
+                    <div class="rounded-[24px] border border-white/20 bg-white/10 px-6 py-4 text-sm text-emerald-50 shadow-inner">
                         <p class="font-semibold uppercase tracking-[0.25em] text-emerald-200">Response window</p>
                         <p class="mt-2 leading-6">Team replies typically arrive within <span class="font-semibold">2 business days</span>. Remember to include as many details as possible for faster resolution.</p>
                     </div>
@@ -125,11 +22,9 @@
             </section>
 
             @if (session('status'))
-                <div class="animate-fade-slide rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-lg shadow-emerald-100/60">
+                <div class="animate-fade-slide rounded-[24px] border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 shadow-sm">
                     <div class="flex items-start gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                            <path d="m5 12 4 4L19 6" />
-                        </svg>
+                        <i class="ri-checkbox-circle-line text-xl" aria-hidden="true"></i>
                         <div>
                             <p class="text-sm font-semibold">Submission received</p>
                             <p class="text-sm text-emerald-800">{{ session('status') }}</p>
@@ -139,13 +34,9 @@
             @endif
 
             @if ($errors->any())
-                <div class="animate-fade-slide rounded-3xl border border-rose-200 bg-rose-50 p-4 text-rose-900 shadow-lg shadow-rose-100/60">
+                <div class="animate-fade-slide rounded-[24px] border border-rose-200 bg-rose-50 p-4 text-rose-900 shadow-sm">
                     <div class="flex items-start gap-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                            <path d="M12 8v4" />
-                            <path d="M12 16h.01" />
-                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" />
-                        </svg>
+                        <i class="ri-error-warning-line text-xl" aria-hidden="true"></i>
                         <div>
                             <p class="text-sm font-semibold">Please fix the highlighted fields</p>
                             <ul class="mt-2 list-disc space-y-1 pl-5">
@@ -160,7 +51,7 @@
 
             <div class="grid gap-8 lg:grid-cols-3">
                 <section class="lg:col-span-2">
-                    <article class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
+                    <article class="animate-fade-slide rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm">
                         <header>
                             <h2 class="text-lg font-semibold text-[#0b3019]">Submit a suggestion</h2>
                             <p class="text-sm text-slate-500">All fields marked with * are required. Attach relevant screenshots or files if available (max 4&nbsp;MB).</p>
@@ -173,29 +64,27 @@
                                 <label class="flex flex-col gap-2">
                                     <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Category *</span>
                                     <div class="relative">
-                                        <select name="category" class="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-3 pl-4 pr-12 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40">
+                                        <select name="category" class="w-full appearance-none rounded-[16px] border border-slate-200 bg-white py-3 pl-4 pr-12 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40">
                                             @foreach ($categories as $value => $label)
                                                 <option value="{{ $value }}" @selected(old('category') === $value)>{{ $label }}</option>
                                             @endforeach
                                         </select>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                            <path d="m6 9 6 6 6-6" />
-                                        </svg>
+                                        <i class="ri-arrow-down-s-line pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-lg text-slate-400"></i>
                                     </div>
                                 </label>
 
                                 <label class="flex flex-col gap-2">
                                     <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Subject *</span>
-                                    <input type="text" name="subject" value="{{ old('subject') }}" maxlength="160" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40" placeholder="Give a short headline">
+                                    <input type="text" name="subject" value="{{ old('subject') }}" maxlength="160" class="rounded-[16px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40" placeholder="Give a short headline">
                                 </label>
                             </div>
 
                             <label class="flex flex-col gap-2">
                                 <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Message *</span>
-                                <textarea name="message" rows="6" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40" placeholder="Explain the idea, improvement, or issue in detail. Include specific examples or references.">{{ old('message') }}</textarea>
+                                <textarea name="message" rows="6" class="rounded-[16px] border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-[#0b3019]/60 focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40" placeholder="Explain the idea, improvement, or issue in detail. Include specific examples or references.">{{ old('message') }}</textarea>
                             </label>
 
-                            <label class="flex flex-col gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-6 text-sm text-slate-600">
+                            <label class="flex flex-col gap-3 rounded-[16px] border border-dashed border-slate-300 bg-slate-50/60 px-4 py-6 text-sm text-slate-600">
                                 <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Attachment (optional)</span>
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                     <div class="space-y-1">
@@ -203,10 +92,7 @@
                                         <p class="text-xs text-slate-500">Accepted formats: PNG, JPG, PDF, DOCX (max 4&nbsp;MB)</p>
                                     </div>
                                     <label class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-[#0b3019]/40 hover:text-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                            <path d="M9 14 15 8" />
-                                            <path d="M9.5 8.5 9 9a4 4 0 0 0 0 6 4 4 0 0 0 5.66 0l3.12-3.12a4 4 0 1 0-5.66-5.66L10.5 7.5" />
-                                        </svg>
+                                        <i class="ri-attachment-2 text-base" aria-hidden="true"></i>
                                         <span>Upload file</span>
                                         <input type="file" name="attachment" class="sr-only" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx">
                                     </label>
@@ -215,9 +101,7 @@
 
                             <div class="flex justify-end">
                                 <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-6 py-3 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:bg-[#094018] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/40">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                        <path d="m5 12 5 5L20 7" />
-                                    </svg>
+                                    <i class="ri-check-line text-base" aria-hidden="true"></i>
                                     Submit suggestion
                                 </button>
                             </div>
@@ -226,7 +110,7 @@
                 </section>
 
                 <aside class="space-y-6">
-                    <article class="animate-fade-slide rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
+                    <article class="animate-fade-slide rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm">
                         <h3 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">What to include</h3>
                         <ul class="mt-4 space-y-3 text-sm text-slate-600">
                             <li class="flex gap-3">
@@ -253,23 +137,15 @@
                         </ul>
                     </article>
 
-                    <article class="rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
+                    <article class="rounded-[24px] border border-slate-200/80 bg-white p-6 shadow-sm">
                         <h3 class="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Need immediate help?</h3>
                         <div class="mt-4 space-y-3 text-sm text-slate-600">
                             <p class="flex items-center gap-2 text-slate-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#0b3019]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                    <path d="M22 16.92a4 4 0 0 1-4 4 12 12 0 0 1-10.65-6A12 12 0 0 1 1.08 6a4 4 0 0 1 4-4h1.26a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .7 2.7 2 2 0 0 1-.45 2.11L7.91 9.91a10 10 0 0 0 6.18 6.18l1.39-1.39a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.7.7 2 2 0 0 1 1.72 2Z" />
-                                </svg>
+                                <i class="ri-phone-line text-base text-[#0b3019]" aria-hidden="true"></i>
                                 Call the student services hotline on <span class="font-semibold">055 935 9824</span> (08:00–20:00 GMT)
                             </p>
                             <p class="flex items-center gap-2 text-slate-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#0b3019]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                    <path d="M22 4H2" />
-                                    <path d="M22 10H2" />
-                                    <path d="m2 4 10 8L22 4" />
-                                    <path d="M2 16h20" />
-                                    <path d="M2 20h20" />
-                                </svg>
+                                <i class="ri-mail-line text-base text-[#0b3019]" aria-hidden="true"></i>
                                 Email <a href="mailto:acsesrepos@gmail.com" class="font-semibold text-[#0b3019] underline-offset-4 hover:underline">acsesrepos@gmail.com</a>
                             </p>
                         </div>
@@ -294,11 +170,11 @@
                 </header>
 
                 @if ($suggestions->isEmpty())
-                    <article class="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-sm text-slate-500">
+                    <article class="rounded-[24px] border border-dashed border-slate-300 bg-white/70 p-8 text-center text-sm text-slate-500">
                         <p>No suggestions submitted yet. Share your first idea using the form above.</p>
                     </article>
                 @else
-                    <div class="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-lg shadow-[#0b3019]/5">
+                    <div class="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-sm">
                         <div class="hidden lg:block">
                             <table class="min-w-full divide-y divide-slate-200 text-sm text-slate-600">
                                 <thead class="bg-slate-50 text-xs uppercase tracking-[0.2em] text-slate-400">
@@ -334,10 +210,7 @@
                                             <td class="px-6 py-4 align-top text-sm">
                                                 @if ($suggestion->attachment_path)
                                                     <a href="{{ Storage::disk('public')->url($suggestion->attachment_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[#0b3019] transition hover:underline">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                                            <path d="M4 4v12a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V8l-6-6H8a4 4 0 0 0-4 4Z" />
-                                                            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-                                                        </svg>
+                                                        <i class="ri-file-download-line text-base" aria-hidden="true"></i>
                                                         Download
                                                     </a>
                                                 @else
@@ -376,10 +249,7 @@
                                     <div>
                                         @if ($suggestion->attachment_path)
                                             <a href="{{ Storage::disk('public')->url($suggestion->attachment_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-semibold text-[#0b3019] transition hover:underline">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                                                    <path d="M4 4v12a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V8l-6-6H8a4 4 0 0 0-4 4Z" />
-                                                    <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-                                                </svg>
+                                                <i class="ri-file-download-line text-sm" aria-hidden="true"></i>
                                                 Download attachment
                                             </a>
                                         @else

@@ -16,19 +16,19 @@
         @method('PUT')
     @endif
 
-    <section class="space-y-6 rounded-3xl border border-[#0b3019]/10 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-        <h2 class="text-lg font-semibold text-[#0b3019]">Announcement details</h2>
+    <section class="space-y-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <h2 class="text-sm font-bold text-slate-900">Announcement details</h2>
         <div class="grid gap-5 md:grid-cols-2">
             <label class="flex flex-col gap-2">
                 <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Title</span>
-                <input type="text" name="title" value="{{ old('title', $announcement->title ?? '') }}" required maxlength="160" class="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Exam timetable update" />
+                <input type="text" name="title" value="{{ old('title', $announcement->title ?? '') }}" required maxlength="160" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 transition focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]" placeholder="Exam timetable update" />
                 @error('title')
                     <span class="text-xs text-rose-600">{{ $message }}</span>
                 @enderror
             </label>
             <label class="flex flex-col gap-2">
                 <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Excerpt <span class="text-slate-300">(optional)</span></span>
-                <input type="text" name="excerpt" value="{{ old('excerpt', $announcement->excerpt ?? '') }}" maxlength="255" class="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Brief summary shown in lists" />
+                <input type="text" name="excerpt" value="{{ old('excerpt', $announcement->excerpt ?? '') }}" maxlength="255" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 transition focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]" placeholder="Brief summary shown in lists" />
                 @error('excerpt')
                     <span class="text-xs text-rose-600">{{ $message }}</span>
                 @enderror
@@ -36,7 +36,7 @@
         </div>
         <label class="flex flex-col gap-2">
             <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Message body</span>
-            <textarea name="content" rows="8" class="rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30" placeholder="Include all necessary context, links, and next steps for students.">{{ old('content', $announcement->content ?? '') }}</textarea>
+            <textarea name="content" rows="8" class="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs leading-6 text-slate-700 transition focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]" placeholder="Include all necessary context, links, and next steps for students.">{{ old('content', $announcement->content ?? '') }}</textarea>
             @error('content')
                 <span class="text-xs text-rose-600">{{ $message }}</span>
             @enderror
@@ -45,7 +45,7 @@
             <label class="flex flex-col gap-2">
                 <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Type</span>
                 <div class="relative">
-                    <select name="type" class="h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white pl-4 pr-10 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
+                    <select name="type" class="h-9 w-full appearance-none rounded-lg border border-slate-200 bg-white pl-3 pr-8 text-xs text-slate-700 transition focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]">
                         @foreach ($types as $value => $label)
                             <option value="{{ $value }}" @selected(old('type', $announcement->type ?? 'general') === $value)>{{ $label }}</option>
                         @endforeach
@@ -56,7 +56,7 @@
             <label class="flex flex-col gap-2">
                 <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Priority</span>
                 <div class="relative">
-                    <select name="priority" class="h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white pl-4 pr-10 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
+                    <select name="priority" class="h-9 w-full appearance-none rounded-lg border border-slate-200 bg-white pl-3 pr-8 text-xs text-slate-700 transition focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]">
                         @foreach ($priorities as $value => $label)
                             <option value="{{ $value }}" @selected(old('priority', $announcement->priority ?? 'normal') === $value)>{{ $label }}</option>
                         @endforeach
@@ -67,7 +67,7 @@
             <label class="flex flex-col gap-2">
                 <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Audience</span>
                 <div class="relative">
-                    <select name="target_type" x-model="targetType" class="h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white pl-4 pr-10 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
+                    <select name="target_type" x-model="targetType" class="h-9 w-full appearance-none rounded-lg border border-slate-200 bg-white pl-3 pr-8 text-xs text-slate-700 transition focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]">
                         @foreach ($targetTypes as $value => $label)
                             <option value="{{ $value }}">{{ $label }}</option>
                         @endforeach
@@ -84,7 +84,7 @@
             <div x-show="['class', 'class_year'].includes(targetType)" x-transition>
                 <label class="flex flex-col gap-2">
                     <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Select class</span>
-                    <select name="classes[]" multiple class="min-h-[140px] rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
+                    <select name="classes[]" multiple class="min-h-[120px] rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-700 focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]">
                         @foreach ($options['classes'] as $class)
                             <option value="{{ $class }}" @selected(in_array($class, $selectedClasses, true))>{{ $class }}</option>
                         @endforeach
@@ -99,7 +99,7 @@
             <div x-show="['year', 'class_year'].includes(targetType)" x-transition>
                 <label class="flex flex-col gap-2">
                     <span class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Select year</span>
-                    <select name="years[]" multiple class="min-h-[140px] rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
+                    <select name="years[]" multiple class="min-h-[120px] rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-700 focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]">
                         @foreach ($options['years'] as $year)
                             <option value="{{ $year }}" @selected(in_array((int) $year, $selectedYears, true))>Year {{ $year }}</option>
                         @endforeach
@@ -127,7 +127,7 @@
                             type="text" 
                             x-model="search" 
                             placeholder="Search by name, username, email, or reference..." 
-                            class="h-11 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30"
+                            class="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-4 text-xs text-slate-700 transition focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019]"
                         >
                         <button 
                             type="button" 
@@ -140,9 +140,9 @@
                     </div>
                     
                     {{-- Selected Students Tags --}}
-                    <div x-show="selectedIds.length > 0" class="flex flex-wrap gap-2 p-2 rounded-2xl border border-slate-200 bg-slate-50">
+                    <div x-show="selectedIds.length > 0" class="flex flex-wrap gap-2 p-2 rounded-lg border border-slate-200 bg-slate-50">
                         <template x-for="id in selectedIds" :key="id">
-                            <span class="inline-flex items-center gap-1 rounded-full bg-[#0b3019] px-3 py-1 text-xs font-semibold text-white">
+                            <span class="inline-flex items-center gap-1 rounded-md bg-[#0b3019] px-2 py-0.5 text-xs font-semibold text-white">
                                 <span x-text="getStudentLabel(id)"></span>
                                 <button type="button" @click="toggleStudent(id)" class="hover:text-emerald-200">
                                     <i class="ri-close-line text-sm"></i>
@@ -152,7 +152,7 @@
                     </div>
                     
                     {{-- Student List - Only shows when searching --}}
-                    <div class="rounded-2xl border border-slate-200 bg-white">
+                    <div class="rounded-lg border border-slate-200 bg-white">
                         {{-- Prompt to search --}}
                         <template x-if="search.length < 2">
                             <div class="px-4 py-8 text-center text-sm text-slate-400">
@@ -205,16 +205,16 @@
         </div>
     </section>
 
-    <footer class="flex flex-col gap-3 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-[#0b3019]/10 sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm text-slate-500">Announcements are delivered immediately via email and appear in the student announcement hub.</p>
-        <div class="flex flex-col gap-3 sm:flex-row">
-            <a href="{{ route('admin.announcements.index') }}" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Cancel</a>
-            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0b3019] px-5 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-[#0b3019]/20 transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
-                <i class="ri-send-plane-line text-base"></i>
+    <div class="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-xs text-slate-500">Announcements are delivered immediately via email and appear in the student announcement hub.</p>
+        <div class="flex items-center gap-2 shrink-0">
+            <a href="{{ route('admin.announcements.index') }}" class="h-9 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 active:scale-95">Cancel</a>
+            <button type="submit" class="h-9 inline-flex items-center gap-1.5 rounded-lg bg-[#0b3019] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#072412] active:scale-95">
+                <i class="ri-send-plane-line text-sm"></i>
                 {{ $isEdit ? 'Update announcement' : 'Send announcement' }}
             </button>
         </div>
-    </footer>
+    </div>
 </form>
 
 @push('scripts')

@@ -13,6 +13,19 @@ class Event extends Model
 {
     use HasFactory;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($event) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+
+        static::deleted(function ($event) {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+    }
+
     protected $fillable = [
         'title',
         'location',

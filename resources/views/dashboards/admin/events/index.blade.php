@@ -1,92 +1,45 @@
 @php($title = $title ?? 'Manage events')
 
 <x-layouts.admin :title="$title">
-    @include('components.dashboard.skeleton-styles')
-
-    <div x-data="{ loading: true }" x-init="setTimeout(() => { loading = false }, 600)" class="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
-        <div x-show="loading" x-transition.opacity.duration.200ms class="space-y-8" role="status" aria-live="polite">
-            <header class="flex flex-col gap-4 rounded-3xl border border-[#0b3019]/15 bg-white/80 p-6 shadow-lg shadow-[#0b3019]/5">
-                <div class="space-y-2">
-                    <div class="skeleton inline-flex h-7 w-44 items-center rounded-full bg-[#0b3019]/10"></div>
-                    <div class="skeleton h-8 w-72 rounded-2xl bg-slate-200"></div>
-                    <div class="skeleton h-4 w-80 rounded-2xl bg-slate-100"></div>
+    <div class="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
+        <div class="space-y-6">
+        <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between animate-fade-slide">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                    <i class="ri-calendar-check-fill text-sm" aria-hidden="true"></i>
+                    <span>Event management</span>
                 </div>
-                <div class="flex flex-wrap items-center justify-center gap-3 md:justify-end">
-                    <div class="skeleton h-10 w-32 rounded-2xl bg-[#0b3019]/10"></div>
-                </div>
-            </header>
-
-            <section class="space-y-6 rounded-3xl border border-[#0b3019]/10 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-                <div class="flex flex-col gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                    <div class="space-y-2">
-                        <div class="skeleton h-4 w-40 rounded-full bg-slate-200"></div>
-                        <div class="skeleton h-3 w-56 rounded-full bg-slate-100"></div>
-                    </div>
-                    <div class="skeleton h-10 w-40 rounded-2xl bg-slate-100"></div>
-                </div>
-
-                <div class="overflow-hidden rounded-2xl border border-slate-200/70">
-                    <div class="hidden md:block">
-                        <div class="skeleton h-10 w-full bg-slate-50/80"></div>
-                        @for ($i = 0; $i < 4; $i++)
-                            <div class="skeleton h-12 w-full bg-white"></div>
-                        @endfor
-                    </div>
-                    <div class="grid gap-4 p-4 md:hidden">
-                        @for ($i = 0; $i < 3; $i++)
-                            <div class="skeleton h-20 w-full rounded-2xl bg-white"></div>
-                        @endfor
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-3 border-t border-slate-200/70 pt-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                    <div class="skeleton h-3 w-40 rounded-full bg-slate-200"></div>
-                    <div class="skeleton h-8 w-32 rounded-2xl bg-slate-100 sm:ml-auto"></div>
-                </div>
-            </section>
-        </div>
-
-        <div x-show="!loading" x-transition.opacity.duration.200ms x-cloak class="space-y-10">
-        <header class="flex flex-col gap-4 rounded-3xl border border-[#0b3019]/15 bg-white/80 p-6 text-center shadow-lg shadow-[#0b3019]/5 sm:text-left md:flex-row md:items-center md:justify-between">
-            <div class="space-y-2">
-                <p class="inline-flex items-center gap-2 rounded-full bg-[#0b3019]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-[#0b3019]">
-                    <i class="ri-calendar-check-fill text-base" aria-hidden="true"></i>
-                    Event management
-                </p>
-                <h1 class="text-2xl font-semibold text-[#0b3019] md:text-3xl">Plan and publish admin events</h1>
-                <p class="text-sm text-slate-600">Create, update, and curate campus events that appear on the student timeline.</p>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Plan &amp; publish events</h1>
+                <p class="text-sm text-slate-500">Create and curate campus events that appear on the student timeline.</p>
             </div>
-            <div class="flex flex-wrap items-center justify-center gap-3 md:justify-end">
-                <a href="{{ route('admin.events.create') }}" class="inline-flex items-center gap-2 rounded-2xl bg-[#0b3019] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#0b3019]/20 transition hover:-translate-y-0.5 hover:shadow-xl" aria-label="Create new event">
-                    <i class="ri-add-line text-base" aria-hidden="true"></i>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <a href="{{ route('admin.events.create') }}" class="h-9 flex items-center gap-1.5 rounded-lg bg-[#0b3019] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#072412] active:scale-95" aria-label="Create new event">
+                    <i class="ri-add-line text-sm" aria-hidden="true"></i>
                     New event
                 </a>
             </div>
         </header>
 
         @if (session('status'))
-            <div class="rounded-3xl border border-emerald-200/60 bg-emerald-50 px-5 py-4 text-sm text-emerald-800 shadow-inner">
-                <div class="flex items-start gap-3">
-                    <span class="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                        <i class="ri-check-line text-lg" aria-hidden="true"></i>
-                    </span>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 animate-fade-slide">
+                <div class="flex items-center gap-2">
+                    <i class="ri-check-double-line text-base text-emerald-600" aria-hidden="true"></i>
                     <p>{{ session('status') }}</p>
                 </div>
             </div>
         @endif
 
-        <section class="space-y-6 rounded-3xl border border-[#0b3019]/10 bg-white p-6 shadow-lg shadow-[#0b3019]/10">
-            <div class="flex flex-col gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                <div>
-                    <h2 class="text-lg font-semibold text-[#0b3019]">Scheduled events</h2>
-                    <p class="text-sm text-slate-500">Showing {{ $events->firstItem() ?? 0 }}-{{ $events->lastItem() ?? 0 }} of {{ $events->total() }} events.</p>
-                </div>
-                <form method="GET" class="flex flex-col items-center gap-2 sm:flex-row" x-data>
+        <section class="space-y-0 rounded-2xl border border-slate-100 bg-white shadow-sm overflow-hidden animate-fade-slide animate-fade-slide-delay-200">
+            <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/40 px-5 py-3 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                <p class="text-xs font-semibold text-slate-600">
+                    Showing {{ $events->firstItem() ?? 0 }}–{{ $events->lastItem() ?? 0 }} of {{ $events->total() }} events
+                </p>
+                <form method="GET" class="flex items-center justify-center gap-2 sm:justify-end" x-data>
                     @foreach (request()->except(['per_page', 'page']) as $key => $value)
                         <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                     @endforeach
-                    <label for="per_page" class="text-sm font-medium text-slate-600">Rows per page</label>
-                    <select id="per_page" name="per_page" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-[#0b3019] focus:ring-[#0b3019] sm:w-auto" x-on:change="$el.form.submit()">
+                    <label for="per_page" class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rows</label>
+                    <select id="per_page" name="per_page" class="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:border-[#0b3019] focus:ring-1 focus:ring-[#0b3019]" x-on:change="$el.form.submit()">
                         @foreach ($perPageOptions as $option)
                             <option value="{{ $option }}" @selected($option === $currentPerPage)>{{ $option }}</option>
                         @endforeach
@@ -94,7 +47,7 @@
                 </form>
             </div>
 
-            <div class="overflow-hidden rounded-2xl border border-slate-200/70">
+            <div class="overflow-hidden">
                 <div class="hidden md:block">
                     <table class="min-w-full divide-y divide-slate-200 text-left text-sm text-slate-600">
                         <thead class="bg-slate-50/80 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
@@ -117,12 +70,12 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4 border-t border-slate-200/70 pt-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                <p class="text-xs text-slate-500">Page {{ $events->currentPage() }} of {{ $events->lastPage() }}</p>
-                <div class="sm:ml-auto">
+            <div class="flex flex-col gap-3 border-t border-slate-100 px-5 py-3 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                <p class="text-xs text-slate-400">Page {{ $events->currentPage() }} of {{ $events->lastPage() }}</p>
+                <div class="sm:ml-auto flex justify-center sm:justify-end">
                     {{ $events->onEachSide(1)->links() }}
                 </div>
             </div>
-        </section>
+        </div>
     </div>
 </x-layouts.admin>
