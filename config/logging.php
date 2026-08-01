@@ -128,7 +128,7 @@ return [
         ],
 
         'sentry_logs' => [
-            'driver' => 'sentry_logs',
+            'driver' => class_exists(\Sentry\Laravel\ServiceProvider::class) ? 'sentry_logs' : 'null',
             'level' => env('LOG_LEVEL', 'info'),
         ],
 
