@@ -19,6 +19,10 @@
                 <p class="text-sm text-slate-500">Review issued dues, monitor collections, and configure payment gateways.</p>
             </div>
             <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <a href="{{ route('admin.dues.create') }}" class="h-9 inline-flex items-center gap-1.5 rounded-lg bg-[#0b3019] px-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#072412] active:scale-95">
+                    <i class="ri-add-line text-sm" aria-hidden="true"></i>
+                    <span>Create due</span>
+                </a>
                 <a href="{{ route('admin.dues.export', request()->query()) }}" class="h-9 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 active:scale-95">
                     <i class="ri-download-2-line text-sm" aria-hidden="true"></i>
                     Export

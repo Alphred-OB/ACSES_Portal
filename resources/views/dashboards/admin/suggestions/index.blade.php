@@ -19,10 +19,9 @@
 
         {{-- Metric cards --}}
         <div class="grid gap-4 sm:grid-cols-3 animate-fade-slide animate-fade-slide-delay-200">
-            <article class="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <div class="absolute inset-x-0 top-0 h-[3px] rounded-t-2xl bg-[#0b3019]"></div>
-                <div class="flex items-center gap-3 pt-1">
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0b3019]/8 text-[#0b3019]">
+            <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                         <i class="ri-chat-1-line text-lg"></i>
                     </span>
                     <div>
@@ -32,10 +31,9 @@
                 </div>
             </article>
 
-            <article class="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <div class="absolute inset-x-0 top-0 h-[3px] rounded-t-2xl bg-amber-500"></div>
-                <div class="flex items-center gap-3 pt-1">
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+            <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                         <i class="ri-timer-line text-lg"></i>
                     </span>
                     <div>
@@ -45,10 +43,9 @@
                 </div>
             </article>
 
-            <article class="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <div class="absolute inset-x-0 top-0 h-[3px] rounded-t-2xl bg-emerald-500"></div>
-                <div class="flex items-center gap-3 pt-1">
-                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                         <i class="ri-checkbox-circle-line text-lg"></i>
                     </span>
                     <div>

@@ -28,13 +28,16 @@
         <form method="POST" action="{{ route('auth.login.submit') }}" class="space-y-5" data-auth-form>
             @csrf
             <div class="space-y-1.5">
-                <label for="email" class="block text-sm font-medium text-slate-700">Email address</label>
+                <label for="login_id" class="block text-sm font-medium text-slate-700">Email, Username, or Index Number</label>
                 <div class="relative">
                     <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                        <i data-lucide="mail" class="text-base" aria-hidden="true"></i>
+                        <i data-lucide="user" class="text-base" aria-hidden="true"></i>
                     </span>
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="email" aria-describedby="email-error" @error('email') aria-invalid="true" @enderror class="block w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-3 text-sm text-slate-900 shadow-sm transition hover:border-slate-300 focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019] @error('email') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror" placeholder="you@example.com" />
+                    <input id="login_id" name="login_id" type="text" value="{{ old('login_id', old('email')) }}" required autofocus autocomplete="username" aria-describedby="login_id-error" @error('login_id') aria-invalid="true" @enderror @error('email') aria-invalid="true" @enderror class="block w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-3 text-sm text-slate-900 shadow-sm transition hover:border-slate-300 focus:border-[#0b3019] focus:outline-none focus:ring-1 focus:ring-[#0b3019] @error('login_id') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror @error('email') border-red-500 focus:border-red-500 focus:ring-red-500 @enderror" placeholder="Username, email, or index number" />
                 </div>
+                @error('login_id')
+                    <p id="login_id-error" class="text-xs text-red-500" role="alert">{{ $message }}</p>
+                @enderror
                 @error('email')
                     <p id="email-error" class="text-xs text-red-500" role="alert">{{ $message }}</p>
                 @enderror
@@ -89,17 +92,48 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('[data-auth-form]');
-            const overlay = document.getElementById('auth-loading-overlay');
+
+            function clearErrors() {
+                form.querySelectorAll('[data-inline-error]').forEach(el => el.remove());
+                form.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+                form.querySelectorAll('.border-red-500').forEach(el => {
+                    el.classList.remove('border-red-500');
+                });
+            }
+
+            function showFieldError(fieldName, message) {
+                const input = form.querySelector(`[name="${fieldName}"]`);
+                if (!input) return;
+                input.setAttribute('aria-invalid', 'true');
+                input.classList.add('border-red-500');
+                const wrapper = input.closest('.space-y-1\\.5') || input.parentElement.parentElement;
+                const errorEl = document.createElement('p');
+                errorEl.setAttribute('data-inline-error', '');
+                errorEl.className = 'text-xs text-red-500 mt-1';
+                errorEl.setAttribute('role', 'alert');
+                errorEl.textContent = message;
+                wrapper.appendChild(errorEl);
+            }
+
+            function setLoading(isLoading) {
+                const btn = form.querySelector('button[type="submit"]');
+                if (!btn) return;
+                btn.disabled = isLoading;
+                if (isLoading) {
+                    btn.dataset.originalText = btn.innerHTML;
+                    btn.innerHTML = '<span class="flex items-center justify-center gap-2"><span class="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Signing in…</span>';
+                    btn.classList.add('opacity-75', 'cursor-not-allowed');
+                } else {
+                    btn.innerHTML = btn.dataset.originalText || '<span>Login</span>';
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                }
+            }
 
             if (form) {
                 form.addEventListener('submit', async function(e) {
                     e.preventDefault();
-
-                    // Show loading overlay
-                    if (overlay) {
-                        overlay.classList.remove('hidden');
-                        overlay.classList.add('flex');
-                    }
+                    clearErrors();
+                    setLoading(true);
 
                     const formData = new FormData(form);
 
@@ -108,38 +142,25 @@
                             method: 'POST',
                             body: formData,
                             headers: {
-                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                'Accept': 'application/json',
                                 'X-Requested-With': 'XMLHttpRequest',
                             },
                             credentials: 'same-origin',
-                            redirect: 'follow',
                         });
 
-                        // Check for rate limit
+                        // Rate limited
                         if (response.status === 429) {
-                            // Hide loading overlay
-                            if (overlay) {
-                                overlay.classList.add('hidden');
-                                overlay.classList.remove('flex');
-                            }
-
-                            // Try to get retry_after from response
+                            setLoading(false);
                             let seconds = 60;
                             let message = 'Too many login attempts. Please wait before trying again.';
-                            
                             try {
                                 const data = await response.json();
                                 seconds = data.retry_after || 60;
                                 message = data.message || message;
-                            } catch (e) {
-                                // Try to get from header
+                            } catch (_) {
                                 const retryAfter = response.headers.get('Retry-After');
-                                if (retryAfter) {
-                                    seconds = parseInt(retryAfter, 10) || 60;
-                                }
+                                if (retryAfter) seconds = parseInt(retryAfter, 10) || 60;
                             }
-
-                            // Show the rate limit countdown
                             if (window.RateLimitHandler) {
                                 window.RateLimitHandler.show(seconds, message, 'Too Many Login Attempts');
                             } else {
@@ -148,46 +169,61 @@
                             return;
                         }
 
-                        // For successful responses or redirects, follow the redirect
+                        // Validation errors (422) — show inline without reloading
+                        if (response.status === 422) {
+                            setLoading(false);
+                            const data = await response.json();
+                            const errors = data.errors || {};
+                            for (const [field, messages] of Object.entries(errors)) {
+                                const msg = Array.isArray(messages) ? messages[0] : messages;
+                                showFieldError(field, msg);
+                            }
+                            // Shake the submit button for feedback
+                            const btn = form.querySelector('button[type="submit"]');
+                            if (btn) {
+                                btn.style.animation = 'none';
+                                btn.offsetHeight;
+                                btn.style.animation = 'shake 0.4s ease';
+                            }
+                            return;
+                        }
+
+                        // Successful redirect
                         if (response.redirected) {
                             window.location.href = response.url;
                             return;
                         }
 
-                        // For HTML responses (validation errors), replace the page content
                         if (response.ok) {
-                            const html = await response.text();
-                            // Check if it's a redirect in the HTML
-                            if (response.url !== window.location.href) {
-                                window.location.href = response.url;
-                            } else {
-                                // Replace document with response (for validation errors)
-                                document.open();
-                                document.write(html);
-                                document.close();
-                            }
+                            try {
+                                const data = await response.json();
+                                if (data.redirect) {
+                                    window.location.href = data.redirect;
+                                    return;
+                                }
+                            } catch (_) {}
+                            window.location.reload();
                         } else {
-                            // Hide loading overlay on error
-                            if (overlay) {
-                                overlay.classList.add('hidden');
-                                overlay.classList.remove('flex');
-                            }
-                            // For other errors, submit the form normally
-                            form.submit();
+                            setLoading(false);
+                            showFieldError('login_id', 'Something went wrong. Please try again.');
                         }
                     } catch (error) {
                         console.error('Login error:', error);
-                        // Hide loading overlay
-                        if (overlay) {
-                            overlay.classList.add('hidden');
-                            overlay.classList.remove('flex');
-                        }
-                        // Fallback to normal form submission
-                        form.submit();
+                        setLoading(false);
+                        showFieldError('login_id', 'A network error occurred. Please check your connection and try again.');
                     }
                 });
             }
         });
     </script>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+    </style>
 </x-layouts.auth>
 

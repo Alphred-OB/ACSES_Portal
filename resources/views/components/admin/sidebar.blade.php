@@ -37,10 +37,10 @@
 
     $navConfig = [
         [
-            'section' => 'Overview & Accounts',
+            'section' => 'Core',
             'items' => [
                 [
-                    'label' => 'Dashboard Overview',
+                    'label' => 'Dashboard',
                     'route_name' => 'admin.dashboard',
                     'pattern' => 'admin.dashboard',
                     'icon' => 'ri-layout-grid-line',
@@ -55,7 +55,7 @@
                     'href' => url('/admin/pending-registrations'),
                 ],
                 [
-                    'label' => 'Student Accounts',
+                    'label' => 'Students',
                     'route_name' => 'admin.students.index',
                     'pattern' => 'admin.students.*',
                     'icon' => 'ri-team-line',
@@ -63,7 +63,7 @@
             ]
         ],
         [
-            'section' => 'Financial Operations',
+            'section' => 'Finance',
             'items' => [
                 [
                     'label' => 'Dues & Fees',
@@ -72,7 +72,7 @@
                     'icon' => 'ri-coins-line',
                 ],
                 [
-                    'label' => 'Payment Verifications',
+                    'label' => 'Verifications',
                     'route_name' => 'admin.dues.verifications.index',
                     'pattern' => 'admin.dues.verifications.*',
                     'icon' => 'ri-file-shield-2-line',
@@ -83,10 +83,10 @@
             ]
         ],
         [
-            'section' => 'Academic & Content',
+            'section' => 'Content & Academic',
             'items' => [
                 [
-                    'label' => 'Events Calendar',
+                    'label' => 'Events',
                     'route_name' => 'admin.events.index',
                     'pattern' => 'admin.events.*',
                     'icon' => 'ri-calendar-event-line',
@@ -98,19 +98,19 @@
                     'icon' => 'ri-megaphone-line',
                 ],
                 [
-                    'label' => 'Academic Timeline',
+                    'label' => 'Timeline',
                     'route_name' => 'admin.timeline.index',
                     'pattern' => 'admin.timeline.*',
                     'icon' => 'ri-time-line',
                 ],
                 [
-                    'label' => 'Resources Library',
+                    'label' => 'Resources',
                     'route_name' => 'admin.resources.index',
                     'pattern' => 'admin.resources.*',
                     'icon' => 'ri-book-read-line',
                 ],
                 [
-                    'label' => 'Feedback Hub',
+                    'label' => 'Feedback',
                     'route_name' => 'admin.suggestions.index',
                     'pattern' => 'admin.suggestions.*',
                     'icon' => 'ri-message-3-line',
@@ -118,10 +118,10 @@
             ]
         ],
         [
-            'section' => 'Settings',
+            'section' => 'Account',
             'items' => [
                 [
-                    'label' => 'Admin Profile',
+                    'label' => 'Profile & Settings',
                     'route_name' => 'admin.profile',
                     'pattern' => 'admin.profile*',
                     'icon' => 'ri-settings-3-line',
@@ -132,7 +132,6 @@
 
     $sections = collect($navConfig)->map(function ($section) {
         $items = collect($section['items'])->map(function ($item) {
-            // Use direct href if provided, otherwise try route
             if (!empty($item['href'])) {
                 $href = $item['href'];
             } else {
@@ -158,36 +157,43 @@
 @endphp
 
 <aside
-    class="hidden shrink-0 border-r border-slate-100 bg-white py-6 text-sm text-slate-600 lg:flex lg:flex-col lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto transition-all duration-300 relative"
-    :class="adminSidebarCollapsed ? 'w-20 px-3' : 'w-64 px-5'"
+    class="hidden shrink-0 border-r border-slate-100 bg-white text-sm text-slate-600 lg:flex lg:flex-col lg:sticky lg:top-0 lg:h-screen transition-all duration-300 relative select-none"
+    :class="adminSidebarCollapsed ? 'w-16 px-2 py-4' : 'w-64 px-4 py-5'"
     aria-label="Admin navigation"
 >
-    <!-- Collapse / Expand Toggle Button for Desktop (Notion / Linear style floating on border edge) -->
-    <button type="button" 
-            @click="adminSidebarCollapsed = !adminSidebarCollapsed; localStorage.setItem('admin-sidebar-collapsed', adminSidebarCollapsed)"
-            class="hidden lg:flex absolute top-7 z-40 h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 hover:text-[#0b3019] shadow-sm hover:scale-105 transition-all duration-150"
-            style="right: -14px;"
-            :title="adminSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
-        <i class="text-xs transition-transform duration-300" :class="adminSidebarCollapsed ? 'ri-arrow-right-s-line' : 'ri-arrow-left-s-line'"></i>
-    </button>
+    <div class="flex h-full flex-col justify-between overflow-hidden">
+        <!-- Top Section: Logo Header + Nav -->
+        <div class="flex flex-col flex-1 min-h-0">
+            <!-- Sidebar Header with Collapse Button -->
+            <div class="flex items-center justify-between text-[#0b3019] shrink-0 pb-4 mb-2 border-b border-slate-100" :class="adminSidebarCollapsed ? 'justify-center pb-3' : 'px-1'">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="{{ asset('logo.png') }}" alt="ACSES" class="h-9 w-9 rounded-xl border border-[#0b3019]/20 object-contain shrink-0" loading="lazy">
+                    <div x-show="!adminSidebarCollapsed" x-transition:enter="transition-opacity duration-200" class="min-w-0">
+                        <p class="text-[9px] font-bold uppercase tracking-[0.25em] text-[#0b3019]/70 truncate">ACSES Admin</p>
+                        <p class="text-base font-bold text-[#0b3019] truncate leading-tight">Control Center</p>
+                    </div>
+                </div>
 
-    <div class="flex h-full flex-col">
-        <!-- Sidebar Header -->
-        <div class="flex items-center text-[#0b3019]" :class="adminSidebarCollapsed ? 'justify-center' : 'gap-3'">
-            <img src="{{ asset('logo.png') }}" alt="ACSES" class="h-10 w-10 rounded-xl border border-[#0b3019]/20 object-contain" loading="lazy">
-            <div x-show="!adminSidebarCollapsed" x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="min-w-0">
-                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-[#0b3019]/70 truncate">ACSES Admin</p>
-                <p class="text-base font-semibold text-[#0b3019] truncate">Control Center</p>
+                <!-- Toggle Collapse Button -->
+                <button type="button" 
+                        @click="adminSidebarCollapsed = !adminSidebarCollapsed; localStorage.setItem('admin-sidebar-collapsed', adminSidebarCollapsed)"
+                        class="hidden lg:flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200/80 bg-slate-50/50 text-slate-400 hover:border-[#0b3019]/30 hover:bg-[#0b3019]/5 hover:text-[#0b3019] transition-all duration-150 shrink-0"
+                        :title="adminSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+                    <i class="text-sm transition-transform duration-300" :class="adminSidebarCollapsed ? 'ri-indent-increase' : 'ri-indent-decrease'"></i>
+                </button>
+            </div>
+
+            <!-- Nav Container -->
+            <div class="flex-1 min-h-0 overflow-y-auto scrollbar-none py-1">
+                <x-admin.sidebar-nav :sections="$sections" class="flex-1" />
             </div>
         </div>
 
-        <x-admin.sidebar-nav :sections="$sections" class="mt-8 flex-1" />
-
-        <!-- Admin Profile Footer -->
-        <div class="mt-4 border-t border-slate-100 pt-4">
-            <div class="flex items-center rounded-xl py-2 hover:bg-slate-50 transition-colors duration-150 group"
-                 :class="adminSidebarCollapsed ? 'justify-center px-1' : 'gap-3 px-2'">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#0b3019]/15 bg-[#0b3019]/8 text-xs font-bold text-[#0b3019]">
+        <!-- Admin Profile Footer (Fixed at bottom) -->
+        <div class="border-t border-slate-100 pt-2.5 shrink-0">
+            <div class="flex items-center rounded-lg hover:bg-slate-50 transition-colors duration-150 group"
+                 :class="adminSidebarCollapsed ? 'justify-center p-1' : 'gap-2.5 px-2 py-1.5'">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#0b3019]/15 bg-[#0b3019]/8 text-[11px] font-bold text-[#0b3019]">
                     @if ($sidebarAdminAvatar)
                         <img src="{{ $sidebarAdminAvatar }}" alt="{{ $sidebarAdminName }}" class="h-full w-full object-cover">
                     @else
@@ -195,23 +201,22 @@
                     @endif
                 </span>
                 <div class="min-w-0 flex-1" x-show="!adminSidebarCollapsed">
-                    <p class="truncate text-xs font-bold leading-tight text-slate-800">{{ Str::limit($sidebarAdminName, 18) }}</p>
-                    <p class="truncate text-[10px] leading-none text-slate-400 mt-0.5">{{ Str::limit($sidebarAdminEmail, 22) }}</p>
+                    <p class="truncate text-xs font-bold leading-tight text-slate-800">{{ Str::limit($sidebarAdminName, 15) }}</p>
+                    <p class="truncate text-[9px] leading-none text-slate-400 mt-0.5">{{ Str::limit($sidebarAdminEmail, 18) }}</p>
                 </div>
                 <form method="POST" action="{{ route('auth.logout') }}" class="shrink-0" x-show="!adminSidebarCollapsed">
                     @csrf
-                    <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-95" title="Sign out">
-                        <i class="ri-logout-box-r-line text-sm" aria-hidden="true"></i>
+                    <button type="submit" class="flex h-6 w-6 items-center justify-center rounded text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-95" title="Sign out">
+                        <i class="ri-logout-box-r-line text-xs" aria-hidden="true"></i>
                     </button>
                 </form>
             </div>
             
-            <!-- Collapsed Logout Button (shown below avatar when collapsed) -->
-            <div x-show="adminSidebarCollapsed" class="mt-2 flex justify-center">
+            <div x-show="adminSidebarCollapsed" class="mt-1 flex justify-center">
                 <form method="POST" action="{{ route('auth.logout') }}">
                     @csrf
-                    <button type="submit" class="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-100 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-95" title="Sign out">
-                        <i class="ri-logout-box-r-line text-sm" aria-hidden="true"></i>
+                    <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-md border border-slate-100 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-95" title="Sign out">
+                        <i class="ri-logout-box-r-line text-xs" aria-hidden="true"></i>
                     </button>
                 </form>
             </div>
@@ -222,16 +227,16 @@
 <div class="lg:hidden">
     <div x-show="adminSidebarOpen" style="display: none;" x-transition.opacity class="fixed inset-0 z-40 bg-slate-900/60" aria-hidden="true" @click="adminSidebarOpen = false"></div>
 
-    <div id="admin-mobile-sidebar" x-show="adminSidebarOpen" style="display: none;" x-transition:enter="transition transform ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition transform ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" class="fixed inset-y-0 left-0 z-50 w-64 overflow-y-auto border-r border-slate-100 bg-white px-5 py-6 text-sm text-slate-600 shadow-xl">
+    <div id="admin-mobile-sidebar" x-show="adminSidebarOpen" style="display: none;" x-transition:enter="transition transform ease-out duration-200" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition transform ease-in duration-150" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" class="fixed inset-y-0 left-0 z-50 w-60 overflow-y-auto border-r border-slate-100 bg-white px-4 py-5 text-sm text-slate-600 shadow-xl">
         <div class="flex items-center justify-between text-[#0b3019]">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('logo.png') }}" alt="ACSES" class="h-9 w-9 rounded-xl border border-[#0b3019]/20 object-contain" loading="lazy">
+            <div class="flex items-center gap-2.5">
+                <img src="{{ asset('logo.png') }}" alt="ACSES" class="h-8 w-8 rounded-lg border border-[#0b3019]/20 object-contain" loading="lazy">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-[#0b3019]/70">Admin</p>
-                    <p class="text-base font-semibold text-[#0b3019]">Control Center</p>
+                    <p class="text-[9px] font-bold uppercase tracking-[0.25em] text-[#0b3019]/70">Admin</p>
+                    <p class="text-sm font-bold text-[#0b3019]">Control Center</p>
                 </div>
             </div>
-            <button type="button" class="rounded-full border border-slate-200/70 p-2 text-slate-500 transition hover:text-[#0b3019]" aria-label="Close sidebar" @click="adminSidebarOpen = false">
+            <button type="button" class="rounded-full border border-slate-200/70 p-1.5 text-slate-500 transition hover:text-[#0b3019]" aria-label="Close sidebar" @click="adminSidebarOpen = false">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                     <path d="m6 6 12 12" />
                     <path d="m6 18 12-12" />
@@ -239,12 +244,11 @@
             </button>
         </div>
 
-        <x-admin.sidebar-nav :sections="$sections" class="mt-6 flex-1" />
+        <x-admin.sidebar-nav :sections="$sections" class="mt-4 flex-1" />
 
-        <!-- Admin Profile Footer (Mobile) -->
-        <div class="mt-4 border-t border-slate-100 pt-4">
-            <div class="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50 transition-colors duration-150">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#0b3019]/15 bg-[#0b3019]/8 text-xs font-bold text-[#0b3019]">
+        <div class="mt-4 border-t border-slate-100 pt-3">
+            <div class="flex items-center gap-2.5 rounded-lg px-2 py-1.5 hover:bg-slate-50 transition-colors duration-150">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#0b3019]/15 bg-[#0b3019]/8 text-[11px] font-bold text-[#0b3019]">
                     @if ($sidebarAdminAvatar)
                         <img src="{{ $sidebarAdminAvatar }}" alt="{{ $sidebarAdminName }}" class="h-full w-full object-cover">
                     @else
@@ -252,13 +256,13 @@
                     @endif
                 </span>
                 <div class="min-w-0 flex-1">
-                    <p class="truncate text-xs font-bold leading-tight text-slate-800">{{ Str::limit($sidebarAdminName, 18) }}</p>
-                    <p class="truncate text-[10px] leading-none text-slate-400 mt-0.5">{{ Str::limit($sidebarAdminEmail, 22) }}</p>
+                    <p class="truncate text-xs font-bold leading-tight text-slate-800">{{ Str::limit($sidebarAdminName, 15) }}</p>
+                    <p class="truncate text-[9px] leading-none text-slate-400 mt-0.5">{{ Str::limit($sidebarAdminEmail, 18) }}</p>
                 </div>
                 <form method="POST" action="{{ route('auth.logout') }}">
                     @csrf
-                    <button type="submit" class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-95" title="Sign out">
-                        <i class="ri-logout-box-r-line text-sm" aria-hidden="true"></i>
+                    <button type="submit" class="flex h-6 w-6 items-center justify-center rounded text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-95" title="Sign out">
+                        <i class="ri-logout-box-r-line text-xs" aria-hidden="true"></i>
                     </button>
                 </form>
             </div>

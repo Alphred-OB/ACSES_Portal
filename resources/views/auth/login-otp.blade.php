@@ -5,23 +5,17 @@
 
 <x-layouts.auth title="Verify New Device" card-width="max-w-md">
     <div class="space-y-6">
-        <div class="space-y-3.5 text-center">
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#0b3019]/8 text-[#0b3019]">
-                <i data-lucide="shield-check" class="h-6 w-6"></i>
-            </div>
-
-            <div class="space-y-1.5">
-                <h1 class="text-xl font-bold tracking-tight text-slate-900">New device detected</h1>
-                <p class="text-xs leading-relaxed text-slate-500 px-4">
-                    We noticed a sign-in from a new device. Enter the 6-digit code sent to <span class="font-semibold text-slate-800">{{ $pending['email'] ?? 'your email' }}</span>.
-                </p>
-                @if (session('status'))
-                    <div class="mt-2 rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-800 flex items-center gap-2 justify-center">
-                        <i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i>
-                        <span>{{ session('status') }}</span>
-                    </div>
-                @endif
-            </div>
+        <div class="space-y-1.5 text-center">
+            <h1 class="text-xl font-bold tracking-tight text-slate-900">New device detected</h1>
+            <p class="text-xs leading-relaxed text-slate-500 px-4">
+                We noticed a sign-in from a new device. Enter the 6-digit code sent to <span class="font-semibold text-slate-800">{{ $pending['email'] ?? 'your email' }}</span>.
+            </p>
+            @if (session('status'))
+                <div class="mt-2 rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-800 flex items-center gap-2 justify-center">
+                    <i data-lucide="check-circle-2" class="h-3.5 w-3.5 text-emerald-600"></i>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
         </div>
 
         <form method="POST" action="{{ route('auth.login.otp.submit') }}" class="space-y-5" data-auth-form>
@@ -77,76 +71,16 @@
     </div>
 
     {{-- Rate limit handler script --}}
+    {{-- Button loading state handler --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('[data-auth-form]');
             const overlay = document.getElementById('auth-loading-overlay');
 
-            if (form) {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-
-                    // Show loading overlay
-                    if (overlay) {
-                        overlay.classList.remove('hidden');
-                        overlay.classList.add('flex');
-                    }
-
-                    const formData = new FormData(form);
-
-                    try {
-                        const response = await fetch(form.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                                'X-Requested-With': 'XMLHttpRequest',
-                            },
-                        });
-
-                        // Handle Rate Limit (429)
-                        if (response.status === 429) {
-                            if (overlay) {
-                                overlay.classList.add('hidden');
-                                overlay.classList.remove('flex');
-                            }
-                            
-                            const data = await response.json();
-                            const seconds = data.retry_after || 60;
-                            
-                            if (window.RateLimitHandler) {
-                                window.RateLimitHandler.show(seconds, data.message || 'Too many attempts.', 'Rate Limit Reached');
-                            } else {
-                                alert(data.message || 'Too many attempts. Please wait.');
-                            }
-                            return;
-                        }
-
-                        // Handle Redirects or Success
-                        if (response.redirected) {
-                            const currentUrlObj = new URL(window.location.href);
-                            const redirectUrlObj = new URL(response.url);
-                            
-                            if (currentUrlObj.pathname === redirectUrlObj.pathname) {
-                                // Redirected back to the same page (likely validation errors)
-                                const html = await response.text();
-                                document.open();
-                                document.write(html);
-                                document.close();
-                            } else {
-                                // Redirected to a different page (likely success dashboard)
-                                window.location.href = response.url;
-                            }
-                        } else {
-                            const html = await response.text();
-                            document.open();
-                            document.write(html);
-                            document.close();
-                        }
-                    } catch (error) {
-                        console.error('OTP Submit error:', error);
-                        form.submit();
-                    }
+            if (form && overlay) {
+                form.addEventListener('submit', function() {
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
                 });
             }
         });

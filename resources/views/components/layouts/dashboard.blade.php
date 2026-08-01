@@ -5,6 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <x-sentry-head />
     <title>{{ trim($title ?? '') ? $title . ' | ' : '' }}{{ config('app.name', 'ACSES Portal') }}</title>
 
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -50,7 +51,9 @@
             @endif
 
             <main class="flex-1 pb-12 pt-4 sm:pt-6">
-                {{ $slot ?? '' }}
+                <x-dues-lock-overlay>
+                    {{ $slot ?? '' }}
+                </x-dues-lock-overlay>
             </main>
 
             @if ($footer)

@@ -5,6 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <x-sentry-head />
     <title>{{ trim($title ?? '') ? $title . ' | ' : '' }}{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
@@ -21,13 +22,9 @@
     <script src="https://unpkg.com/lucide@0.456.0/dist/umd/lucide.min.js" defer></script>
     <style>
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-        /* Faint Light Green Background */
+        /* Auth Background */
         .faint-green-bg {
-            background-color: #f0fdf4;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(220, 252, 231, 0.8) 0px, transparent 50%),
-                radial-gradient(at 90% 10%, rgba(209, 250, 229, 0.7) 0px, transparent 50%),
-                radial-gradient(at 50% 90%, rgba(240, 253, 244, 0.9) 0px, transparent 50%);
+            background-color: #ffffff;
         }
         /* Entrance Animations */
         @keyframes popIn {
@@ -58,14 +55,6 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="auth-loading-overlay" class="hidden fixed inset-0 z-50 items-center justify-center bg-white/60 backdrop-blur-sm">
-        <div class="flex flex-col items-center space-y-4">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full border-[3px] border-slate-200 border-t-[#0b3019] animate-spin"></div>
-            <p class="text-sm font-semibold text-slate-700 tracking-tight">Processing…</p>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') {
@@ -77,16 +66,6 @@
                     }
                 });
             }
-            const forms = document.querySelectorAll('[data-auth-form]');
-            const overlay = document.getElementById('auth-loading-overlay');
-            forms.forEach((form) => {
-                form.addEventListener('submit', () => {
-                    if (overlay) {
-                        overlay.classList.remove('hidden');
-                        overlay.classList.add('flex');
-                    }
-                });
-            });
         });
     </script>
     <x-rate-limit-handler />

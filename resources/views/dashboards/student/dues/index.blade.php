@@ -1,121 +1,236 @@
 <x-layouts.dashboard :title="$title">
-    @include('components.dashboard.skeleton-styles')
-    <div class="mx-auto w-full max-w-[1600px] px-5 py-12 sm:px-6 lg:px-8">
+@include('components.dashboard.skeleton-styles')
 
-        <div class="space-y-10">
-            @if (session('status'))
-                <div class="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-sm">
-                    <div class="flex items-start gap-3">
-                        <span class="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                            <i class="ri-check-line" aria-hidden="true"></i>
-                        </span>
-                        <div>
-                            <p class="font-semibold uppercase tracking-[0.25em] text-emerald-500">Success</p>
-                            <p class="mt-1 text-sm">{{ session('status') }}</p>
-                        </div>
-                    </div>
+@php
+    $hasOutstanding   = ($summary['outstanding_amount'] ?? 0) > 0;
+    $outstandingCount = $summary['outstanding_count'] ?? 0;
+    $paidCount        = $summary['paid_count'] ?? 0;
+    $nextDue          = $summary['next_due'] ?? null;
+    $latestPayment    = $summary['latest_payment'] ?? null;
+
+    $activeStatus = $filters['status'] ?? '';
+    $activeYear   = $filters['academic_year'] ?? '';
+    $searchTerm   = $filters['search'] ?? '';
+    $isFiltered   = $activeStatus !== '' || $activeYear !== '' || $searchTerm !== '';
+
+    $statusColors = [
+        'owing'                => 'bg-emerald-900/10 text-[#0b3019] ring-1 ring-inset ring-emerald-900/20',
+        'pending_verification' => 'bg-amber-50 text-amber-600 ring-1 ring-inset ring-amber-200',
+        'paid'                 => 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200',
+    ];
+    $statusIcons = [
+        'owing'                => 'ri-time-line',
+        'pending_verification' => 'ri-loader-4-line',
+        'paid'                 => 'ri-checkbox-circle-line',
+    ];
+@endphp
+
+<div class="mx-auto w-full max-w-[1400px] px-5 py-8 sm:px-6 lg:px-8">
+    <div class="space-y-6">
+
+        {{-- ─── Page Header ──────────────────────────────────────────────── --}}
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">My Dues</h1>
+                <p class="mt-0.5 text-sm text-slate-500">Track, manage, and pay your departmental dues.</p>
+            </div>
+            @if ($hasOutstanding)
+                <span class="inline-flex items-center gap-1.5 self-start rounded-md border border-[#0b3019]/20 bg-[#0b3019]/5 px-3 py-1.5 text-xs font-semibold text-[#0b3019] sm:self-auto">
+                    <i class="ri-error-warning-line text-sm"></i>
+                    {{ $outstandingCount }} outstanding due{{ $outstandingCount > 1 ? 's' : '' }}
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 self-start rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200 sm:self-auto">
+                    <i class="ri-checkbox-circle-line text-sm"></i>
+                    All dues settled
+                </span>
+            @endif
+        </div>
+
+        {{-- ─── Flash Alerts ──────────────────────────────────────────────── --}}
+        @if (session('status'))
+            @php
+                $msg          = session('status');
+                $isDuesNotice = str_contains(strtolower($msg), 'dues') || str_contains(strtolower($msg), 'outstanding');
+            @endphp
+            @if ($isDuesNotice)
+                <div class="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <i class="ri-alarm-warning-line mt-0.5 shrink-0 text-base text-amber-500"></i>
+                    <p>{{ $msg }}</p>
+                </div>
+            @else
+                <div class="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <i class="ri-check-line mt-0.5 shrink-0 text-base text-emerald-500"></i>
+                    <p>{{ $msg }}</p>
                 </div>
             @endif
+        @endif
 
-            @if (session('error'))
-                <div class="rounded-3xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700 shadow-sm">
-                    <div class="flex items-start gap-3">
-                        <span class="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-                            <i class="ri-error-warning-line" aria-hidden="true"></i>
-                        </span>
-                        <div>
-                            <p class="font-semibold uppercase tracking-[0.25em] text-rose-500">Payment error</p>
-                            <p class="mt-1 text-sm">{{ session('error') }}</p>
-                        </div>
-                    </div>
+        @if (session('error'))
+            <div class="flex items-start gap-3 rounded-xl border border-[#0b3019]/20 bg-[#0b3019]/5 px-4 py-3 text-sm text-[#0b3019]">
+                <i class="ri-error-warning-line mt-0.5 shrink-0 text-base text-[#0b3019]/70"></i>
+                <p>{{ session('error') }}</p>
+            </div>
+        @endif
+
+        {{-- ─── KPI Summary Cards ─────────────────────────────────────────── --}}
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+            {{-- Outstanding Balance --}}
+            <div class="rounded-xl border p-5 {{ $hasOutstanding ? 'border-[#0b3019] bg-[#0b3019]' : 'border-slate-200 bg-white' }}">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-semibold uppercase tracking-wider {{ $hasOutstanding ? 'text-emerald-300' : 'text-slate-400' }}">Outstanding</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg {{ $hasOutstanding ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-400' }}">
+                        <i class="ri-bill-line text-sm"></i>
+                    </span>
                 </div>
-            @endif
+                <p class="mt-3 text-2xl font-bold tracking-tight {{ $hasOutstanding ? 'text-white' : 'text-slate-900' }}" style="font-variant-numeric: tabular-nums">
+                    GHS {{ number_format((float)($summary['outstanding_amount'] ?? 0), 2) }}
+                </p>
+                <p class="mt-1 text-xs {{ $hasOutstanding ? 'text-emerald-300/80' : 'text-slate-400' }}">
+                    {{ $outstandingCount }} unpaid item{{ $outstandingCount !== 1 ? 's' : '' }}
+                </p>
+            </div>
 
-            <section class="grid gap-6 md:grid-cols-2">
-                <article class="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-[#0b3019] bg-[#0b3019] p-8 text-white shadow-lg transition hover:shadow-xl">
-                    <header class="relative z-10 flex items-center justify-between gap-4">
-                        <div class="space-y-2">
-                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300">Outstanding balance</p>
-                            <p class="text-4xl font-bold tracking-tight">GHS {{ number_format((float) ($summary['outstanding_amount'] ?? 0), 2) }}</p>
-                        </div>
-                        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 transition group-hover:bg-white/20"><i class="ri-error-warning-line text-2xl text-emerald-100"></i></span>
-                    </header>
-                </article>
+            {{-- Total Paid --}}
+            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Paid</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                        <i class="ri-checkbox-circle-line text-sm"></i>
+                    </span>
+                </div>
+                <p class="mt-3 text-2xl font-bold tracking-tight text-slate-900" style="font-variant-numeric: tabular-nums">
+                    GHS {{ number_format((float)($summary['paid_amount'] ?? 0), 2) }}
+                </p>
+                <p class="mt-1 text-xs text-slate-400">{{ $paidCount }} payment{{ $paidCount !== 1 ? 's' : '' }} recorded</p>
+            </div>
 
-                <article class="group flex h-full flex-col rounded-[24px] border border-emerald-100 bg-emerald-50 p-8 text-emerald-900 shadow-lg shadow-emerald-100/40 transition hover:shadow-xl hover:shadow-emerald-100/60">
-                    <header class="flex items-center justify-between gap-4">
-                        <div class="space-y-2">
-                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-600">Payments recorded</p>
-                            <p class="text-4xl font-bold tracking-tight">GHS {{ number_format((float) ($summary['paid_amount'] ?? 0), 2) }}</p>
-                        </div>
-                        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 transition group-hover:bg-emerald-200"><i class="ri-coins-line text-2xl"></i></span>
-                    </header>
-                </article>
-            </section>
+            {{-- Next Due --}}
+            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Next Due</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+                        <i class="ri-calendar-event-line text-sm"></i>
+                    </span>
+                </div>
+                @if ($nextDue)
+                    <p class="mt-3 text-sm font-semibold text-slate-900 truncate">{{ $nextDue['description'] }}</p>
+                    <p class="mt-1 text-xs text-slate-400">
+                        {{ $nextDue['due_date'] ?? 'No due date' }} &middot; GHS {{ number_format($nextDue['amount'], 2) }}
+                    </p>
+                @else
+                    <p class="mt-3 text-sm font-medium text-slate-400">No upcoming dues</p>
+                    <p class="mt-1 text-xs text-slate-300">You're all caught up</p>
+                @endif
+            </div>
 
-            <section class="space-y-8 rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-                <header class="flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
+            {{-- Latest Payment --}}
+            <div class="rounded-xl border border-slate-200 bg-white p-5">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Last Payment</p>
+                    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400">
+                        <i class="ri-time-line text-sm"></i>
+                    </span>
+                </div>
+                @if ($latestPayment)
+                    <p class="mt-3 text-sm font-semibold text-slate-900 truncate">{{ $latestPayment['description'] }}</p>
+                    <p class="mt-1 text-xs text-slate-400">{{ $latestPayment['payment_date'] ?? '—' }}</p>
+                @else
+                    <p class="mt-3 text-sm font-medium text-slate-400">No payments yet</p>
+                    <p class="mt-1 text-xs text-slate-300">&nbsp;</p>
+                @endif
+            </div>
+
+        </div>
+
+        {{-- ─── Dues Table Section ────────────────────────────────────────── --}}
+        <div class="rounded-xl border border-slate-200 bg-white">
+
+            {{-- Table Header: title + filter controls --}}
+            <div class="border-b border-slate-100 px-5 py-4">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-900">My dues history</h2>
-                        <p class="mt-1 text-sm text-slate-500">Filter by academic year, status, or search by description or reference.</p>
-                    </div>
-                </header>
-
-            @php($activeStatus = $filters['status'] ?? '')
-            @php($activeYear = $filters['academic_year'] ?? '')
-            @php($searchTerm = $filters['search'] ?? '')
-
-            <form method="GET" class="grid gap-4 rounded-[20px] border border-slate-100 bg-slate-50/50 p-5 md:grid-cols-5">
-                <div class="md:col-span-2 flex flex-col gap-2">
-                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Search description or reference</label>
-                    <input type="search" name="search" value="{{ $searchTerm }}" placeholder="e.g. departmental dues" class="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Status</label>
-                    <div class="relative">
-                        <select name="status" class="h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white pl-4 pr-10 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
-                            <option value="">All statuses</option>
-                            @foreach ($filterOptions['statuses'] ?? [] as $value => $label)
-                                <option value="{{ $value }}" @selected($activeStatus === $value)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        <i class="ri-arrow-down-s-line pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <h2 class="text-sm font-semibold text-slate-900">Dues History</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Filter and search your complete dues record.</p>
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Academic year</label>
-                    <div class="relative">
-                        <select name="academic_year" class="h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white pl-4 pr-10 text-sm text-slate-700 shadow-sm transition focus:border-[#0b3019] focus:outline-none focus:ring-2 focus:ring-[#0b3019]/30">
-                            <option value="">All years</option>
-                            @foreach ($filterOptions['academic_years'] ?? [] as $year)
-                                <option value="{{ $year }}" @selected($activeYear === $year)>{{ $year }}</option>
-                            @endforeach
-                        </select>
-                        <i class="ri-arrow-down-s-line pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                {{-- Filter Form --}}
+                <form method="GET" class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+                    {{-- Search --}}
+                    <div class="flex-1">
+                        <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Search</label>
+                        <div class="relative">
+                            <i class="ri-search-line pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                            <input
+                                type="search"
+                                name="search"
+                                value="{{ e($searchTerm) }}"
+                                placeholder="Description or reference…"
+                                class="h-9 w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-3 text-sm text-slate-700 placeholder-slate-400 transition focus:border-[#0b3019] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0b3019]/15"
+                            >
+                        </div>
                     </div>
-                </div>
 
-                <div class="flex items-end justify-end gap-3 md:col-span-2 md:col-start-4">
-                    <a href="{{ route('student.dues.index') }}" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
-                        Reset
-                    </a>
-                    <button type="submit" class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#0b3019] px-5 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-[#0b3019]/20 transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
-                        <i class="ri-filter-3-line text-base" aria-hidden="true"></i>
-                        Apply
-                    </button>
-                </div>
-            </form>
+                    {{-- Status --}}
+                    <div class="sm:w-44">
+                        <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Status</label>
+                        <div class="relative">
+                            <select name="status" class="h-9 w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 pl-3 pr-8 text-sm text-slate-700 transition focus:border-[#0b3019] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0b3019]/15">
+                                <option value="">All statuses</option>
+                                @foreach ($filterOptions['statuses'] ?? [] as $value => $label)
+                                    <option value="{{ $value }}" @selected($activeStatus === $value)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <i class="ri-arrow-down-s-line pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        </div>
+                    </div>
 
-            <div class="flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-white/80 p-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
-                <p class="font-semibold">Showing {{ number_format($dues->firstItem() ?? 0) }}–{{ number_format($dues->lastItem() ?? 0) }} of {{ number_format($dues->total()) }} dues</p>
+                    {{-- Academic Year --}}
+                    <div class="sm:w-36">
+                        <label class="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Year</label>
+                        <div class="relative">
+                            <select name="academic_year" class="h-9 w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 pl-3 pr-8 text-sm text-slate-700 transition focus:border-[#0b3019] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0b3019]/15">
+                                <option value="">All years</option>
+                                @foreach ($filterOptions['academic_years'] ?? [] as $year)
+                                    <option value="{{ $year }}" @selected($activeYear === $year)>{{ $year }}</option>
+                                @endforeach
+                            </select>
+                            <i class="ri-arrow-down-s-line pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        </div>
+                    </div>
+
+                    {{-- Actions --}}
+                    <div class="flex gap-2 sm:self-end">
+                        <button type="submit" class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#0b3019] px-4 text-xs font-semibold text-white transition hover:bg-[#0b3019]/90 active:scale-[0.98]">
+                            <i class="ri-filter-3-line text-sm"></i>
+                            Filter
+                        </button>
+                        @if ($isFiltered)
+                            <a href="{{ route('student.dues.index') }}" class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 active:scale-[0.98]">
+                                <i class="ri-close-line text-sm"></i>
+                                Clear
+                            </a>
+                        @endif
+                    </div>
+                </form>
+            </div>
+
+            {{-- Pagination meta + per-page --}}
+            <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-5 py-2.5 text-xs text-slate-500">
+                <p>
+                    Showing
+                    <span class="font-semibold text-slate-700">{{ number_format($dues->firstItem() ?? 0) }}–{{ number_format($dues->lastItem() ?? 0) }}</span>
+                    of <span class="font-semibold text-slate-700">{{ number_format($dues->total()) }}</span> entries
+                </p>
                 <form method="GET" class="flex items-center gap-2">
                     @foreach (request()->except(['per_page', 'page']) as $key => $value)
-                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        <input type="hidden" name="{{ $key }}" value="{{ e($value) }}">
                     @endforeach
-                    <label for="per_page" class="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Rows per page</label>
-                    <select id="per_page" name="per_page" class="h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-700 shadow-sm focus:border-[#0b3019] focus:ring-[#0b3019]" onchange="this.form.submit()">
+                    <label for="per_page" class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rows</label>
+                    <select id="per_page" name="per_page" onchange="this.form.submit()"
+                        class="h-7 rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 focus:border-[#0b3019] focus:ring-0">
                         @foreach ($perPageOptions as $option)
                             <option value="{{ $option }}" @selected($option === $currentPerPage)>{{ $option }}</option>
                         @endforeach
@@ -123,232 +238,225 @@
                 </form>
             </div>
 
-            @php($statusColors = [
-                'owing' => 'bg-rose-50 text-rose-600 border border-rose-100',
-                'pending_verification' => 'bg-amber-50 text-amber-600 border border-amber-100',
-                'paid' => 'bg-emerald-50 text-emerald-700 border border-emerald-100',
-            ])
-
-            <div class="overflow-hidden rounded-[20px] border border-slate-200 bg-white">
-                <table class="hidden min-w-full divide-y divide-slate-200 text-left text-sm text-slate-600 lg:table">
-                    <thead class="bg-slate-50 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                        <tr>
-                            <th class="px-5 py-3">Description</th>
-                            <th class="px-5 py-3">Academic year</th>
-                            <th class="px-5 py-3">Amount</th>
-                            <th class="px-5 py-3">Status</th>
-                            <th class="px-5 py-3">Due date</th>
-                            <th class="px-5 py-3">Reference</th>
-                            <th class="px-5 py-3 text-right">Payment</th>
+            {{-- ─── Desktop Table ─────────────────────────────────────────── --}}
+            <div class="hidden overflow-x-auto lg:block">
+                <table class="min-w-full divide-y divide-slate-100 text-sm">
+                    <thead>
+                        <tr class="bg-slate-50/40 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                            <th class="px-5 py-3 text-left">Description</th>
+                            <th class="px-5 py-3 text-left">Year</th>
+                            <th class="px-5 py-3 text-left">Amount</th>
+                            <th class="px-5 py-3 text-left">Status</th>
+                            <th class="px-5 py-3 text-left">Due Date</th>
+                            <th class="px-5 py-3 text-left">Reference</th>
+                            <th class="px-5 py-3 text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
+                    <tbody class="divide-y divide-slate-100">
                         @forelse ($dues as $due)
-                            <tr class="transition hover:bg-slate-50/50">
-                                <td class="px-5 py-4">
-                                    <p class="text-sm font-semibold text-slate-900">{{ $due->description }}</p>
+                            @php $status = $due->payment_status; @endphp
+                            <tr class="group transition-colors hover:bg-slate-50/60">
+                                <td class="px-5 py-3.5">
+                                    <p class="font-semibold text-slate-900">{{ $due->description }}</p>
                                     @if ($due->payment_notes)
-                                        <p class="mt-1 text-xs text-slate-500">{{ $due->payment_notes }}</p>
+                                        <p class="mt-0.5 text-xs text-slate-400">{{ $due->payment_notes }}</p>
+                                    @endif
+                                    @if ($due->rejection_reason && $status === 'owing')
+                                        <p class="mt-1 flex items-center gap-1 text-[11px] font-semibold text-red-600">
+                                            <i class="ri-error-warning-line"></i>
+                                            Rejected: {{ $due->rejection_reason }}
+                                        </p>
                                     @endif
                                 </td>
-                                <td class="px-5 py-4 text-xs text-slate-500">{{ $due->academic_year }}</td>
-                                <td class="px-5 py-4 text-sm font-semibold text-slate-900">GHS {{ number_format((float) $due->amount, 2) }}</td>
-                                <td class="px-5 py-4">
-                                    @php($status = $due->payment_status)
-                                    <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] {{ $statusColors[$status] ?? 'bg-slate-100 text-slate-600 border border-slate-200' }}">
-                                        <i class="ri-checkbox-circle-line text-sm" aria-hidden="true"></i>
+                                <td class="px-5 py-3.5 text-xs text-slate-500">{{ $due->academic_year }}</td>
+                                <td class="px-5 py-3.5 font-semibold text-slate-900 tabular-nums">
+                                    GHS {{ number_format((float)$due->amount, 2) }}
+                                </td>
+                                <td class="px-5 py-3.5">
+                                    <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold {{ $statusColors[$status] ?? 'bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-200' }}">
+                                        <i class="{{ $statusIcons[$status] ?? 'ri-question-line' }} text-xs"></i>
                                         {{ $statusLabels[$status] ?? ucfirst(str_replace('_', ' ', $status)) }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 text-xs text-slate-500">{{ optional($due->due_date)->format('M j, Y') ?? '—' }}</td>
-                                <td class="px-5 py-4 text-xs text-slate-500">{{ $due->payment_reference ?? $due->reference_number ?? '—' }}</td>
-                                <td class="px-5 py-4">
-                                    @php($status = $due->payment_status)
+                                <td class="px-5 py-3.5 text-xs text-slate-500">
+                                    {{ optional($due->due_date)->format('M j, Y') ?? '—' }}
+                                </td>
+                                <td class="px-5 py-3.5 text-xs text-slate-400 font-mono">
+                                    {{ $due->payment_reference ?? $due->reference_number ?? '—' }}
+                                </td>
+                                <td class="px-5 py-3.5 text-right">
                                     @if ($status === 'owing')
-                                        @if(($paymentSettings['mode'] ?? 'automated') === 'automated')
-                                            <form method="POST" action="{{ route('student.payments.rushpay.initialize', $due) }}" class="flex justify-end">
+                                        @if (($paymentSettings['mode'] ?? 'automated') === 'automated')
+                                            <form method="POST" action="{{ route('student.payments.rushpay.initialize', $due) }}" class="inline">
                                                 @csrf
-                                                <button type="submit" class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
-                                                    <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>
-                                                    Pay Online
+                                                <button type="submit"
+                                                    class="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#0b3019] px-3 text-xs font-semibold text-white transition hover:bg-[#0b3019]/90 active:scale-[0.98]">
+                                                    <i class="ri-secure-payment-line text-sm"></i>
+                                                    Pay Now
                                                 </button>
                                             </form>
                                         @else
-                                            <div class="flex justify-end">
-                                                <button 
-                                                    type="button"
-                                                    @click="$dispatch('open-modal', 'manual-pay-{{ $due->due_id }}')"
-                                                    class="inline-flex items-center gap-2 rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90"
-                                                >
-                                                    <i class="ri-bank-card-line text-base" aria-hidden="true"></i>
-                                                    Pay Manually
-                                                </button>
-                                            </div>
-
-                                            <x-modal name="manual-pay-{{ $due->due_id }}" focusable>
-                                                <form action="{{ route('student.payments.manual.submit', $due) }}" method="POST" enctype="multipart/form-data" class="p-8">
-                                                    @csrf
-                                                    <h2 class="text-xl font-bold text-slate-900">Manual Payment Transfer</h2>
-                                                    <p class="mt-1 text-sm text-slate-500">Please follow the instructions below to complete your payment.</p>
-
-                                                    <div class="mt-6 grid gap-6 md:grid-cols-2">
-                                                        <div class="rounded-2xl bg-slate-50 p-4 border border-slate-100">
-                                                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Bank Details</h4>
-                                                            <div class="space-y-2">
-                                                                <div class="flex justify-between text-xs"><span class="text-slate-500">Bank:</span> <span class="font-bold text-slate-800">{{ $paymentSettings['bank_name'] }}</span></div>
-                                                                <div class="flex justify-between text-xs"><span class="text-slate-500">Account:</span> <span class="font-bold text-slate-800">{{ $paymentSettings['account_name'] }}</span></div>
-                                                                <div class="flex justify-between text-xs"><span class="text-slate-500">Number:</span> <span class="font-bold text-slate-800 tracking-wider">{{ $paymentSettings['account_number'] }}</span></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="rounded-2xl bg-emerald-50 p-4 border border-emerald-100">
-                                                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-3">Mobile Money</h4>
-                                                            <div class="space-y-2">
-                                                                <div class="flex justify-between text-xs"><span class="text-emerald-600">Merchant/Name:</span> <span class="font-bold text-emerald-900">{{ $paymentSettings['momo_name'] }}</span></div>
-                                                                <div class="flex justify-between text-xs"><span class="text-emerald-600">Phone:</span> <span class="font-bold text-emerald-900 tracking-wider">{{ $paymentSettings['momo_number'] }}</span></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-100/50">
-                                                        <h4 class="text-xs font-bold text-amber-700 flex items-center gap-2"><i class="ri-information-line"></i> Instructions</h4>
-                                                        <p class="mt-1 text-xs text-amber-600 italic">{{ $paymentSettings['instructions'] ?: 'Ensure you use your reference number as the payment reference.' }}</p>
-                                                    </div>
-
-                                                    <div class="mt-8 space-y-4">
-                                                        <div>
-                                                            <label class="text-sm font-bold text-slate-700">Upload Transfer Receipt (Image)</label>
-                                                            <input type="file" name="receipt" accept="image/*" class="mt-2 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b3019] file:text-white hover:file:bg-[#0b3019]/80 cursor-pointer" required>
-                                                        </div>
-                                                        <div>
-                                                            <label class="text-sm font-bold text-slate-700">Transaction ID / Reference (Optional)</label>
-                                                            <input type="text" name="reference" placeholder="e.g. 159823476" class="mt-2 w-full rounded-xl border-slate-200 text-sm focus:border-[#0b3019] focus:ring-[#0b3019]">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="mt-8 flex justify-end gap-3">
-                                                        <button type="button" @click="$dispatch('close')" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition">Cancel</button>
-                                                        <button type="submit" class="px-6 py-2 rounded-xl text-sm font-bold text-white shadow-lg transition" style="background-color: #0b3019;">Submit Proof of Payment</button>
-                                                    </div>
-                                                </form>
-                                            </x-modal>
+                                            <button
+                                                type="button"
+                                                @click="$dispatch('open-modal', 'manual-pay-{{ $due->due_id }}')"
+                                                class="inline-flex h-8 items-center gap-1.5 rounded-lg bg-[#0b3019] px-3 text-xs font-semibold text-white transition hover:bg-[#0b3019]/90 active:scale-[0.98]">
+                                                <i class="ri-bank-card-line text-sm"></i>
+                                                Pay
+                                            </button>
+                                            @include('dashboards.student.dues._manual-pay-modal', ['due' => $due])
                                         @endif
                                     @elseif ($status === 'pending_verification')
-                                        <div class="flex flex-col items-end gap-1">
-                                            <div class="text-right text-xs font-bold text-amber-600">Awaiting Verification</div>
-                                            @if($due->payment_method === 'manual')
-                                                <div class="text-[9px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded border">Payment proof submitted</div>
+                                        <div class="text-right">
+                                            <span class="text-xs font-semibold text-amber-600">Awaiting review</span>
+                                            @if ($due->payment_method === 'manual')
+                                                <p class="text-[10px] text-slate-400">Proof submitted</p>
                                             @endif
                                         </div>
                                     @elseif ($status === 'paid')
-                                        <a href="{{ route('student.payments.paystack.receipt', $due) }}" class="inline-flex items-center gap-2 rounded-full border border-[#0b3019]/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019] shadow-sm transition hover:-translate-y-0.5 hover:border-[#0b3019]/50">
-                                            <i class="ri-file-download-line text-base" aria-hidden="true"></i>
-                                            Download receipt
+                                        <a href="{{ route('student.payments.paystack.receipt', $due) }}"
+                                           class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98]">
+                                            <i class="ri-file-download-line text-sm"></i>
+                                            Receipt
                                         </a>
                                     @endif
                                 </td>
                             </tr>
-                            @if($due->rejection_reason && $status === 'owing')
-                                <tr class="bg-rose-50/30 border-t-0">
-                                    <td colspan="7" class="px-5 py-2">
-                                        <div class="flex items-center gap-2 text-[10px] font-bold text-rose-600">
-                                            <i class="ri-error-warning-line"></i>
-                                            <span>Previous Submission Rejected: {{ $due->rejection_reason }}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endif
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-sm text-slate-500">
+                                <td colspan="7" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center gap-3">
-                                        <i class="ri-archive-drawer-line text-3xl text-slate-300" aria-hidden="true"></i>
-                                        <p class="font-semibold text-slate-600">No dues found for the selected filters.</p>
-                                        <p class="text-xs text-slate-500">Adjust the filters or contact support if you believe this is incorrect.</p>
+                                        <span class="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-300">
+                                            <i class="ri-archive-drawer-line text-xl"></i>
+                                        </span>
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-600">No dues found</p>
+                                            <p class="mt-0.5 text-xs text-slate-400">
+                                                @if ($isFiltered)
+                                                    Try adjusting your filters. <a href="{{ route('student.dues.index') }}" class="font-semibold text-[#0b3019] underline">Clear filters</a>
+                                                @else
+                                                    No dues have been assigned to your account yet.
+                                                @endif
+                                            </p>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+            </div>
 
-                <div class="grid gap-4 lg:hidden">
-                    @forelse ($dues as $due)
-                        <article class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
-                            <header class="flex items-start justify-between">
-                                <div>
-                                    <h3 class="text-base font-semibold text-slate-900">{{ $due->description }}</h3>
-                                    <p class="text-xs text-slate-500">{{ $due->academic_year }} · GHS {{ number_format((float) $due->amount, 2) }}</p>
-                                </div>
-                                @php($status = $due->payment_status)
-                                <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] {{ $statusColors[$status] ?? 'bg-slate-100 text-slate-600 border border-slate-200' }}">
-                                    {{ $statusLabels[$status] ?? ucfirst(str_replace('_', ' ', $status)) }}
-                                </span>
-                            </header>
-                            <dl class="mt-4 space-y-1 text-xs text-slate-500">
-                                <div class="flex justify-between">
-                                    <dt>Due date</dt>
-                                    <dd class="text-right text-slate-700">{{ optional($due->due_date)->format('M j, Y') ?? '—' }}</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt>Reference</dt>
-                                    <dd class="text-right text-slate-700">{{ $due->payment_reference ?? $due->reference_number ?? '—' }}</dd>
-                                </div>
-                                @if ($due->payment_notes)
-                                    <div class="mt-2 rounded-xl bg-slate-50 p-3 text-left text-xs text-slate-500">
-                                        {{ $due->payment_notes }}
-                                    </div>
-                                @endif
-                            </dl>
-                            @if ($due->payment_status === 'owing')
-                                @if(($paymentSettings['mode'] ?? 'automated') === 'automated')
-                                    <form method="POST" action="{{ route('student.payments.rushpay.initialize', $due) }}" class="mt-4">
+            {{-- ─── Mobile Cards ───────────────────────────────────────────── --}}
+            <div class="divide-y divide-slate-100 lg:hidden">
+                @forelse ($dues as $due)
+                    @php $status = $due->payment_status; @endphp
+                    <div class="p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-slate-900 truncate">{{ $due->description }}</p>
+                                <p class="mt-0.5 text-xs text-slate-400">{{ $due->academic_year }}</p>
+                            </div>
+                            <span class="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold {{ $statusColors[$status] ?? 'bg-slate-100 text-slate-500 ring-1 ring-inset ring-slate-200' }}">
+                                <i class="{{ $statusIcons[$status] ?? 'ri-question-line' }} text-xs"></i>
+                                {{ $statusLabels[$status] ?? ucfirst(str_replace('_', ' ', $status)) }}
+                            </span>
+                        </div>
+
+                        <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                                <p class="text-slate-400">Amount</p>
+                                <p class="font-semibold text-slate-900 tabular-nums">GHS {{ number_format((float)$due->amount, 2) }}</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-400">Due Date</p>
+                                <p class="font-medium text-slate-700">{{ optional($due->due_date)->format('M j, Y') ?? '—' }}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-slate-400">Reference</p>
+                                <p class="font-mono font-medium text-slate-600">{{ $due->payment_reference ?? $due->reference_number ?? '—' }}</p>
+                            </div>
+                        </div>
+
+                        @if ($due->payment_notes)
+                            <p class="mt-2 text-xs text-slate-400">{{ $due->payment_notes }}</p>
+                        @endif
+
+                        @if ($due->rejection_reason && $status === 'owing')
+                            <div class="mt-2 flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 ring-1 ring-inset ring-red-200">
+                                <i class="ri-error-warning-line"></i>
+                                Rejected: {{ $due->rejection_reason }}
+                            </div>
+                        @endif
+
+                        <div class="mt-3">
+                            @if ($status === 'owing')
+                                @if (($paymentSettings['mode'] ?? 'automated') === 'automated')
+                                    <form method="POST" action="{{ route('student.payments.rushpay.initialize', $due) }}">
                                         @csrf
-                                        <button type="submit" class="w-full rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90">
-                                            <i class="ri-secure-payment-line text-base" aria-hidden="true"></i>
+                                        <button type="submit"
+                                            class="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[#0b3019] text-xs font-semibold text-white transition hover:bg-[#0b3019]/90 active:scale-[0.98]">
+                                            <i class="ri-secure-payment-line text-sm"></i>
                                             Pay Now
                                         </button>
                                     </form>
                                 @else
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         @click="$dispatch('open-modal', 'manual-pay-{{ $due->due_id }}')"
-                                        class="mt-4 w-full rounded-full bg-[#0b3019] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b3019]/90"
-                                    >
-                                        <i class="ri-bank-card-line text-base"></i>
+                                        class="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[#0b3019] text-xs font-semibold text-white transition hover:bg-[#0b3019]/90 active:scale-[0.98]">
+                                        <i class="ri-bank-card-line text-sm"></i>
                                         Pay Manually
                                     </button>
+                                    @include('dashboards.student.dues._manual-pay-modal', ['due' => $due])
                                 @endif
-                            @elseif ($due->payment_status === 'pending_verification')
-                                <p class="mt-4 text-center text-xs font-bold text-amber-600">Verification in progress…</p>
-                            @elseif ($due->payment_status === 'paid')
-                                <a href="{{ route('student.payments.paystack.receipt', $due) }}" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#0b3019]/30 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#0b3019] shadow-sm transition hover:-translate-y-0.5 hover:border-[#0b3019]/50">
-                                    <i class="ri-file-download-line text-base" aria-hidden="true"></i>
-                                    Download receipt
+                            @elseif ($status === 'pending_verification')
+                                <p class="text-center text-xs font-semibold text-amber-600">
+                                    <i class="ri-loader-4-line"></i> Awaiting verification
+                                    @if ($due->payment_method === 'manual')
+                                        &mdash; Proof submitted
+                                    @endif
+                                </p>
+                            @elseif ($status === 'paid')
+                                <a href="{{ route('student.payments.paystack.receipt', $due) }}"
+                                   class="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-[0.98]">
+                                    <i class="ri-file-download-line text-sm"></i>
+                                    Download Receipt
                                 </a>
                             @endif
-
-                            @if($due->rejection_reason && $due->payment_status === 'owing')
-                                <div class="mt-3 rounded-xl bg-rose-50 p-2 text-[10px] font-bold text-rose-600 flex items-center gap-2">
-                                    <i class="ri-error-warning-line"></i>
-                                    <span>Rejected: {{ $due->rejection_reason }}</span>
-                                </div>
-                            @endif
-                        </article>
-                    @empty
-                        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center text-sm text-slate-500">
-                            <i class="ri-archive-drawer-line text-3xl text-slate-300" aria-hidden="true"></i>
-                            <p class="mt-3 font-semibold text-slate-600">No dues found.</p>
                         </div>
-                    @endforelse
-                </div>
+                    </div>
+                @empty
+                    <div class="px-5 py-14 text-center">
+                        <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-300">
+                            <i class="ri-archive-drawer-line text-xl"></i>
+                        </span>
+                        <p class="mt-3 text-sm font-semibold text-slate-600">No dues found</p>
+                        <p class="mt-1 text-xs text-slate-400">
+                            @if ($isFiltered)
+                                <a href="{{ route('student.dues.index') }}" class="font-semibold text-[#0b3019] underline">Clear filters</a> to see all dues.
+                            @else
+                                No dues have been assigned to your account yet.
+                            @endif
+                        </p>
+                    </div>
+                @endforelse
             </div>
 
-            <div class="flex flex-col gap-3 border-t border-slate-200/70 pt-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                <p class="text-xs text-slate-500">Page {{ number_format($dues->currentPage()) }} of {{ number_format($dues->lastPage()) }}</p>
-                <div class="flex justify-center sm:ml-auto sm:justify-end">
-                    {{ $dues->onEachSide(1)->links('vendor.pagination.data-limit') }}
+            {{-- ─── Pagination ─────────────────────────────────────────────── --}}
+            @if ($dues->hasPages())
+                <div class="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-xs text-slate-400">
+                        Page {{ number_format($dues->currentPage()) }} of {{ number_format($dues->lastPage()) }}
+                    </p>
+                    <div>
+                        {{ $dues->onEachSide(1)->links('vendor.pagination.data-limit') }}
+                    </div>
                 </div>
-            </div>
-        </section>
-    </div>
+            @endif
+
+        </div>{{-- end table section card --}}
+
+    </div>{{-- end space-y-6 --}}
+</div>
+
 </x-layouts.dashboard>

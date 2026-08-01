@@ -78,12 +78,14 @@
                                 <div class="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
                                     <span>{{ $action['label'] ?? 'Action' }}</span>
                                     @if (!empty($action['state']))
-                                        <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">
+                                        @php($stateLower = strtolower($action['state']))
+                                        @php($badgeStyle = str_contains($stateLower, 'owing') || str_contains($stateLower, 'outstanding') ? 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200' : (str_contains($stateLower, 'cleared') || str_contains($stateLower, 'paid') ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200' : 'bg-slate-100 text-slate-600'))
+                                        <span class="rounded-md px-2 py-0.5 text-[10px] font-semibold {{ $badgeStyle }}">
                                             {{ $action['state'] }}
                                         </span>
                                     @endif
                                 </div>
-                                <p class="text-2xl font-bold tracking-tight text-slate-900">{{ $action['value'] ?? '--' }}</p>
+                                <p class="text-2xl font-bold tracking-tight text-slate-900 tabular-nums">{{ $action['value'] ?? '--' }}</p>
                                 <p class="text-sm text-slate-500">{{ $action['summary'] ?? '' }}</p>
                                 
                                 <div class="pt-3">
@@ -104,19 +106,36 @@
                 <!-- Main Content Column -->
                 <div class="space-y-6 lg:col-span-2">
                     
-                    <!-- Calendar Section -->
-                    <section class="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm animate-fade-slide animate-fade-slide-delay-400">
-                        <div class="flex items-center justify-between mb-6">
+                    <!-- Calendar Section with Agenda Toggle -->
+                    <section class="rounded-[24px] border border-slate-200 bg-white p-6 shadow-sm animate-fade-slide animate-fade-slide-delay-400" x-data="{ calendarView: 'grid' }">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
                             <div>
                                 <h2 class="text-lg font-bold text-slate-900">Department Calendar</h2>
                                 <p class="text-sm text-slate-500">Upcoming classes, exams, and events.</p>
                             </div>
-                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                                {{ $calendarMonthLabel }}
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <div class="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-xs font-semibold">
+                                    <button type="button" @click="calendarView = 'grid'" 
+                                            :class="calendarView === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+                                            class="inline-flex items-center gap-1 rounded-md px-2.5 py-1 transition-all">
+                                        <i data-lucide="grid" class="h-3.5 w-3.5"></i>
+                                        <span>Month</span>
+                                    </button>
+                                    <button type="button" @click="calendarView = 'agenda'" 
+                                            :class="calendarView === 'agenda' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+                                            class="inline-flex items-center gap-1 rounded-md px-2.5 py-1 transition-all">
+                                        <i data-lucide="list" class="h-3.5 w-3.5"></i>
+                                        <span>Agenda</span>
+                                    </button>
+                                </div>
+                                <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                                    {{ $calendarMonthLabel }}
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                        <!-- Grid View -->
+                        <div x-show="calendarView === 'grid'" class="overflow-hidden rounded-xl border border-slate-200 bg-white">
                             <div class="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                                 @foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $weekday)
                                     <div class="px-2 py-3 text-center sm:text-left sm:px-4 sm:py-3">{{ $weekday }}</div>
@@ -125,7 +144,7 @@
                             <div class="grid grid-cols-7 text-sm">
                                 @foreach ($calendarWeeks as $week)
                                     @foreach ($week as $day)
-                                        <div class="flex min-h-[100px] flex-col border-b border-r border-slate-100 p-2 sm:p-3 {{ $day['is_current_month'] ? 'bg-white' : 'bg-slate-50/50 text-slate-400' }} hover:bg-[#0b3019]/[0.02] hover:text-slate-900 transition-all duration-200">
+                                        <div class="flex min-h-[100px] flex-col border-b border-r border-slate-100 p-2 sm:p-3 {{ $day['is_current_month'] ? 'bg-white' : 'bg-slate-50/50 text-slate-400' }} hover:bg-[#0b3019]/[0.02] transition-all duration-200">
                                             <div class="flex justify-between items-center">
                                                 <span class="hidden sm:inline-block text-[10px] font-semibold uppercase text-slate-400">{{ $day['month'] }}</span>
                                                 <span @class([
@@ -141,7 +160,7 @@
                                             <div class="mt-2 space-y-1.5">
                                                 @foreach ($day['events'] as $event)
                                                     <a href="{{ $event['cta_url'] ?? route('student.events.index') }}" 
-                                                       class="block truncate rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 transition-all duration-200 hover:bg-slate-200 hover:scale-[1.02] active:scale-[0.98]"
+                                                       class="group/evt relative block truncate rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700 transition-all duration-200 hover:bg-[#0b3019] hover:text-white"
                                                        title="{{ $event['title'] }}">
                                                         {{ $event['title'] }}
                                                     </a>
@@ -151,6 +170,30 @@
                                     @endforeach
                                 @endforeach
                             </div>
+                        </div>
+
+                        <!-- Agenda View -->
+                        <div x-show="calendarView === 'agenda'" x-cloak class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                            @php($allCalendarEvents = collect($calendarWeeks ?? [])->flatten(1)->pluck('events')->flatten(1)->unique('title'))
+                            @forelse ($allCalendarEvents as $calEvt)
+                                <div class="flex items-center justify-between p-4 transition hover:bg-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-[#0b3019]">
+                                            <i data-lucide="calendar-event" class="h-5 w-5"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-semibold text-slate-900">{{ $calEvt['title'] }}</h4>
+                                            <p class="text-xs text-slate-500">{{ $calEvt['datetime'] ?? 'Upcoming event' }}</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ $calEvt['cta_url'] ?? route('student.events.index') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-[#0b3019] hover:underline">
+                                        Details
+                                        <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
+                                    </a>
+                                </div>
+                            @empty
+                                <div class="p-8 text-center text-xs text-slate-400">No scheduled events found for this month.</div>
+                            @endforelse
                         </div>
                     </section>
 

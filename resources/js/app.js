@@ -351,20 +351,24 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const showPreview = (dataUrl) => {
-            if (previewImage) {
-                previewImage.src = dataUrl;
-                previewImage.classList.remove('hidden');
-            }
-            fallbackInitials?.classList.add('hidden');
+            const allPreviews = profileForm.querySelectorAll('[data-avatar-preview]');
+            const allFallbacks = profileForm.querySelectorAll('[data-avatar-fallback]');
+            allPreviews.forEach(img => {
+                img.src = dataUrl;
+                img.classList.remove('hidden');
+            });
+            allFallbacks.forEach(fb => fb.classList.add('hidden'));
             removeButton?.classList.remove('hidden');
         };
 
         const showFallback = () => {
-            previewImage?.classList.add('hidden');
-            if (previewImage) {
-                previewImage.src = '';
-            }
-            fallbackInitials?.classList.remove('hidden');
+            const allPreviews = profileForm.querySelectorAll('[data-avatar-preview]');
+            const allFallbacks = profileForm.querySelectorAll('[data-avatar-fallback]');
+            allPreviews.forEach(img => {
+                img.src = '';
+                img.classList.add('hidden');
+            });
+            allFallbacks.forEach(fb => fb.classList.remove('hidden'));
             removeButton?.classList.add('hidden');
         };
 

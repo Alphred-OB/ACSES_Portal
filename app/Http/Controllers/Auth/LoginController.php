@@ -10,6 +10,7 @@ use App\Services\Auth\EmailVerificationService;
 use App\Services\Auth\LoginOtpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -34,45 +35,47 @@ class LoginController extends Controller
      */
     public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->safe()->only(['email', 'password']);
+        $loginId = trim($request->input('login_id', $request->input('email', '')));
+        $password = $request->input('password');
         $remember = $request->boolean('remember');
         $guards = ['admin', 'student'];
 
-        // First, check if there's a pending or rejected registration for this email
-        $pendingRegistration = PendingRegistration::where('email', $credentials['email'])
+        // Check if there's a pending or rejected registration for this login ID (email, username, or index_number)
+        $pendingRegistration = PendingRegistration::where(function ($query) use ($loginId) {
+                $query->where('email', $loginId)
+                    ->orWhere('username', $loginId)
+                    ->orWhere('index_number', $loginId);
+            })
             ->whereIn('status', ['pending', 'rejected'])
             ->latest()
             ->first();
 
         if ($pendingRegistration) {
             $message = match ($pendingRegistration->status) {
-                'pending' => __('Your registration is still pending approval. Please wait for an administrator to review your application. You will receive an email once it has been processed.'),
-                'rejected' => __('Your registration request was rejected. Reason: :reason Please submit a new registration application if you wish to try again.', [
+                'pending' => __('Your registration is still pending approval. Please wait for an administrator to review your application.'),
+                'rejected' => __('Your registration request was rejected. Reason: :reason', [
                     'reason' => $pendingRegistration->rejection_reason ?? 'No specific reason provided.',
                 ]),
                 default => __('Your account access has been restricted. Please contact an administrator.'),
             };
 
-            return back()
-                ->withErrors(['email' => $message])
-                ->onlyInput('email');
+            throw ValidationException::withMessages(['login_id' => $message]);
         }
 
         foreach ($guards as $guard) {
             $provider = Auth::guard($guard)->getProvider();
-            $credentialsWithRole = array_merge($credentials, ['role' => $guard]);
-            $user = $provider->retrieveByCredentials($credentialsWithRole);
 
-            if (! $user || ! $provider->validateCredentials($user, $credentials)) {
+            // Find user by email, username, or index_number — scoped to role
+            $user = \App\Models\User::where(function ($query) use ($loginId) {
+                    $query->where('email', $loginId)
+                        ->orWhere('username', $loginId)
+                        ->orWhere('index_number', $loginId);
+                })
+                ->where('role', $guard)
+                ->first();
+
+            if (! $user || ! $provider->validateCredentials($user, ['password' => $password])) {
                 continue;
-            }
-
-            if (method_exists($user, 'getAttribute')) {
-                $role = $user->getAttribute('role');
-
-                if ($role && $role !== $guard) {
-                    continue;
-                }
             }
 
             if (method_exists($user, 'getAttribute') && is_null($user->getAttribute('email_verified_at'))) {
@@ -117,11 +120,9 @@ class LoginController extends Controller
                 ->with('status', __('New device detected. We sent a verification code to your email.'));
         }
 
-        return back()
-            ->withErrors([
-                'email' => __('auth.failed'),
-            ])
-            ->onlyInput('email');
+        throw ValidationException::withMessages([
+            'login_id' => __('auth.failed'),
+        ]);
     }
 
     /**
